@@ -6,13 +6,12 @@ python:
     - 2.7
 env:
     global:
-        - secure: 
+        - secure: OdOZBegxDX6Ze5FFTr1O0BcUxjLKpPXpjXW84qixedgLk0TxWcuETSPoW6j7zI66p+rAuIor80ydN0I8+bhd3tMW3GEC/t75n1iLYBvAuaXYz7ttXryw4yTkT4/tLFkyKiUMJJpQttvYEhB97LXOXiAffkt8WXJwiVV7m1Ii03My1RMU5FLLMDE0Kf1J/m1qmD/nV6DHPwOkcPDfT8D6xa4pyrFlskV9OQXbdq8Cl2ih9Hk68cEApJ42+e0zO09DjALmJAY6ZSurHGwgx/Eb6h8+IGMW/fJnFytgNs/SuDlqVea7iKoTEi/i2Zz1gYDle/OV2bJTI96qFW4UGXAT8LZ5TVZb/Oxi6vKLnG7rz28azIzGsBa5raWxzESBXz9SjT2kzeP9WxZbMKf1aVTQjdhOpgxtxttciEwsr5qsGJ4323oQ3pFZyloZ6PcilwKIWdmZTkTW1ATVGHrigvpQouIAhVXGJ9Hdq4IrWwxQN/8wg/wyo1BxIowaFjm4EaXOjURqeSxq7Tvjljj+zZS4vj+E7nAKkHz+fjNOjKaFTXIokZ9cTxKgl4vBUvCV+eMxS6rUlCpwsIUD7vW8tePyRJ4UZYoJglfsJz0Qhia6KrjghtUTPro+GEFRgRaoD2e4h5VJemwHLWHZYkCoE2d5cwjgsVEBsAuDsWJBemP9TmU=
 script:
     - python process.py
 after_success:
-    - 
-git config user.name "Travis CI"
-git config user.email "<you>@<your-email>"
-git add --all .
-git commit -a -m "Updating pypi-contents.json"
-git push -fq "https://${GH_TOKEN}@${GH_REF}" master > /dev/null 2>&1
+    - git config user.name "Luis Alejandro Martínez Faneyth"
+    - git config user.email "luis@huntingbears.com.ve"
+    - git add --all .
+    - git commit -a -m "Updating pypi-contents.json"
+    - git push -fq "https://luisalejandro:${GHTOKEN}@github.com:luisalejandro/pypi-package-contents.git" master > /dev/null 2>&1

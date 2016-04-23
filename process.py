@@ -7,7 +7,7 @@ import urllib2
 from xmlrpclib import ServerProxy
 
 jsondict ={}
-cachedir = '/tmp/tempkgs/'
+cachedir = os.environ['HOME']+'/.cache/pip/'
 
 pypi = ServerProxy('https://pypi.python.org/pypi')
 
@@ -27,6 +27,7 @@ for pkgname in pypi.list_packages():
                     for oldar in glob.glob(cachedir+pkgname+'-*'):
                         os.remove(oldar)
 
+                    print 'Downloading %s ...' % arname
                     ardownobj = urllib2.urlopen(arurl)
                     arfileobj = open(arpath, 'w')
                     arfileobj.write(ardownobj.read())

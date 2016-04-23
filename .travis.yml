@@ -1,0 +1,18 @@
+sudo: false
+language: python
+cache:
+    - pip
+python:
+    - 2.7
+env:
+    global:
+        - secure: 
+script:
+    - python process.py
+after_success:
+    - 
+git config user.name "Travis CI"
+git config user.email "<you>@<your-email>"
+git add --all .
+git commit -a -m "Updating pypi-contents.json"
+git push -fq "https://${GH_TOKEN}@${GH_REF}" master > /dev/null 2>&1

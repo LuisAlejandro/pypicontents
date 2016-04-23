@@ -14,4 +14,4 @@ after_success:
     - git config user.email "luis@huntingbears.com.ve"
     - git add --all .
     - git commit -a -m "Updating pypi-contents.json"
-    - git push -fq "https://luisalejandro:${GHTOKEN}@github.com:luisalejandro/pypi-package-contents.git" master > /dev/null 2>&1
+    - git push -fq "https://luisalejandro:${GHTOKEN}@github.com/luisalejandro/pypi-package-contents.git" master > /dev/null 2>&1

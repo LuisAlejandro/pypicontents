@@ -32,8 +32,12 @@ def dummysetup(*args, **kwargs):
     global setupargs
     setupargs = kwargs
 
+def dummyexit(*args, **kwargs):
+    print "This package tried to exit, but i'm smarter than them."
+
 setuptools.setup = dummysetup
 distutils.core.setup = dummysetup
+os._exit = dummyexit
 
 distimp = 'from distutils.core import setup'
 setimp = 'from setuptools import setup'

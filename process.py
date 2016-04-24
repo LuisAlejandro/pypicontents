@@ -109,8 +109,8 @@ for pkgname in pypi.list_packages():
                 setuppath = os.path.join(pkgpath, 'setup.py')
 
                 if not os.path.isfile(setuppath):
-                    setuppath = (list(pygrep(pkgpath, distimp)) or
-                                 list(pygrep(pkgpath, setimp)))
+                    setuppath = (list(pygrep(distimp, pkgpath)) or
+                                 list(pygrep(setimp, pkgpath)))
                     if setuppath:
                         setuppath = setuppath[0]
 

@@ -130,13 +130,14 @@ for pkgname in pypi.list_packages():
                     jsondict[pkgname]['modules'] = setupargs['py_modules']
 
                 if 'packages' in setupargs:
-                    if setupargs['packages'][0]:
-                        jsondict[pkgname]['modules'] = setupargs['packages']
-                    else:
-                        pys = glob.glob(os.path.join(pkgpath, '*.py'))
-                        pys = [os.path.splitext(os.path.basename(p))[0] for p in pys if
-                               os.path.basename(p) != 'setup.py']
-                        jsondict[pkgname]['modules'] = pys
+                    if setupargs['packages']:
+                        if setupargs['packages'][0]:
+                            jsondict[pkgname]['modules'] = setupargs['packages']
+                        else:
+                            pys = glob.glob(os.path.join(pkgpath, '*.py'))
+                            pys = [os.path.splitext(os.path.basename(p))[0] for p in pys if
+                                   os.path.basename(p) != 'setup.py']
+                            jsondict[pkgname]['modules'] = pys
 
                 if 'scripts' in setupargs:
                     jsondict[pkgname]['scripts'] = setupargs['scripts']

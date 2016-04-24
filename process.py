@@ -98,7 +98,12 @@ for pkgname in pypi.list_packages():
 
                 os.chdir(pkgpath)
                 sys.path.append(pkgpath)
-                exec setuppyconts
+
+                try:
+                    setupargs = {}
+                    exec setuppyconts
+                except Exception as e:
+                    print '[FAILED] %s' % e
 
                 if 'py_modules' in setupargs:
                     jsondict[pkgname]['modules'] = setupargs['py_modules']

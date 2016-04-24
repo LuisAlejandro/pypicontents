@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import os
-import re
 import sys
 import json
 import glob
@@ -16,28 +15,15 @@ import distutils
 from xmlrpclib import ServerProxy
 from pkg_resources import parse_version
 
+from helper import (fake_distribute_setup, dummysetup,
+                    dummyexit, pygrep)
 
-def pygrep(pattern, dir):
-    r = re.compile(pattern)
-    for parent, dnames, fnames in os.walk(dir):
-        for fname in fnames:
-            filename = os.path.join(parent, fname)
-            if os.path.isfile(filename):
-                with open(filename) as f:
-                    for line in f:
-                        if r.search(line):
-                            yield filename
 
-def dummysetup(*args, **kwargs):
-    global setupargs
-    setupargs = kwargs
-
-def dummyexit(*args, **kwargs):
-    print "This package tried to exit, but i'm smarter than them."
-
+os._exit = dummyexit
+sys.exit = dummyexit
 setuptools.setup = dummysetup
 distutils.core.setup = dummysetup
-os._exit = dummyexit
+sys.modules['distribute_setup'] = fake_distribute_setup
 
 distimp = 'from distutils.core import setup'
 setimp = 'from setuptools import setup'
@@ -46,7 +32,7 @@ scriptdir = os.path.dirname(os.path.realpath(__file__))
 pypijson = os.path.join(scriptdir, 'pypi-contents.json')
 cachedir = os.path.join(os.environ['HOME'], '.cache', 'pip')
 
-with open(pypijson, 'r') as jsonfile:
+with open(pypijson, 'rb') as jsonfile:
     jsondict = json.loads(jsonfile.read())
 
 pypi = ServerProxy('https://pypi.python.org/pypi')
@@ -80,22 +66,23 @@ for pkgname in pypi.list_packages():
                 arname = os.path.basename(arurl)
                 arpath = os.path.join(cachedir, arname)
 
-                ardownobj = urllib2.urlopen(arurl)
+                if not os.path.isfile(arpath):
+                    ardownobj = urllib2.urlopen(arurl)
 
-                with open(arpath, 'w') as arfileobj:
-                    arfileobj.write(ardownobj.read())
+                    with open(arpath, 'wb') as arfileobj:
+                        arfileobj.write(ardownobj.read())
 
-                if arurl.endswith('.zip'):
+                if arpath.endswith('.zip'):
                     armode = 'r'
                     archive_open = zipfile.ZipFile
                     zipfile.ZipFile.list = zipfile.ZipFile.namelist
 
-                elif arurl.endswith('.tar.gz'):
+                elif arpath.endswith('.tar.gz'):
                     armode = 'r:gz'
                     archive_open = tarfile.open
                     tarfile.TarFile.list = tarfile.TarFile.getnames
 
-                elif arurl.endswith('.tar.bz2'):
+                elif arpath.endswith('.tar.bz2'):
                     armode = 'r:bz2'
                     archive_open = tarfile.open
                     tarfile.TarFile.list = tarfile.TarFile.getnames
@@ -118,7 +105,7 @@ for pkgname in pypi.list_packages():
                     if setuppath:
                         setuppath = setuppath[0]
 
-                with open(setuppath, 'r') as setuppy:
+                with open(setuppath, 'rb') as setuppy:
                     setuppyconts = setuppy.read()
 
                 os.chdir(pkgpath)
@@ -128,33 +115,34 @@ for pkgname in pypi.list_packages():
                     setupargs = {}
                     exec setuppyconts
                 except Exception as e:
-                    print '[FAILED] setup.py failed with: %s' % e
+                    print '[FAILED] setup.py failed with %s' % e
+                else:
 
-                if 'py_modules' in setupargs:
-                    jsondict[pkgname]['modules'] = setupargs['py_modules']
+                    if 'py_modules' in setupargs:
+                        jsondict[pkgname]['modules'] = setupargs['py_modules']
 
-                if 'packages' in setupargs:
-                    if setupargs['packages']:
-                        if setupargs['packages'][0]:
-                            jsondict[pkgname]['modules'] = setupargs['packages']
-                        else:
-                            pys = glob.glob(os.path.join(pkgpath, '*.py'))
-                            pys = [os.path.splitext(os.path.basename(p))[0] for p in pys if
-                                   os.path.basename(p) != 'setup.py']
-                            jsondict[pkgname]['modules'] = pys
+                    if 'packages' in setupargs:
+                        if setupargs['packages']:
+                            if setupargs['packages'][0]:
+                                jsondict[pkgname]['modules'] = setupargs['packages']
+                            else:
+                                pys = glob.glob(os.path.join(pkgpath, '*.py'))
+                                pys = [os.path.splitext(os.path.basename(p))[0] for p in pys if
+                                       os.path.basename(p) != 'setup.py']
+                                jsondict[pkgname]['modules'] = pys
 
-                if 'scripts' in setupargs:
-                    jsondict[pkgname]['scripts'] = setupargs['scripts']
+                    if 'scripts' in setupargs:
+                        jsondict[pkgname]['scripts'] = setupargs['scripts']
 
-                jsondict[pkgname]['contents'] = cmplist
-                jsondict[pkgname]['version'][0] = pkgversion
+                    jsondict[pkgname]['contents'] = cmplist
+                    jsondict[pkgname]['version'][0] = pkgversion
 
                 os.chdir(scriptdir)
                 sys.path.remove(pkgpath)
                 shutil.rmtree(pkgpath)
-                os.remove(arpath)
+                # os.remove(arpath)
 
-with open(pypijson, 'w') as jsonfileobj:
+with open(pypijson, 'wb') as jsonfileobj:
     jsonfileobj.write(json.dumps(jsondict, indent=4,
                                  sort_keys=True, separators=(',', ': ')))
 

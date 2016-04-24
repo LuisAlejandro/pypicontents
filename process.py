@@ -97,6 +97,7 @@ for pkgname in pypi.list_packages():
                     setuppyconts = setuppy.read()
 
                 os.chdir(pkgpath)
+                sys.path.append(pkgpath)
                 exec setuppyconts
 
                 if 'py_modules' in setupargs:
@@ -117,6 +118,8 @@ for pkgname in pypi.list_packages():
                 jsondict[pkgname]['contents'] = cmplist
                 jsondict[pkgname]['version'][0] = pkgversion
 
+                os.chdir(scriptdir)
+                sys.path.remove(pkgpath)
                 shutil.rmtree(pkgpath)
                 os.remove(arpath)
 

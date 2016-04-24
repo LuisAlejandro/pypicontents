@@ -16,12 +16,25 @@ import distutils
 from xmlrpclib import ServerProxy
 from pkg_resources import parse_version
 
+
+def pygrep(path, regex):
+    regObj = re.compile(regex)
+    res = []
+    for root, dirs, fnames in os.walk(path):
+        for fname in fnames:
+            if regObj.match(fname):
+                res.append(os.path.join(root, fname))
+    return res
+
 def dummysetup(*args, **kwargs):
     global setupargs
     setupargs = kwargs
 
 setuptools.setup = dummysetup
 distutils.core.setup = dummysetup
+
+distimp = 'from distutils.core import setup'
+setimp = 'from setuptools import setup'
 
 scriptdir = os.path.dirname(os.path.realpath(__file__))
 pypijson = os.path.join(scriptdir, 'pypi-contents.json')
@@ -93,6 +106,10 @@ for pkgname in pypi.list_packages():
                 pkgpath = os.path.join(cachedir, pkgdir)
                 setuppath = os.path.join(pkgpath, 'setup.py')
 
+                if not os.path.isfile(setuppath):
+                    setuppath = (pygrep(pkgpath, distimp)[0] or
+                                 pygrep(pkgpath, setimp)[0])
+
                 with open(setuppath, 'r') as setuppy:
                     setuppyconts = setuppy.read()
 
@@ -103,7 +120,7 @@ for pkgname in pypi.list_packages():
                     setupargs = {}
                     exec setuppyconts
                 except Exception as e:
-                    print '[FAILED] %s' % e
+                    print '[FAILED] setup.py failed with: %s' % e
 
                 if 'py_modules' in setupargs:
                     jsondict[pkgname]['modules'] = setupargs['py_modules']

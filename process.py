@@ -18,13 +18,6 @@ from pkg_resources import parse_version
 from helper import (fake_distribute_setup, dummysetup,
                     dummyexit, pygrep)
 
-
-os._exit = dummyexit
-sys.exit = dummyexit
-setuptools.setup = dummysetup
-distutils.core.setup = dummysetup
-sys.modules['distribute_setup'] = fake_distribute_setup
-
 distimp = 'from distutils.core import setup'
 setimp = 'from setuptools import setup'
 
@@ -112,8 +105,14 @@ for pkgname in pypi.list_packages():
                 sys.path.append(pkgpath)
 
                 try:
-                    setupargs = {}
+                    setupargs = { }
+                    os._exit = dummyexit
+                    sys.exit = dummyexit
+                    setuptools.setup = dummysetup
+                    distutils.core.setup = dummysetup
+                    sys.modules['distribute_setup'] = fake_distribute_setup
                     exec setuppyconts
+
                 except Exception as e:
                     print '[FAILED] setup.py failed with %s' % e
                 else:

@@ -17,14 +17,16 @@ from xmlrpclib import ServerProxy
 from pkg_resources import parse_version
 
 
-def pygrep(path, regex):
-    regObj = re.compile(regex)
-    res = []
-    for root, dirs, fnames in os.walk(path):
+def pygrep(pattern, dir):
+    r = re.compile(pattern)
+    for parent, dnames, fnames in os.walk(dir):
         for fname in fnames:
-            if regObj.match(fname):
-                res.append(os.path.join(root, fname))
-    return res
+            filename = os.path.join(parent, fname)
+            if os.path.isfile(filename):
+                with open(filename) as f:
+                    for line in f:
+                        if r.search(line):
+                            yield filename
 
 def dummysetup(*args, **kwargs):
     global setupargs
@@ -107,8 +109,8 @@ for pkgname in pypi.list_packages():
                 setuppath = os.path.join(pkgpath, 'setup.py')
 
                 if not os.path.isfile(setuppath):
-                    setuppath = (pygrep(pkgpath, distimp) or
-                                 pygrep(pkgpath, setimp))
+                    setuppath = (list(pygrep(pkgpath, distimp)) or
+                                 list(pygrep(pkgpath, setimp)))
                     if setuppath:
                         setuppath = setuppath[0]
 

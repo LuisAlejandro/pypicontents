@@ -145,9 +145,9 @@ def process():
                         os.remove(arpath)
 
                     except BaseException as e:
-                        print '[ERROR] Post cleaning failed with ' % e
-                        print '[ERROR] pkgpath was: ' % pkgpath
-                        print '[ERROR] arpath was: ' % arpath
+                        print '[ERROR] Post cleaning failed with %s' % e
+                        print '[ERROR] pkgpath was: %s' % pkgpath
+                        print '[ERROR] arpath was: %s' % arpath
 
 
     with open(pypijson, 'wb') as jsonfileobj:

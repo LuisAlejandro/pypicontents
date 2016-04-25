@@ -48,6 +48,8 @@ This index is generated using [Travis](https://travis-ci.org/LuisAlejandro/pypic
 
 2. Parse it with your favourite tool/language. For example, python.
 
+    import json
+
     f = open('pypicontents.json', 'r')
     pypicontents = json.loads(f.read())
 

@@ -138,10 +138,17 @@ def process():
                         jsondict[pkgname]['contents'] = cmplist
                         jsondict[pkgname]['version'][0] = pkgversion
 
-                    os.chdir(basedir)
-                    sys.path.remove(pkgpath)
-                    shutil.rmtree(pkgpath)
-                    os.remove(arpath)
+                    try:
+                        os.chdir(basedir)
+                        sys.path.remove(pkgpath)
+                        shutil.rmtree(pkgpath)
+                        os.remove(arpath)
+
+                    except BaseException as e:
+                        print '[ERROR] Post cleaning failed with ' % e
+                        print '[ERROR] pkgpath was: ' % pkgpath
+                        print '[ERROR] arpath was: ' % arpath
+
 
     with open(pypijson, 'wb') as jsonfileobj:
         jsonfileobj.write(json.dumps(jsondict))

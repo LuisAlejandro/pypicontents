@@ -1,6 +1,15 @@
+# -*- coding: utf-8 -*-
+
+
 import os
 import re
+import urlparse
+import urllib
 
+
+def urlesc(url):
+    parts=urlparse.urlparse(url)
+    return urlparse.urlunparse(parts[:2] + (urllib.quote(parts[2]),) + parts[3:])
 
 def get_archive_extension(path):
     extensions = []
@@ -22,4 +31,3 @@ def pygrep(pattern, dir):
                     for line in f:
                         if r.search(line):
                             yield filename
-

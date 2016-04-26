@@ -77,10 +77,16 @@ This index is generated using [Travis](https://travis-ci.org/LuisAlejandro/pypic
 * Some packages have partial or totally absent data because of some of these
   reasons:
     1. Currently this script only supports Python 2.7, so any package that implements py3k-dependant (not backward compatible) code in its `setup.py` will get indexed with empty data.
-    2. Some packages are just broken and error out when executing `setup.py`.
-    3. Some packages depend on other packages outside of `stdlib`. We try to
+    2. Some packages depend on other packages outside of `stdlib`. We try to
        override these imports but if the setup heavily depends on it, it will fail anyway.
-    3. Other packages are just empty.
+    3. Some packages are broken and error out when executing `setup.py`.
+    4. Some packages are empty or have no releases.
 * If a package gets updated on PyPI and the change introduces or deletes
-  modules, then it won't be reflected until the index rebuilds in the night. You
-  should check for the `version` field.
+  modules, then it won't be reflected until the next index rebuild. You
+  should check for the `version` field for consisntency. Also, if you need a
+  more up-to-date index, feel free to download this software and build your own
+  index.
+
+### License
+
+See [COPYING](COPYING.md) for details.

@@ -12,7 +12,7 @@ import urllib2
 from xmlrpclib import ServerProxy
 from pkg_resources import parse_version
 
-from pypicontents.utils import pygrep, get_archive_extension
+from pypicontents.utils import pygrep, get_archive_extension, urlesc
 from pypicontents.patches import setup_patches
 
 pypiapiend = 'https://pypi.python.org/pypi'
@@ -74,7 +74,7 @@ def process():
                 arpath = os.path.join(cachedir, arname)
 
                 if not os.path.isfile(arpath):
-                    ardownobj = urllib2.urlopen(arurl)
+                    ardownobj = urllib2.urlopen(urlesc(arurl))
 
                     with open(arpath, 'wb') as arfileobj:
                         arfileobj.write(ardownobj.read())

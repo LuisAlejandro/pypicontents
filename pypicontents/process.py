@@ -38,6 +38,7 @@ def process():
             pkgjson = json.loads(pkgjsonfile.read())
 
         except BaseException as e:
+            print e
             print "[WARNING] JSON API error, trying with XMLRPC API."
 
             try:
@@ -51,6 +52,7 @@ def process():
                     pkgjson['releases'][pkgversion] = pypi.release_urls(pkgname, pkgversion)
 
             except BaseException as e:
+                print e
                 print "[ERROR] XMLRPC API error, no more API's to try."
                 continue
 
@@ -96,8 +98,8 @@ def process():
                         armode = 'r:bz2'
 
                 else:
-                    print '[ERROR] Unsupported archive format: '+arurl
-                    break
+                    print '[ERROR] Unsupported archive format: %s' % arname
+                    continue
 
                 cmp = archive_open(arpath, armode)
                 cmp.extractall(cachedir)
@@ -133,7 +135,8 @@ def process():
                     exec(setuppyconts, setupglobals.update(setup_patches()))
 
                 except BaseException as e:
-                    print '[ERROR] setup.py failed with %s' % e
+                    print e
+                    print '[ERROR] Execution of setup.py failed.'
 
                 else:
 
@@ -163,9 +166,8 @@ def process():
                     os.remove(arpath)
 
                 except BaseException as e:
-                    print '[ERROR] Post cleaning failed with %s' % e
-                    print '[ERROR] pkgpath was: %s' % pkgpath
-                    print '[ERROR] arpath was: %s' % arpath
+                    print e
+                    print '[ERROR] Post cleaning failed.'
 
 
     with open(pypijson, 'wb') as jsonfileobj:

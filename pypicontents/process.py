@@ -39,14 +39,20 @@ def process():
 
         except BaseException as e:
             print "[WARNING] JSON API error, trying with XMLRPC API."
-            pkgjson = {'info': {'version': ''}, 'releases': {}}
-            pkgreleases = pypi.package_releases(pkgname)
 
-            if pkgreleases:
-                pkgreleases = [parse_version(v) for v in pkgreleases]
-                pkgversion = str(sorted(pkgreleases)[-1])
-                pkgjson['info']['version'] = pkgversion
-                pkgjson['releases'][pkgversion] = pypi.release_urls(pkgname, pkgversion)
+            try:
+                pkgjson = {'info': {'version': ''}, 'releases': {}}
+                pkgreleases = pypi.package_releases(pkgname)
+
+                if pkgreleases:
+                    pkgreleases = [parse_version(v) for v in pkgreleases]
+                    pkgversion = str(sorted(pkgreleases)[-1])
+                    pkgjson['info']['version'] = pkgversion
+                    pkgjson['releases'][pkgversion] = pypi.release_urls(pkgname, pkgversion)
+
+            except BaseException as e:
+                print "[ERROR] XMLRPC API error, no more API's to try."
+                continue
 
         pkgversion = pkgjson['info']['version']
         oldpkgversion = jsondict[pkgname]['version'][0]
@@ -59,6 +65,7 @@ def process():
                 for pkgtar in pkgdownloads:
                     if pkgtar['packagetype'] == 'sdist':
                         arurl = pkgtar['url']
+                        break
 
                 print 'Updating package "%s" (%s > %s) ...' % (pkgname,
                                                                oldpkgversion,

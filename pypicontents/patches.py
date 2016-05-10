@@ -54,7 +54,7 @@ def monkey_parse_requirements(*args, **kwargs):
 
 def monkey_open(file, mode='r', buffering=-1, encoding=None, errors=None,
                 newline=None, closefd=True, opener=None):
-    if not os.path.isfile(file):
+    if not os.path.isfile(file) and (mode == 'r' or mode == 'rb'):
         print('[WARNING] This package tried to open a file that doesn\'t exist.')
         file = '/dev/null'
     return codecs.open(filename=file, mode=mode, encoding=encoding,

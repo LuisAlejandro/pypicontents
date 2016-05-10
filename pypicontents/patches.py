@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
 
 import os
 import sys
@@ -14,7 +15,7 @@ from pip.req import parse_requirements as _parse_requirements
 class fake_module(object):
     def __getattr__(self, name):
         def method(*args):
-            print 'Hola'
+            print('Hola')
         return method
 
     @staticmethod
@@ -23,7 +24,7 @@ class fake_module(object):
 
     @staticmethod
     def use_setuptools():
-        print '[WARNING] This package tried to install distribute.'
+        print('[WARNING] This package tried to install distribute.')
 
 def monkeypatch_method(cls):
     def decorator(func):
@@ -36,7 +37,7 @@ def monkey_setup(*args, **kwargs):
     setupargs = kwargs
 
 def monkey_exit(*args, **kwargs):
-    print "[WARNING] This package tried to exit."
+    print('[WARNING] This package tried to exit.')
 
 @monkeypatch_method(pip.req)
 def monkey_parse_requirements(*args, **kwargs):
@@ -54,7 +55,7 @@ def monkey_parse_requirements(*args, **kwargs):
 def monkey_open(file, mode='r', buffering=-1, encoding=None, errors=None,
                 newline=None, closefd=True, opener=None):
     if not os.path.isfile(file):
-        print "[WARNING] This package tried to open a file that doesn't exist."
+        print('[WARNING] This package tried to open a file that doesn\'t exist.')
         file = '/dev/null'
     return codecs.open(filename=file, mode=mode, encoding=encoding,
                        errors=errors, buffering=buffering)

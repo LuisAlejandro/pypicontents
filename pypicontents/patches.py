@@ -25,6 +25,12 @@ class fake_module(object):
     def use_setuptools():
         print '[WARNING] This package tried to install distribute.'
 
+def monkeypatch_method(cls):
+    def decorator(func):
+        setattr(cls, func.__name__, func)
+        return func
+    return decorator
+
 def monkey_setup(*args, **kwargs):
     global setupargs
     setupargs = kwargs
@@ -32,6 +38,7 @@ def monkey_setup(*args, **kwargs):
 def monkey_exit(*args, **kwargs):
     print "[WARNING] This package tried to exit."
 
+@monkeypatch_method(pip.req)
 def monkey_parse_requirements(*args, **kwargs):
     if 'filename' in kwargs:
         filename = kwargs['filename']
@@ -46,33 +53,25 @@ def monkey_parse_requirements(*args, **kwargs):
 
 def monkey_open(file, mode='r', buffering=-1, encoding=None, errors=None,
                 newline=None, closefd=True, opener=None):
-    print 'monkey_open'
     if not os.path.isfile(file):
         print "[WARNING] This package tried to open a file that doesn't exist."
         file = '/dev/null'
     return codecs.open(filename=file, mode=mode, encoding=encoding,
                        errors=errors, buffering=buffering)
 
-def setup_patches():
-    modules_to_patch = ['distribute_setup', 'Cython.build', 'Cython.Build',
-                        'Cython.Distutils', 'pypandoc', 'numpy', 'numpy.distutils',
-                        'scipy.weave', 'ldap3', 'yaml', 'arrayfire', '_thread',
-                        'django.utils']
-    methods_to_patch = {
-        'open': monkey_open,
-        'exit': monkey_exit,
-        'os._exit': monkey_exit,
-        'sys.exit': monkey_exit,
-        'setuptools.setup': monkey_setup,
-        'distutils.core.setup': monkey_setup,
-        'pip.req.parse_requirements': monkey_parse_requirements
-    }
+modules_to_patch = ['distribute_setup', 'Cython.build', 'Cython.Build',
+                    'Cython.Distutils', 'pypandoc', 'numpy', 'numpy.distutils',
+                    'scipy.weave', 'ldap3', 'yaml', 'arrayfire', '_thread',
+                    'django.utils']
+for m in modules_to_patch:
+    sys.modules[m] = fake_module
 
-    for m in modules_to_patch:
-        sys.modules[m] = fake_module
+open = monkey_open
+exit = monkey_exit
+os._exit = monkey_exit
+sys.exit = monkey_exit
+setuptools.setup = monkey_setup
+distutils.core.setup = monkey_setup
+# pip.req.parse_requirements = monkey_parse_requirements
 
-    for k, v in methods_to_patch.items():
-        exec('%s = %s' % (k, v.__name__))
-
-    return methods_to_patch
 

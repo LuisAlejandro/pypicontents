@@ -4,42 +4,47 @@ import os
 import sys
 import json
 import glob
+import Queue
 import shutil
 import tarfile
 import zipfile
 import urllib2
+import threading
+import codecs
 
 from xmlrpclib import ServerProxy
 from pkg_resources import parse_version
 
-from pypicontents.utils import pygrep, get_archive_extension, urlesc
-from pypicontents.patches import setup_patches
+from pypicontents.utils import (pygrep, get_archive_extension, urlesc,
+                                execute_setup)
+
 
 pypiapiend = 'https://pypi.python.org/pypi'
 cachedir = os.path.join(os.environ['HOME'], '.cache', 'pip')
 basedir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+patchespath = os.path.join(basedir, 'pypicontents', 'patches.py')
 pypijson = os.path.join(basedir, 'pypicontents.json')
 jsondict = json.loads(open(pypijson, 'rb').read())
+
 
 def process():
 
     pypi = ServerProxy(pypiapiend)
 
-    for pkgname in pypi.list_packages():
+    for pkgname in pypi.list_packages()[0:100]:
 
         if not pkgname in jsondict:
             jsondict[pkgname] = {'version':[''],
                                  'modules':[''],
-                                 'scripts':[''],
-                                 'contents':['']}
+                                 # 'contents':[''],
+                                 'scripts':['']}
 
         try:
             pkgjsonfile = urllib2.urlopen(pypiapiend+'/%s/json' % pkgname)
             pkgjson = json.loads(pkgjsonfile.read())
 
         except BaseException as e:
-            print e
-            print "[WARNING] JSON API error, trying with XMLRPC API."
+            print "[WARNING:%s] Using XMLRPC API because JSON failed: %s" % (pkgname, e)
 
             try:
                 pkgjson = {'info': {'version': ''}, 'releases': {}}
@@ -52,8 +57,7 @@ def process():
                     pkgjson['releases'][pkgversion] = pypi.release_urls(pkgname, pkgversion)
 
             except BaseException as e:
-                print e
-                print "[ERROR] XMLRPC API error, no more API's to try."
+                print "[ERROR:%s] XMLRPC API error: %s" % (pkgname, e)
                 continue
 
         pkgversion = pkgjson['info']['version']
@@ -69,17 +73,15 @@ def process():
                         arurl = pkgtar['url']
                         break
 
-                print 'Updating package "%s" (%s > %s) ...' % (pkgname,
-                                                               oldpkgversion,
-                                                               pkgversion)
                 arname = os.path.basename(arurl)
                 arpath = os.path.join(cachedir, arname)
 
                 if not os.path.isfile(arpath):
                     ardownobj = urllib2.urlopen(urlesc(arurl))
 
-                    with open(arpath, 'wb') as arfileobj:
-                        arfileobj.write(ardownobj.read())
+                    arfileobj = open(arpath, 'wb')
+                    arfileobj.write(ardownobj.read())
+                    arfileobj.close()
 
                 arext = get_archive_extension(arpath)
 
@@ -98,7 +100,7 @@ def process():
                         armode = 'r:bz2'
 
                 else:
-                    print '[ERROR] Unsupported archive format: %s' % arname
+                    print '[ERROR:%s] Unsupported format: %s' % (pkgname, arname)
                     continue
 
                 cmp = archive_open(arpath, armode)
@@ -120,23 +122,17 @@ def process():
                     if setuppath:
                         setuppath = setuppath[0]
                     else:
-                        print '[WARNING] No setup.py found.'
+                        print '[WARNING:%s] No setup.py found.' % pkgname
                         setuppath = '/dev/null'
-
-                with open(setuppath, 'rb') as setuppy:
-                    setuppyconts = setuppy.read()
 
                 os.chdir(pkgpath)
                 sys.path.append(pkgpath)
 
                 try:
-                    setupargs = {}
-                    setupglobals = {'__file__': setuppath}
-                    exec(setuppyconts, setupglobals.update(setup_patches()))
+                    setupargs = execute_setup(setuppath, patchespath)
 
                 except BaseException as e:
-                    print e
-                    print '[ERROR] Execution of setup.py failed.'
+                    print '[ERROR:%s] Load of setup.py failed: %s' % (pkgname, e)
 
                 else:
 
@@ -156,19 +152,20 @@ def process():
                     if 'scripts' in setupargs:
                         jsondict[pkgname]['scripts'] = setupargs['scripts']
 
-                    jsondict[pkgname]['contents'] = cmplist
+                    # jsondict[pkgname]['contents'] = cmplist
                     jsondict[pkgname]['version'][0] = pkgversion
 
                 try:
                     os.chdir(basedir)
                     sys.path.remove(pkgpath)
-                    shutil.rmtree(pkgpath)
-                    os.remove(arpath)
+                    # shutil.rmtree(pkgpath)
+                    # os.remove(arpath)
 
                 except BaseException as e:
-                    print e
-                    print '[ERROR] Post cleaning failed.'
+                    print '[ERROR:%s] Post cleaning failed: %s' % (pkgname, e)
 
 
-    with open(pypijson, 'wb') as jsonfileobj:
-        jsonfileobj.write(json.dumps(jsondict))
+    jsonfileobj = open(pypijson, 'wb')
+    jsonfileobj.write(json.dumps(jsondict, separators=(',', ': '),
+                                 sort_keys=True, indent=4))
+    jsonfileobj.close()

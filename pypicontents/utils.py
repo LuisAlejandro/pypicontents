@@ -32,7 +32,8 @@ class SetupThread(threading.Thread):
 
 
 def patchsetup(setuppath, patchespath):
-    commentregex = r'#.*'
+    scommregex = r'#.*?\n'
+    scommregex = r"'''.*?'''"
     futregex = r'(from\s*__future__\s*import\s*(?:\(.*?\)|.*?\n))'
     pyhead = '#!/usr/bin/env python\n# -*- coding: utf-8 -*-'
 
@@ -42,7 +43,8 @@ def patchsetup(setuppath, patchespath):
     futimports = re.findall(futregex, setuppyconts, flags=re.M|re.S)
     setuppyconts = re.sub(futregex, '', setuppyconts, flags=re.M|re.S)
     setuppyconts = '%s\n%s\n%s' % (''.join(futimports), patchesconts, setuppyconts)
-    setuppyconts = re.sub(commentregex, '', setuppyconts)
+    setuppyconts = re.sub(scommregex, '', setuppyconts, flags=re.M|re.S)
+    setuppyconts = re.sub(mcommregex, '', setuppyconts, flags=re.M|re.S)
     return '%s\n%s' % (pyhead, setuppyconts)
 
 

@@ -31,7 +31,7 @@ def process():
 
     pypi = ServerProxy(pypiapiend)
 
-    for pkgname in pypi.list_packages()[0:100]:
+    for pkgname in pypi.list_packages():
 
         if not pkgname in jsondict:
             jsondict[pkgname] = {'version':[''],

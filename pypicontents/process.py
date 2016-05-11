@@ -31,7 +31,7 @@ def process():
 
     pypi = ServerProxy(pypiapiend)
 
-    for pkgname in pypi.list_packages():
+    for pkgname in pypi.list_packages()[0:100]:
 
         if not pkgname in jsondict:
             jsondict[pkgname] = {'version':[''],
@@ -176,7 +176,7 @@ def process():
                     print '[ERROR:%s] Post cleaning failed: %s' % (pkgname, e)
 
 
-    jsonfileobj = open(pypijson, 'wb')
-    jsonfileobj.write(json.dumps(jsondict, separators=(',', ': '),
-                                 sort_keys=True, indent=4))
-    jsonfileobj.close()
+        jsonfileobj = open(pypijson, 'wb')
+        jsonfileobj.write(json.dumps(jsondict, separators=(',', ': '),
+                                     sort_keys=True, indent=4))
+        jsonfileobj.close()

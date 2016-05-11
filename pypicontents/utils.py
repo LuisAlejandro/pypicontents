@@ -65,7 +65,6 @@ def remove_comments_and_docstrings(source):
 
 def patchsetup(setuppath, patchespath):
     futregex = r'(from\s*__future__\s*import\s*(?:\(.*?\)|.*?\n))'
-    pyhead = u'#!/usr/bin/env python\n# -*- coding: utf-8 -*-'
 
     setuppyconts = open(setuppath, 'rb').read()
     patchesconts = open(patchespath, 'rb').read()
@@ -75,7 +74,7 @@ def patchsetup(setuppath, patchespath):
     setuppyconts = u'%s\n%s\n%s' % (''.join(futimports), patchesconts, setuppyconts)
     setuppyconts = remove_comments_and_docstrings(setuppyconts)
 
-    return u'%s\n%s' % (pyhead, setuppyconts)
+    return u'#!/usr/bin/env python\n%s' % (pyhead, setuppyconts)
 
 
 def execute_setup(setuppath, patchespath):

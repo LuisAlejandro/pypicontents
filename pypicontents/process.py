@@ -77,7 +77,18 @@ def process():
                 arpath = os.path.join(cachedir, arname)
 
                 if not os.path.isfile(arpath):
-                    ardownobj = urllib2.urlopen(urlesc(arurl))
+                    tries = 0
+                    while tries < 10:
+                        try:
+                            ardownobj = urllib2.urlopen(urlesc(arurl))
+                        except BaseException as e:
+                            tries += 1
+                            print "[WARNING:%s] Download error: %s (Try: %s)" % (pkgname,
+                                                                                 e, tries)
+                        else:
+                            break
+                    else:
+                        continue
 
                     arfileobj = open(arpath, 'wb')
                     arfileobj.write(ardownobj.read())

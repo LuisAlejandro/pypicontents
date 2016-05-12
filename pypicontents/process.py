@@ -4,19 +4,16 @@ import os
 import sys
 import json
 import glob
-import Queue
 import shutil
 import tarfile
 import zipfile
 import urllib2
-import threading
-import codecs
 
 from xmlrpclib import ServerProxy
 from pkg_resources import parse_version
 
-from pypicontents.utils import (pygrep, get_archive_extension, urlesc,
-                                execute_setup)
+from .thread import execute_setup
+from .utils import pygrep, get_archive_extension, urlesc
 
 
 pypiapiend = 'https://pypi.python.org/pypi'

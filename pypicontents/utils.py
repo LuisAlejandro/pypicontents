@@ -8,7 +8,7 @@ import urlparse
 import urllib
 import threading
 import Queue
-import traceback
+import unicodedata
 import tokenize
 
 import cStringIO as io
@@ -71,10 +71,11 @@ def patchsetup(setuppath, patchespath):
 
     futimports = re.findall(futregex, setuppyconts, flags=re.M|re.S)
     setuppyconts = re.sub(futregex, '', setuppyconts, flags=re.M|re.S)
-    setuppyconts = u'%s\n%s\n%s' % (''.join(futimports), patchesconts, setuppyconts)
-    setuppyconts = remove_comments_and_docstrings(setuppyconts)
+    setuppyconts = '%s\n%s\n%s' % (''.join(futimports), patchesconts, setuppyconts)
+    setuppyconts = unicodedata.normalize('NFKD', setuppyconts.decode('utf-8')).encode('ascii', 'ignore')
+    setuppyconts = remove_comments_and_docstrings(unicode(setuppyconts))
 
-    return u'#!/usr/bin/env python\n%s' % (pyhead, setuppyconts)
+    return '#!/usr/bin/env python\n%s' % setuppyconts
 
 
 def execute_setup(setuppath, patchespath):

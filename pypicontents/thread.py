@@ -1,5 +1,4 @@
 
-import sys
 import threading
 import Queue
 
@@ -17,15 +16,15 @@ class SetupThread(threading.Thread):
         self.env = env
 
     def run(self):
-        setupargs = []
         try:
-            exec(compile(self.code, self.who, 'exec'), self.env, self.env)
-        except BaseException:
-            self.crash.put(sys.exc_info())
+            exec(compile(self.code, self.who, 'exec'), self.env)
+        except BaseException as e:
+            self.crash.put(e)
         else:
-            self.result.put(setupargs)
+            self.result.put(self.env['setupargs'])
 
-def execute_setup(setuppath, patchespath):
+
+def execute_setup(setuppath):
     crash = Queue.Queue()
     result = Queue.Queue()
     setupcode = open(setuppath, 'rb').read()
@@ -41,18 +40,15 @@ def execute_setup(setuppath, patchespath):
         try:
             r = result.get(block=False)
         except Queue.Empty:
-            pass
+            try:
+                e = crash.get(block=False)
+            except Queue.Empty:
+                pass
+            else:
+                raise e
         else:
             setupargs = r
             break
-
-        try:
-            e = crash.get(block=False)
-        except Queue.Empty:
-            pass
-        else:
-            etype, evalue, etrace = e
-            raise etype(evalue)
 
         t.join(0.1)
 

@@ -15,11 +15,9 @@ from pkg_resources import parse_version
 from .thread import execute_setup
 from .utils import pygrep, get_archive_extension, urlesc
 
-
 pypiapiend = 'https://pypi.python.org/pypi'
 cachedir = os.path.join(os.environ['HOME'], '.cache', 'pip')
 basedir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-patchespath = os.path.join(basedir, 'pypicontents', 'patches.py')
 pypijson = os.path.join(basedir, 'pypicontents.json')
 jsondict = json.loads(open(pypijson, 'rb').read())
 
@@ -33,7 +31,7 @@ def process():
         if not pkgname in jsondict:
             jsondict[pkgname] = {'version':[''],
                                  'modules':[''],
-                                 # 'contents':[''],
+                                 'contents':[''],
                                  'scripts':['']}
 
         try:
@@ -137,10 +135,10 @@ def process():
                 sys.path.append(pkgpath)
 
                 try:
-                    setupargs = execute_setup(setuppath, patchespath)
+                    setupargs = execute_setup(setuppath)
 
                 except BaseException as e:
-                    print '[ERROR:%s] Load of setup.py failed: %s' % (pkgname, e)
+                    print '[ERROR:%s] (%s) %s' % (pkgname, type(e).__name__, e)
 
                 else:
 
@@ -160,20 +158,19 @@ def process():
                     if 'scripts' in setupargs:
                         jsondict[pkgname]['scripts'] = setupargs['scripts']
 
-                    # jsondict[pkgname]['contents'] = cmplist
+                    jsondict[pkgname]['contents'] = cmplist
                     jsondict[pkgname]['version'][0] = pkgversion
 
                 try:
                     os.chdir(basedir)
                     sys.path.remove(pkgpath)
-                    # shutil.rmtree(pkgpath)
-                    # os.remove(arpath)
+                    shutil.rmtree(pkgpath)
+                    os.remove(arpath)
 
                 except BaseException as e:
                     print '[ERROR:%s] Post cleaning failed: %s' % (pkgname, e)
 
-
-        jsonfileobj = open(pypijson, 'wb')
+        jsonfileobj = _open(pypijson, 'wb')
         jsonfileobj.write(json.dumps(jsondict, separators=(',', ': '),
                                      sort_keys=True, indent=4))
         jsonfileobj.close()

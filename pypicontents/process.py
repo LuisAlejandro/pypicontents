@@ -23,34 +23,28 @@ jsondict = json.loads(open(pypijson, 'rb').read())
 
 
 def process():
-
     pypi = ServerProxy(pypiapiend)
 
-    for pkgname in pypi.list_packages()[0:100]:
-
+    for pkgname in pypi.list_packages()[0:1000]:
         if not pkgname in jsondict:
             jsondict[pkgname] = {'version':[''],
                                  'modules':[''],
                                  'contents':[''],
                                  'scripts':['']}
-
         try:
             pkgjsonfile = urllib2.urlopen(pypiapiend+'/%s/json' % pkgname)
             pkgjson = json.loads(pkgjsonfile.read())
 
         except BaseException as e:
             print "[WARNING:%s] Using XMLRPC API because JSON failed: %s" % (pkgname, e)
-
             try:
                 pkgjson = {'info': {'version': ''}, 'releases': {}}
                 pkgreleases = pypi.package_releases(pkgname)
-
                 if pkgreleases:
                     pkgreleases = [parse_version(v) for v in pkgreleases]
                     pkgversion = str(sorted(pkgreleases)[-1])
                     pkgjson['info']['version'] = pkgversion
                     pkgjson['releases'][pkgversion] = pypi.release_urls(pkgname, pkgversion)
-
             except BaseException as e:
                 print "[ERROR:%s] XMLRPC API error: %s" % (pkgname, e)
                 continue
@@ -59,7 +53,6 @@ def process():
         oldpkgversion = jsondict[pkgname]['version'][0]
 
         if oldpkgversion != pkgversion:
-
             pkgdownloads = pkgjson['releases'][pkgversion]
 
             if pkgdownloads:
@@ -95,16 +88,13 @@ def process():
                     armode = 'r'
                     archive_open = zipfile.ZipFile
                     zipfile.ZipFile.list = zipfile.ZipFile.namelist
-
                 elif (arext == '.tar.gz' or arext == '.tgz' or
                       arext == '.tar.bz2'):
                     armode = 'r:gz'
                     archive_open = tarfile.open
                     tarfile.TarFile.list = tarfile.TarFile.getnames
-
                     if arext == '.tar.bz2':
                         armode = 'r:bz2'
-
                 else:
                     print '[ERROR:%s] Unsupported format: %s' % (pkgname, arname)
                     continue
@@ -119,10 +109,8 @@ def process():
                 setuppath = os.path.join(pkgpath, 'setup.py')
 
                 if not os.path.isfile(setuppath):
-
                     distimp = 'from distutils.core import setup'
                     setimp = 'from setuptools import setup'
-
                     setuppath = (list(pygrep(distimp, pkgpath)) or
                                  list(pygrep(setimp, pkgpath)))
                     if setuppath:
@@ -136,12 +124,9 @@ def process():
 
                 try:
                     setupargs = execute_setup(setuppath)
-
                 except BaseException as e:
                     print '[ERROR:%s] %s: %s' % (pkgname, type(e).__name__, e)
-
                 else:
-
                     if 'py_modules' in setupargs:
                         jsondict[pkgname]['modules'] = setupargs['py_modules']
 
@@ -164,9 +149,8 @@ def process():
                 try:
                     os.chdir(basedir)
                     sys.path.remove(pkgpath)
-                    # shutil.rmtree(pkgpath)
-                    # os.remove(arpath)
-
+                    shutil.rmtree(pkgpath)
+                    os.remove(arpath)
                 except BaseException as e:
                     print '[ERROR:%s] Post cleaning failed: %s' % (pkgname, e)
 

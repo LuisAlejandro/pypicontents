@@ -1,23 +1,26 @@
 # -*- coding: utf-8 -*-
 
-import os
-import sys
-
 from  __builtin__ import __import__ as _import
 
 
 def false_import(name, globals=None, locals=None, fromlist=[], level=-1):
-    class false_module(object):
+    class ImpostorModule(object):
         def __init__(self, *args, **kwargs):
-            print args, kwargs, 'init'
-        def __dict__(self, *args, **kwargs):
-            print args, kwargs, 'dict'
+            pass
         def __call__(self, *args, **kwargs):
-            print args, kwargs, 'call'
-        def __getattr__(self, name):
-            def method(*args, **kwargs):
-                print args, kwargs, 'getattr'
-            return method
+            return self
+        def __enter__(self, *args, **kwargs):
+            return ''
+        def __exit__(self, *args, **kwargs):
+            pass
+        def __setitem__(self, *args, **kwargs):
+            pass
+        def __getitem__(self, *args, **kwargs):
+            return self
+        def __setattr__(self, *args, **kwargs):
+            pass
+        def __getattr__(self, *args, **kwargs):
+            return self
 
     def return_empty_list(*args, **kwargs):
         return []
@@ -33,7 +36,7 @@ def false_import(name, globals=None, locals=None, fromlist=[], level=-1):
         try:
             module = _import(*args)
         except ImportError as e:
-            return false_module
+            return ImpostorModule()
         else:
             return module
 

@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import io
+
 from  __builtin__ import __import__ as _import
 
 
@@ -32,25 +34,17 @@ def false_import(name, globals=None, locals=None, fromlist=[], level=-1):
         global setupargs
         setupargs = kwargs
 
-    def get_module(*args):
-        try:
-            module = _import(*args)
-        except ImportError as e:
-            return ImpostorModule()
-        else:
-            return module
-
     if not fromlist:
         fromlist = []
 
-    mod = get_module(name, globals, locals, fromlist, level)
+    mod = _import(name, globals, locals, fromlist, level)
 
     if (name == 'setuptools' or name == 'distutils.core' and 'setup' in fromlist):
         mod.setup = false_setup
     if name == 'pip.req' and 'parse_requirements' in fromlist:
         mod.parse_requirements = return_empty_list
     if name == 'distribute_setup':
-        mod = false_module
+        mod = ImpostorModule()
     if name == 'sys':
         mod.exit = do_nothing
     if name == 'os':
@@ -65,6 +59,7 @@ def patchedglobals(setuppath):
         '__package__': None,
     })
     env['__builtins__'].update({
+        'open': io.open
         'exit': lambda *args: None,
         '__import__': false_import
     })

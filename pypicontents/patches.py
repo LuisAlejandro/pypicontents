@@ -5,12 +5,12 @@ import codecs
 import sys
 import setuptools
 import distutils
-import __builtin__
 
 from io import StringIO
+from types import ModuleType
 
 
-class false_module(object):
+class false_module(ModuleType):
     def __getattr__(self, name):
         print(name)
 
@@ -24,16 +24,22 @@ def false_exit(*args, **kwargs):
     print('[WARNING] This package tried to exit.')
 
 
-def false_open(*args, **kwargs):
-    return StringIO()
-
-
 def patchedglobals(setuppath):
 
-    modules_to_patch = ['distribute_setup', 'Cython.build', 'Cython.Build',
-                        'Cython.Distutils', 'pypandoc', 'numpy', 'numpy.distutils',
-                        'scipy.weave', 'ldap3', 'yaml', 'arrayfire', '_thread',
-                        'django.utils', 'pip.req']
+    modules_to_patch = ['distribute_setup',
+                        'Cython.build',
+                        'Cython.Build',
+                        'Cython.Distutils',
+                        'pypandoc',
+                        'numpy',
+                        'numpy.distutils',
+                        'scipy.weave',
+                        'ldap3',
+                        'yaml',
+                        'arrayfire',
+                        '_thread',
+                        'django.utils',
+                        'pip.req']
 
     os._exit = false_exit
     sys.exit = false_exit
@@ -52,15 +58,12 @@ def patchedglobals(setuppath):
     })
 
     env['__builtins__'].update({
-        '_exit': __builtin__.exit,
-        '_open': __builtin__.open,
-        'open': false_open,
         'exit': false_exit
     })
 
-    #
-    # for m in modules_to_patch:
-    #     env.update[m] = false_module
-    #
+
+    for m in modules_to_patch:
+        env[m] = false_module
+
     return env
 

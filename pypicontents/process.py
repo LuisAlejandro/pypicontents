@@ -138,7 +138,7 @@ def process():
                     setupargs = execute_setup(setuppath)
 
                 except BaseException as e:
-                    print '[ERROR:%s] (%s) %s' % (pkgname, type(e).__name__, e)
+                    print '[ERROR:%s] %s: %s' % (pkgname, type(e).__name__, e)
 
                 else:
 
@@ -164,13 +164,13 @@ def process():
                 try:
                     os.chdir(basedir)
                     sys.path.remove(pkgpath)
-                    shutil.rmtree(pkgpath)
-                    os.remove(arpath)
+                    # shutil.rmtree(pkgpath)
+                    # os.remove(arpath)
 
                 except BaseException as e:
                     print '[ERROR:%s] Post cleaning failed: %s' % (pkgname, e)
 
-        jsonfileobj = _open(pypijson, 'wb')
+        jsonfileobj = open(pypijson, 'wb')
         jsonfileobj.write(json.dumps(jsondict, separators=(',', ': '),
                                      sort_keys=True, indent=4))
         jsonfileobj.close()

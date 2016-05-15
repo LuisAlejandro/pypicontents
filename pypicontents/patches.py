@@ -43,10 +43,11 @@ def false_import(name, globals=None, locals=None, fromlist=[], level=-1):
     if not fromlist:
         fromlist = []
 
+    if name in modules_to_fake:
+        return ImpostorModule()
+
     mod = _import(name, globals, locals, fromlist, level)
 
-    if name in modules_to_fake:
-        mod = ImpostorModule()
     if (name == 'setuptools' or name == 'distutils.core' and 'setup' in fromlist):
         mod.setup = false_setup
     if name == 'pip.req' and 'parse_requirements' in fromlist:

@@ -1,9 +1,10 @@
 
+import errno
 import threading
 import Queue
-import errno
 
 from .patches import patchedglobals
+from .utils import create_file_from_setup
 
 
 class SetupThread(threading.Thread):
@@ -22,8 +23,7 @@ class SetupThread(threading.Thread):
                 exec(compile(self.code, self.who, 'exec'), self.env)
             except BaseException as e:
                 if type(e) is IOError and e.errno is errno.ENOENT:
-                    with open(e.filename, 'w') as f:
-                        pass
+                    create_file_from_setup(self.who, e.filename)
                 else:
                     self.crash.put(e)
                     break

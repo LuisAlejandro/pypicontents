@@ -6,6 +6,12 @@ from  __builtin__ import __import__ as _import
 
 
 def false_import(name, globals=None, locals=None, fromlist=[], level=-1):
+
+    modules_to_fake = ['distribute_setup', 'Cython.build', 'Cython.Build',
+                       'Cython.Distutils', 'pypandoc', 'numpy', 'numpy.distutils',
+                       'scipy.weave', 'ldap3', 'yaml', 'arrayfire', '_thread',
+                       'django.utils']
+
     class ImpostorModule(object):
         def __init__(self, *args, **kwargs):
             pass
@@ -39,12 +45,12 @@ def false_import(name, globals=None, locals=None, fromlist=[], level=-1):
 
     mod = _import(name, globals, locals, fromlist, level)
 
+    if name in modules_to_fake:
+        mod = ImpostorModule()
     if (name == 'setuptools' or name == 'distutils.core' and 'setup' in fromlist):
         mod.setup = false_setup
     if name == 'pip.req' and 'parse_requirements' in fromlist:
         mod.parse_requirements = return_empty_list
-    if name == 'distribute_setup':
-        mod = ImpostorModule()
     if name == 'sys':
         mod.exit = do_nothing
     if name == 'os':
@@ -59,7 +65,7 @@ def patchedglobals(setuppath):
         '__package__': None,
     })
     env['__builtins__'].update({
-        'open': io.open
+        'open': io.open,
         'exit': lambda *args: None,
         '__import__': false_import
     })

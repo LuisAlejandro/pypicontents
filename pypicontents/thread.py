@@ -1,6 +1,7 @@
 
 import threading
 import Queue
+import errno
 
 from .patches import patchedglobals
 
@@ -16,12 +17,19 @@ class SetupThread(threading.Thread):
         self.env = env
 
     def run(self):
-        try:
-            exec(compile(self.code, self.who, 'exec'), self.env)
-        except BaseException as e:
-            self.crash.put(e)
-        else:
-            self.result.put(self.env['setupargs'])
+        while True:
+            try:
+                exec(compile(self.code, self.who, 'exec'), self.env)
+            except BaseException as e:
+                if type(e) is IOError and e.errno is errno.ENOENT:
+                    with open(e.filename, 'w') as f:
+                        pass
+                else:
+                    self.crash.put(e)
+                    break
+            else:
+                self.result.put(self.env['setupargs'])
+                break
 
 
 def execute_setup(setuppath):

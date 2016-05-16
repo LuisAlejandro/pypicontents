@@ -9,12 +9,17 @@ def false_import(name, globals=None, locals=None, fromlist=[], level=-1):
 
     modules_to_fake = ['distribute_setup', 'Cython.build', 'Cython.Build',
                        'Cython.Distutils', 'pypandoc', 'numpy', 'numpy.distutils',
-                       'scipy.weave', 'ldap3', 'yaml', 'arrayfire', '_thread',
-                       'django.utils']
+                       'numpy.random',
+                       'scipy.weave', 'ldap3', 'ldap3.utils.conv',
+                       'yaml', 'arrayfire', '_thread',
+                       'queue',
+                       'django.utils', 'django.conf']
 
     class ImpostorModule(object):
         def __init__(self, *args, **kwargs):
             pass
+        def __repr__(self, *args, **kwargs):
+            return ''
         def __call__(self, *args, **kwargs):
             return self
         def __enter__(self, *args, **kwargs):

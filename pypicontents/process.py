@@ -123,6 +123,7 @@ def process():
                 sys.path.append(pkgpath)
 
                 try:
+                    print setuppath
                     setupargs = execute_setup(setuppath)
                 except BaseException as e:
                     print '[ERROR:%s] %s: %s' % (pkgname, type(e).__name__, e)

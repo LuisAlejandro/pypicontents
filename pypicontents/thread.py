@@ -22,7 +22,8 @@ class SetupThread(threading.Thread):
             try:
                 exec(compile(self.code, self.who, 'exec'), self.env)
             except BaseException as e:
-                if type(e) is IOError and e.errno is errno.ENOENT:
+                if (type(e) is IOError or type(e) is OSError
+                    and e.errno is errno.ENOENT):
                     create_file_from_setup(self.who, e.filename)
                 else:
                     self.crash.put(e)

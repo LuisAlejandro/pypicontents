@@ -9,8 +9,8 @@ def false_import(name, globals=None, locals=None, fromlist=[], level=-1):
 
     modules_to_fake = ['distribute_setup', 'Cython.build', 'Cython.Build',
                        'Cython.Distutils', 'pypandoc', 'numpy', 'numpy.distutils',
-                       'numpy.random',
-                       'scipy.weave', 'ldap3', 'ldap3.utils.conv',
+                       'numpy.random', 'numpy.core.numeric', 'ez_setup',
+                       'scipy.weave', 'ldap3', 'ldap3.utils.conv', 'ldap3.protocol.rfc4511',
                        'yaml', 'arrayfire', '_thread',
                        'queue',
                        'django.utils', 'django.conf']
@@ -61,6 +61,7 @@ def false_import(name, globals=None, locals=None, fromlist=[], level=-1):
         mod.exit = do_nothing
     if name == 'os':
         mod._exit = do_nothing
+        mod.system = do_nothing
     return mod
 
 def patchedglobals(setuppath):
@@ -73,6 +74,7 @@ def patchedglobals(setuppath):
     env['__builtins__'].update({
         'open': io.open,
         'exit': lambda *args: None,
+        # 'print': lambda *args: None,
         '__import__': false_import
     })
 

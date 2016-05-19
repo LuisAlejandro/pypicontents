@@ -9,7 +9,7 @@ def false_import(name, globals=None, locals=None, fromlist=[], level=-1):
 
     modules_to_fake = ['distribute_setup', 'Cython.build', 'Cython.Build',
                        'Cython.Distutils', 'pypandoc', 'numpy', 'numpy.distutils',
-                       'numpy.random', 'numpy.core.numeric', 'ez_setup',
+                       'numpy.random', 'numpy.core.numeric', 'numpy.core', 'ez_setup',
                        'scipy.weave', 'ldap3', 'ldap3.utils.conv', 'ldap3.protocol.rfc4511',
                        'yaml', 'arrayfire', '_thread',
                        'queue',

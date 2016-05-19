@@ -108,6 +108,7 @@ def process():
                 pkgpath = os.path.join(cachedir, pkgdir)
                 setuppath = os.path.join(pkgpath, 'setup.py')
 
+                print setuppath
                 if not os.path.isfile(setuppath):
                     distimp = 'from distutils.core import setup'
                     setimp = 'from setuptools import setup'
@@ -123,7 +124,6 @@ def process():
                 sys.path.append(pkgpath)
 
                 try:
-                    print setuppath
                     setupargs = execute_setup(setuppath)
                 except BaseException as e:
                     print '[ERROR:%s] %s: %s' % (pkgname, type(e).__name__, e)

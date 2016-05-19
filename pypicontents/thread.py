@@ -1,13 +1,13 @@
 
 import errno
-import threading
 import Queue
+import multiprocessing
 
 from .patches import patchedglobals
 from .utils import create_file_from_setup
 
 
-class SetupThread(threading.Thread):
+class SetupProcess(multiprocessing.Process):
 
     def __init__(self, code, crash, result, env):
         threading.Thread.__init__(self)
@@ -34,17 +34,19 @@ class SetupThread(threading.Thread):
 
 
 def execute_setup(setuppath):
+    sec = 0
     crash = Queue.Queue()
     result = Queue.Queue()
     setupcode = open(setuppath, 'rb').read()
     env = patchedglobals(setuppath)
 
-    t = SetupThread(setupcode, crash, result, env)
-    t.start()
+    p = SetupProcess(setupcode, crash, result, env)
+    p.start()
 
-    while True:
-        r = ''
-        e = ''
+
+    while sec < 200:
+        p.join(0.1)
+        sec += 1
 
         try:
             r = result.get(block=False)
@@ -56,10 +58,8 @@ def execute_setup(setuppath):
             else:
                 raise e
         else:
-            setupargs = r
-            break
-
-        t.join(0.1)
-
-    return setupargs
+            return r
+    else:
+        p.terminate()
+        raise TimeoutError
 

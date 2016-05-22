@@ -4,7 +4,6 @@ import os
 import sys
 import json
 import glob
-import shutil
 import tarfile
 import zipfile
 import urllib2

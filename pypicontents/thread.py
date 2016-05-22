@@ -1,13 +1,13 @@
 
 import errno
 import Queue
-import multiprocessing
+import threading
 
 from .patches import patchedglobals
 from .utils import create_file_from_setup
 
 
-class SetupProcess(multiprocessing.Process):
+class SetupThread(threading.Thread):
 
     def __init__(self, code, crash, result, env):
         threading.Thread.__init__(self)
@@ -40,7 +40,7 @@ def execute_setup(setuppath):
     setupcode = open(setuppath, 'rb').read()
     env = patchedglobals(setuppath)
 
-    p = SetupProcess(setupcode, crash, result, env)
+    p = SetupThread(setupcode, crash, result, env)
     p.start()
 
 
@@ -60,6 +60,5 @@ def execute_setup(setuppath):
         else:
             return r
     else:
-        p.terminate()
-        raise TimeoutError
+        raise RuntimeError('[ERROR] The operation timed out.')
 

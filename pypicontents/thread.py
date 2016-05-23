@@ -1,18 +1,22 @@
 
 import errno
-import Queue
 import threading
 
+try:
+    from Queue import Queue, Empty
+except ImportError:
+    from queue import Queue, Empty
+
 from .patches import patchedglobals
-from .utils import create_file_from_setup
+from .utils import create_file_from_setup, timeout
 
 
 class SetupThread(threading.Thread):
 
-    def __init__(self, code, crash, result, env):
+    def __init__(self, crash, result, env):
         threading.Thread.__init__(self)
+        self.code = open(env['__file__'], 'rb').read()
         self.who = env['__file__']
-        self.code = code
         self.crash = crash
         self.result = result
         self.env = env
@@ -22,8 +26,8 @@ class SetupThread(threading.Thread):
             try:
                 exec(compile(self.code, self.who, 'exec'), self.env)
             except BaseException as e:
-                if (type(e) is IOError or type(e) is OSError
-                    and e.errno is errno.ENOENT and e.filename):
+                if (type(e) == IOError or type(e) == OSError
+                    and e.errno == errno.ENOENT and e.filename):
                     create_file_from_setup(self.who, e.filename)
                 else:
                     self.crash.put(e)
@@ -35,14 +39,12 @@ class SetupThread(threading.Thread):
 
 def execute_setup(setuppath):
     sec = 0
-    crash = Queue.Queue()
-    result = Queue.Queue()
-    setupcode = open(setuppath, 'rb').read()
+    crash = Queue()
+    result = Queue()
     env = patchedglobals(setuppath)
 
-    p = SetupThread(setupcode, crash, result, env)
+    p = SetupThread(crash, result, env)
     p.start()
-
 
     while sec < 200:
         p.join(0.1)
@@ -50,15 +52,15 @@ def execute_setup(setuppath):
 
         try:
             r = result.get(block=False)
-        except Queue.Empty:
+        except Empty:
             try:
                 e = crash.get(block=False)
-            except Queue.Empty:
+            except Empty:
                 pass
             else:
                 raise e
         else:
             return r
     else:
-        raise RuntimeError('[ERROR] The operation timed out.')
+        raise RuntimeError('Execution of setup took too much time.')
 

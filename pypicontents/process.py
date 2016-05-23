@@ -1,52 +1,81 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
+
+import io
 import os
 import sys
 import json
 import glob
+import shutil
 import tarfile
 import zipfile
-import urllib2
 
-from xmlrpclib import ServerProxy
+try:
+    from urllib2 import urlopen
+except ImportError:
+    from urllib.request import urlopen
+
+try:
+    from xmlrpclib import ServerProxy
+except ImportError:
+    from xmlrpc.client import ServerProxy
+
 from pkg_resources import parse_version
 
 from .thread import execute_setup
-from .utils import pygrep, get_archive_extension, urlesc
-
-pypiapiend = 'https://pypi.python.org/pypi'
-cachedir = os.path.join(os.environ['HOME'], '.cache', 'pip')
-basedir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-pypijson = os.path.join(basedir, 'pypicontents.json')
-jsondict = json.loads(open(pypijson, 'rb').read())
+from .utils import (pygrep, get_archive_extension, urlesc, filter_package_list,
+                    create_empty_json, getlogging, u, timeout)
 
 
-def process():
+def process(lrange='0-z'):
+    if not lrange:
+        lrange = '0-z'
+
+    lg = getlogging()
+    pypiapiend = 'https://pypi.python.org/pypi'
+    cachedir = os.path.join(os.environ['HOME'], '.cache', 'pip')
+    basedir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
     pypi = ServerProxy(pypiapiend)
 
-    for pkgname in pypi.list_packages()[0:1000]:
+    for pkgname in filter_package_list(pypi.list_packages(), lrange):
+        pypijson = os.path.join(basedir, 'data', pkgname[0].lower(), 'contents.json')
+
+        if not os.path.isfile(pypijson):
+            pypijson = create_empty_json(pypijson)
+
+        with open(pypijson, 'r') as f:
+            jsondict = json.loads(f.read())
+
         if not pkgname in jsondict:
             jsondict[pkgname] = {'version':[''],
                                  'modules':[''],
                                  'contents':[''],
                                  'scripts':['']}
         try:
-            pkgjsonfile = urllib2.urlopen(pypiapiend+'/%s/json' % pkgname)
-            pkgjson = json.loads(pkgjsonfile.read())
-
+            pkgjsonfile = urlopen(url='%s/%s/json' % (pypiapiend, pkgname),
+                                  timeout=10).read()
+        except KeyboardInterrupt:
+            raise
         except BaseException as e:
-            print "[WARNING:%s] Using XMLRPC API because JSON failed: %s" % (pkgname, e)
             try:
+                lg.warning('(%s) JSON API error: %s' % (pkgname, e))
                 pkgjson = {'info': {'version': ''}, 'releases': {}}
                 pkgreleases = pypi.package_releases(pkgname)
                 if pkgreleases:
                     pkgreleases = [parse_version(v) for v in pkgreleases]
                     pkgversion = str(sorted(pkgreleases)[-1])
                     pkgjson['info']['version'] = pkgversion
-                    pkgjson['releases'][pkgversion] = pypi.release_urls(pkgname, pkgversion)
+                    pkgjson['releases'][pkgversion] = pypi.release_urls(pkgname,pkgversion)
+                else:
+                    raise RuntimeError('There are no releases for this package.')
+            except KeyboardInterrupt:
+                raise
             except BaseException as e:
-                print "[ERROR:%s] XMLRPC API error: %s" % (pkgname, e)
+                lg.error('(%s) XMLRPC API error: %s' % (pkgname, e))
                 continue
+        else:
+            pkgjson = json.loads(pkgjsonfile.decode('utf-8'))
 
         pkgversion = pkgjson['info']['version']
         oldpkgversion = jsondict[pkgname]['version'][0]
@@ -67,47 +96,55 @@ def process():
                     tries = 0
                     while tries < 10:
                         try:
-                            ardownobj = urllib2.urlopen(urlesc(arurl))
+                            ardownobj = urlopen(url=urlesc(arurl), timeout=10).read()
+                        except KeyboardInterrupt:
+                            raise
                         except BaseException as e:
                             tries += 1
-                            print "[WARNING:%s] Download error: %s (Try: %s)" % (pkgname,
-                                                                                 e, tries)
+                            lg.warning('(%s) Download error: %s'
+                                       ' (Try: %s)' % (pkgname, e, tries))
                         else:
                             break
                     else:
                         continue
 
-                    arfileobj = open(arpath, 'wb')
-                    arfileobj.write(ardownobj.read())
-                    arfileobj.close()
+                    with open(arpath, 'wb') as f:
+                        f.write(ardownobj)
 
                 arext = get_archive_extension(arpath)
 
                 if arext == '.zip':
                     armode = 'r'
-                    archive_open = zipfile.ZipFile
+                    compressed = zipfile.ZipFile
                     zipfile.ZipFile.list = zipfile.ZipFile.namelist
                 elif (arext == '.tar.gz' or arext == '.tgz' or
                       arext == '.tar.bz2'):
                     armode = 'r:gz'
-                    archive_open = tarfile.open
+                    compressed = tarfile.open
                     tarfile.TarFile.list = tarfile.TarFile.getnames
                     if arext == '.tar.bz2':
                         armode = 'r:bz2'
                 else:
-                    print '[ERROR:%s] Unsupported format: %s' % (pkgname, arname)
+                    lg.error('(%s) Unsupported format: %s' % (pkgname, arname))
                     continue
 
-                cmp = archive_open(arpath, armode)
-                cmp.extractall(cachedir)
-                cmplist = cmp.list()
-                cmp.close()
+                try:
+                    with timeout(error='Uncompressing took too much time.'):
+                        with compressed(arpath, armode) as cmp:
+                            cmp.extractall(cachedir)
+                            cmplist = cmp.list()
+                except KeyboardInterrupt:
+                    raise
+                except BaseException as e:
+                    lg.error('(%s) %s' % (pkgname, e))
+                    continue
 
                 pkgdir = os.path.normpath(cmplist[0]).split(os.sep)[0]
                 pkgpath = os.path.join(cachedir, pkgdir)
                 setuppath = os.path.join(pkgpath, 'setup.py')
 
-                print setuppath
+                lg.info('(%s) Processing %s' % (pkgname, setuppath))
+
                 if not os.path.isfile(setuppath):
                     distimp = 'from distutils.core import setup'
                     setimp = 'from setuptools import setup'
@@ -116,16 +153,18 @@ def process():
                     if setuppath:
                         setuppath = setuppath[0]
                     else:
-                        print '[WARNING:%s] No setup.py found.' % pkgname
-                        setuppath = '/dev/null'
+                        lg.error('(%s) No setup.py found.' % pkgname)
+                        continue
 
                 os.chdir(pkgpath)
                 sys.path.append(pkgpath)
 
                 try:
                     setupargs = execute_setup(setuppath)
+                except KeyboardInterrupt:
+                    raise
                 except BaseException as e:
-                    print '[ERROR:%s] %s: %s' % (pkgname, type(e).__name__, e)
+                    lg.error('(%s) %s: %s' % (pkgname, type(e).__name__, e))
                 else:
                     if 'py_modules' in setupargs:
                         jsondict[pkgname]['modules'] = setupargs['py_modules']
@@ -150,11 +189,11 @@ def process():
                     os.chdir(basedir)
                     sys.path.remove(pkgpath)
                     shutil.rmtree(pkgpath)
-                    os.remove(arpath)
+                except KeyboardInterrupt:
+                    raise
                 except BaseException as e:
-                    print '[ERROR:%s] Post cleaning failed: %s' % (pkgname, e)
+                    lg.error('(%s) Post cleaning failed: %s' % (pkgname, e))
 
-        jsonfileobj = open(pypijson, 'wb')
-        jsonfileobj.write(json.dumps(jsondict, separators=(',', ': '),
-                                     sort_keys=True, indent=4))
-        jsonfileobj.close()
+        with open(pypijson, 'w') as f:
+            f.write(u(json.dumps(jsondict, separators=(',', ': '),
+                                 sort_keys=True, indent=4)))

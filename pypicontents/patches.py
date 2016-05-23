@@ -1,19 +1,26 @@
 # -*- coding: utf-8 -*-
 
 import io
+import sys
 
-from  __builtin__ import __import__ as _import
+try:
+    from __builtin__ import __import__ as _import
+except ImportError:
+    from builtins import __import__ as _import
+
+from pkg_resources import parse_version
+
+from .utils import default_import_level
 
 
-def false_import(name, globals=None, locals=None, fromlist=[], level=-1):
+def false_import(name, globals={}, locals={},
+                 fromlist=[], level=default_import_level):
 
     modules_to_fake = ['distribute_setup', 'Cython.build', 'Cython.Build',
                        'Cython.Distutils', 'pypandoc', 'numpy', 'numpy.distutils',
                        'numpy.random', 'numpy.core.numeric', 'numpy.core', 'ez_setup',
                        'scipy.weave', 'ldap3', 'ldap3.utils.conv', 'ldap3.protocol.rfc4511',
-                       'yaml', 'arrayfire', '_thread',
-                       'queue',
-                       'django.utils', 'django.conf']
+                       'yaml', 'arrayfire', 'django.utils', 'django.conf']
 
     class ImpostorModule(object):
         def __init__(self, *args, **kwargs):
@@ -45,17 +52,14 @@ def false_import(name, globals=None, locals=None, fromlist=[], level=-1):
         global setupargs
         setupargs = kwargs
 
-    if not fromlist:
-        fromlist = []
-
     if name in modules_to_fake:
         return ImpostorModule()
 
     mod = _import(name, globals, locals, fromlist, level)
 
-    if (name == 'setuptools' or name == 'distutils.core' and 'setup' in fromlist):
+    if name in ['setuptools', 'distutils.core']:
         mod.setup = false_setup
-    if name == 'pip.req' and 'parse_requirements' in fromlist:
+    if name == 'pip.req':
         mod.parse_requirements = return_empty_list
     if name == 'sys':
         mod.exit = do_nothing
@@ -74,8 +78,6 @@ def patchedglobals(setuppath):
     env['__builtins__'].update({
         'open': io.open,
         'exit': lambda *args: None,
-        # 'print': lambda *args: None,
         '__import__': false_import
     })
-
     return env

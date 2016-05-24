@@ -1,14 +1,11 @@
 # -*- coding: utf-8 -*-
 
 import io
-import sys
 
 try:
     from __builtin__ import __import__ as _import
 except ImportError:
     from builtins import __import__ as _import
-
-from pkg_resources import parse_version
 
 from .utils import default_import_level
 

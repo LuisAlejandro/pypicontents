@@ -2,7 +2,6 @@
 
 from __future__ import print_function
 
-import io
 import os
 import sys
 import json
@@ -24,7 +23,7 @@ except ImportError:
 from pkg_resources import parse_version
 
 from .thread import execute_setup
-from .utils import (pygrep, get_archive_extension, urlesc, filter_package_list,
+from .utils import (get_archive_extension, urlesc, filter_package_list,
                     create_empty_json, getlogging, u, timeout)
 
 
@@ -146,15 +145,8 @@ def process(lrange='0-z'):
                 lg.info('(%s) Processing %s' % (pkgname, setuppath))
 
                 if not os.path.isfile(setuppath):
-                    distimp = 'from distutils.core import setup'
-                    setimp = 'from setuptools import setup'
-                    setuppath = (list(pygrep(distimp, pkgpath)) or
-                                 list(pygrep(setimp, pkgpath)))
-                    if setuppath:
-                        setuppath = setuppath[0]
-                    else:
-                        lg.error('(%s) No setup.py found.' % pkgname)
-                        continue
+                    lg.error('(%s) No setup.py found.' % pkgname)
+                    continue
 
                 os.chdir(pkgpath)
                 sys.path.append(pkgpath)

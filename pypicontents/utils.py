@@ -4,6 +4,7 @@ import os
 import re
 import sys
 import logging
+import logging.config
 import signal
 
 try:
@@ -61,7 +62,7 @@ def getlogging():
         'loggers': {
             'pypicontents': {
                 'handlers': ['console'],
-                'propagate': True,
+                'propagate': False,
                 'level': 'INFO'
             }
         }
@@ -87,7 +88,7 @@ def create_file_if_notfound(filename):
         os.makedirs(dedir)
     if not os.path.isfile(filename):
         with open(filename, 'w') as f:
-            pass
+            os.utime(f, None)
     return filename
 
 
@@ -121,18 +122,3 @@ def get_archive_extension(path):
         root, ext = os.path.splitext(root)
 
     return ''.join(extensions[::-1])
-
-
-def pygrep(pattern, dir):
-    r = re.compile(pattern)
-
-    for parent, dnames, fnames in os.walk(dir):
-        for fname in fnames:
-            filename = os.path.join(parent, fname)
-            if os.path.isfile(filename):
-                with open(filename) as f:
-                    for line in f:
-                        if r.search(line):
-                            yield filename
-
-

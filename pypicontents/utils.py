@@ -88,7 +88,7 @@ def create_file_if_notfound(filename):
         os.makedirs(dedir)
     if not os.path.isfile(filename):
         with open(filename, 'w') as f:
-            os.utime(f, None)
+            os.utime(filename, None)
     return filename
 
 

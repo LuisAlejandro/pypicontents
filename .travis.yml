@@ -2,6 +2,9 @@ sudo: false
 language: python
 cache: pip
 python: 3.5
+branches:
+    only:
+        - master
 env:
     matrix:
         - PYPICONTENTSRANGE="0-9"
@@ -32,15 +35,19 @@ env:
         - PYPICONTENTSRANGE="y"
         - PYPICONTENTSRANGE="z"
     global:
-        - secure: SFe0WxSWrYvBbsffwAniaC5EnVRE9m1ZkQlqwZMRFHUsEVB10nhzk8BeNzhRg9gqhp3WZWXd7IuwIJ6ea0jIQLy5/Vs1xK8X7LOR1fYcjRjsJlaH1VPAD2xa0ZRhjZTD2x4igd+ellWmS+Q85ulhBZsq0Ow4gtFeXwSejfDYADF0L+toNzuph9HwoXN+vFh7QIbVU3ndWJGxRuwq3dU3IY3iWVnBU/45jRQec42suKhuzP+nJyzegFR40CIpw6Dq5xxih0F72Qpvo7e3ax0Ymx1EJFCx827EKSN64n9qNyj6kp/cNbvYbE6mfwDJ7iQCFHVNotvKs4Ff0pJaMuhdf1HMJkT3Ob9igoYivXITYp3+VQnkZeoU2eWUHsO8uCT8lN7XzDdUFYTFgIfnbXx4ZZozsf/J1JTJhJeqTV2WeK2t5MpKiVBKuafCkoBX6jm/MBPxHb8kqZRJf5jubqD/gXBLsZQ0P53B43FbzQeYF9va+Vaffm5ZOq+K1l0X12FCYP6aXyPV9uSKAu8A6ALmx01/P9qe+xFlUkvKOm0C5bQkLw0QynJSfYqpEs9St/PTEk1Z8cKoYLuFj5NY4661IcBf3y/I5Eq92ydHHtqoR4/Z/F2AipWz5xqdaUk9CiR3hIlB45ZQVas0UO6gfdvyXy1NJLo99FbhOjth8ADThnc=
-        - secure: V8FbfgmT4iq/sUA1yTTZdTEv5Z/B/2XMc1LdW4qGbVrP4PvQ0nveIqC9lZ3wMq3M1tSPshCcN9iJWHAqbwpxlWTbVAqA28XPOguh/5/bAZ3fRjxEyXMGzY5yxMacC/Uf4uwFtdE8l5kNyQXihpH5UPAXa40rhfIJ+zT3Kah6hqEGEf2pA5jLwBql3YCy+VWqV6ZknsWuUhhQdNNekdRYzvvCnpnhU0g5SYBtpU7jG9DxAfMuxlsJ0Tsaqqnq8ObZD2zQIr7DXBjeEWnuRqTlgBl+JuwjRzw2hIlINHJwTORr98o5/Lj8Q2NgBEdosolelkaw5zAlT8mb7HyruMW70dsA/QeFZN+o5AiZ74DZL/mUh89SYAbHoAI729w/VWEpiJfFzJ2tzCFOs9xrbawKZ1RsnxqzLmR/3fdKeIxq2VMsLsfH5Myx82IYlDb4OlP48obhjGtcxlfuRym/rACqm6RPWUA6iq9fRlViPO1z5+vJtmeRO5vzHVemXvK2PA3w9nm4aA+S0TVBLUUru4/XfaCp6EZ2QWsnmjS5tzCLkyESJIj1lA6xGjxcGaMmaXt0re3inNWNUoTwXYZRtobFbtrAp98/0xlWdCA61IF35DtKiBkHFKK2r5sjNSj6wp9uJE0sQkO7nn6rlWN/58su5RWJBnW9nwIcyiPl1qQ0FUo=
-        - secure: BFJrR5n08bVE4FGeHA+feEFJ/ir7+h1lytydiPw56xytyRd84t90nq7mtz0TY9YT1xFiaNylMcBiKgfM3OCl/eKcVOR/MSMq5DdAg0w0ATlHHBm4RLM2MBw01hG2ctXb/EPyDoiPot0xhdJ1KQAqgiZWfQLgeKphAKO/EXiaPs6HJdKYoGpjjcd5aMzDx8j6wc7HdPnAozVO8cfMK+D0iHQ7lKtN4acIkTooTbav/0Ln6pwYUq/JysEYYuTmSJfThsjqjuHY/2sos51mqF19OMvHwHvU9BO9+1xJBIaGf7rNr60zbDhdq0yN2nw/Teg2oz90clzaWTKuqCtILiAHJod5DENZdJtA3JKirg9MV2xbiqHF+gYtDE+o91wR+5wZxSLWGVPIuDpdzNnSehxAsKlL0/LlpZTCUOnes+dZErXmMtyNPXg7hhPv9H7qW1ThI4W7e4Wgsn2fJ/kaKSdI7OKF0gX18y0MswBYbWR47DQucusfdn316NXipKM7FR58aJdYxJ+xVaoHMD72uehY6GOgounKMSRxrLFhvdaJdqmOMDMxv3okPOoWYPFb23I2OxL9kgjJtoeuMdbUGscclYLCQswqtIO9rcodect4OsI4z6vJYHVdox8sqcCsx7iKK8v5RvRzcimNR40CF3OT6XUuQRNuoqkRty1SMp81xi4=
-        - secure: YtVcrggEb3iGhXAq/QsfDa+kO0m93pJNs8I9vr2DPb95MUw+HWFidNCI5UJTu3angrzjOu11ksstTMqA+eDDNYCDCprK6d3K241Qy2CuPsXLy5wKFaf4M6p1spu5U+pvbKOna7GDGY2qle3pmG54aqpqmzdUXe59mc1cQrXO/oTvtxYjSnjc2nKWW0kumxiehcuwemU5Xz3kVQmbWPvEivmKZirBYsb2wAQ91P5cDb5RBvZGJWkq3FA2x4X2zBtHgA4vXAMnkACW8+Nj6KQd0b9uiwzSQM3Wn1F2o7A1et8HEeIc0y/ZtBQWWZeGhtShzhRSFLLSHEKCMk58q0V6kHaR+Qk0VPJTeRLTvJVzqtRTUjyV5Sodx0eMqQsj8FhAa+Lc6MXnZqLvqd1ANOBqezAsjPhGiHzmmWrmOOwixXlT9NdlNWO3sYo1sBfRbnrHXlccBPl83L00XkU+8GTbPm3wtqN26fx9+ghh1oWyZggEATB5JaYuFTPbvYeCdA0DNOq8zU3yuAx83p+WU6PAIEfvIxT77W17RdcIcicW0S6A3mGK39C4xZQ9/eu7WCzsh7zzG8uDyUNhKP31HTDopmJ11y+x0iDTH1dcEtY9OpSCX2/3ih/mhUR0/5cCtsXf7UQYAGbr3gX7MW6bsYGkAJYBnwfXeJR9Xkpso2dKaRY=
+        - secure: baI2qf5jDaIKzXsegmTM3No4o/P3X7GdAkiZO550kTPc+QJRvX2QKENDBeiM9Ymg2uQgDzVce5eD1uOlxnKVEj9MmbH7u/eJuefwjdimwlIa4Y2wv+Hn1dFLpuv8T1Os6QwXpu+qapin8YALgEXBB7MeT0lLrc4H0/GzCQMaBmjzLIzy/4glnGfezwr/AN/shnZ1g7MDBZtEbTaECsTWJmWD6HpjrmDBMz/dQsi/W9eruVHJCn3t/YQGCUP+MXZO+sbig4Hfz7vulGMQsnUd6tfjtEyouTrhKFRJkGps6guQNB+HQ2RaB2UB8tGlZKZ1RzmTD1U6yHdmhc2tOP6v0fGjwr6USxkWCKRLyDprwITjnCaRm+LYOlEWfavhoY17F/3/LSIN2hpaCMAOCtD2Div3+cwIfvluNr65NKbuuEIbH7l+tpVuykULWutlcUvr357+NfPBRhBJ5Uo2P559Bq8ClUWtEW/hQ0xLmVFVQj5YBpPmR4OOR+zAZ2MxPDbGEPxMHvpzoCgg9y/K725/e0NyVbYVG93rF1Tjc1aT8O+l/VWbflP17GtFlB/hHGScKYjmwCNDWXHSlEeLzlJuSa1xqhjEF6hFbk/F7nvRBFfojJiQXRMtSS+VSRXQKGcRXaSR+S7TYf8/kMD2Kzhl6XQKXXCoDvKC2B/3B3+LooA=
+        - secure: T/CHA0/nsh+Lpv2Sz1pX1VQj5LIrfUcazPTaxm34vnyq//i+HHVK2MMLdgNhTVprcdQcNozpkD9xSrGwDn3ciiFo5UaXwqBmrg5XBpnUx9EMvHVTqZPHOgAKYB6lqZYKCldK/+DSOltjgIVFinb79wEcr9ubTw0Dr/PSrEtgW6s7GbCcsfeiYG1G0kCGQxaKuCv0shnF/8RnueDYMAB2oKl3Yc4xohbytlad7wejHACvxd/UqLqQPUZ9bf9Ckir+4Xe7N/6pUlLr4X2np6OegJv4rJmuDWR6aAlNmd1HXBlxtcbdeLn+lAXindh6ZZmTGpUEPRqnXVWeYfZ4gvJ97F/KGUzwT8WFmUbZhhJc55h5R8v+PPpTubU2Wm525fisxr1SPjP2AuMbAh3YLjDvq/V3ZvzL3/ZgdZ5Lh9jUiSHNeTrcUfatJiQ2rvRshepnUqfgDyPuVgs3/pR0HINv5pfJBxddv13GDlJz2pfAsZBjzKrTSnksfggFo4EFPsF86mtOoCamT0mDcveJrypHq2xp5s/7k5KrLFuj1/oM9q97AGQvvOdkz1lLo8Zz5yXKlZRpp3nB4xthYYq7rEMVtQxlf/c8A+QDB6ciBC3YN3cTL4Xf2mHQ7/5+KS5ITVcEvsXKArQcxyPXziQBvGi0bjOSriNNikVGNViYttmhtU0=
+        - secure: Dclz4R1+dIPLQhi0+ScBkeOSkyUhpipmp/Sd6kcCJTQG/+TZi6si9CZTiuIV4SgkKaTyBO05KQI3crAa8N9rKqGASIbC+ji8UfnBD1GbW0tBWbl9MFPN7p9mwYGkeyS50om9M+2duUJ8Y51kRk+tU0BJNy/SebU9x1OZNJDy1CMTHGlqkko/pqB2GAbUL0K/pSzdSRX29g5Jb6VvwgHnBdxTQ5xYAr6jvRxNXMXn+RYI9GHDmNUY6o3ECmOHfVAJAZGJzkzlT0BkFFiqx/vMUJt9E6G24kmpzYoJxl85dhsNXmkyUYWEFhWNoQsWBg4j9JVGAiIc4fbBF6TCd6X/HHgJ4QA3BRjucI69V2HcHhuPR6D+2zGN5CAFtyahV0G6ZnKXHpTJMcpGM42Rq4oRKtV6OepZV5a0Bw4Sei7CTfJ8XW+9LymFz/ERZRJsgCWfYNUPQY3ohpSRaJdhN//w46mg8/LiPIkQ/7Ni/Nr8JhX10pK+UmhbBH8N/I/idgYWO3YAnUC3OSu6WzIXCWF6heQENvjL4Ok1my/oOGf5CjBx9BZv4/waR70OR51jSOOXmUXBozBkzYkq0AgOuLo6tGNAy1oGZTHpfjAzpaO+kWdzWs0Jr1J2/yefFIhiesS2wozYOdtOxaYD2zjzMoGcji88FDTUOllfVPRT/am43eQ=
+        - secure: br4YKoMqpFQf+Pzx3jWu0mVifVHcXcXsvgsn1krq7KP37gYuxwFw0IKg3VEwpqO6LA7RdIVn8F7HG1emHWr8bWXSKqjuM7axibU6agxlUA6aoxzRLMScKo4kv6GOfsfyxpUvHBXrhBjXaLReUAQ2ISHJSGVHCafEwlUiwzU9/cLsDOKLgp8LpvEMQgPHYavL+JsdjF47TlCrjwu6yaMeXe62z3WeMyEAocStyQ9n+36XB0CuUTUJDaXUwNXUw00fOyDQlqzpP2nr2Gfc7Yi1kgII+ODYLD8CxHlmqnLqHA7GIhjWPo/ADt9iowUf3stUTGiz/zOdrWIEQHVJasq/Qds7VCSXkinkDkbPimaQJxIyfb0Z82NkfgfUCPMcyf4C4AE37/3dm8A564RN/+W4XiVoQBaLiltTBnx3a2llvcMTdU/qZVZ8R/25WxJh47fu9m5dZE6LffppardHY3ayvgy8hsu/X6BAky5kbaLA0CLWEIHr7cvn7rOKb6LoFwcaEaGVblQoTI7RLuNf2foCJ5D0Jei822yNCbJ+pmtvCWL2mkHMmEYwK3SWbynLASs3BUPcsMwWfg9A8JEmKXHWb20pYn9TXl6o0tZ8iJVZYemD26KfwkYIauOSk0fATJm+OQnVRQSEmyIpTPV0UUwsPBu8hDUdO6/qYZh11kp1siE=
+before_script:
+    - git config --global user.name "${GITUSERNAME}"
+    - git config --global user.email "${GITUSERMAIL}"
+    - git fetch origin contents:contents
+    - git checkout master
 script:
     - python main.py
 after_success:
-    - git config --global user.name "${GHUSERNAME}"
-    - git config --global user.email "${GHUSERMAIL}"
+    - git checkout contents
     - git add --all .
     - git commit -a -m "[ci skip] Updating pypicontents.json."
-    - git push -fq "https://${GHTOKEN}@${GHREPO#*//}" master > /dev/null 2>&1
+    - git push -f "https://${GHTOKEN}@${GHREPO#*//}" contents

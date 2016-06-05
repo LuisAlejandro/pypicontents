@@ -101,7 +101,7 @@ def create_file_if_notfound(filename):
 def create_empty_json(filename):
     jsonfile = create_file_if_notfound(filename)
     with open(jsonfile, 'w') as f:
-        f.write(u'{}')
+        f.write(u('{}'))
     return jsonfile
 
 

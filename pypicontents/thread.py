@@ -18,7 +18,7 @@ except ImportError:
     from queue import Queue, Empty
 
 from .patches import patchedglobals
-from .utils import create_file_from_setup, timeout
+from .utils import create_file_from_setup, timeout, u
 
 
 class SetupThread(threading.Thread):
@@ -40,7 +40,7 @@ class SetupThread(threading.Thread):
                 self.crash.put(e)
             else:
                 try:
-                    setupargs = literal_eval(self.output)
+                    setupargs = literal_eval(u(self.output))
                 except BaseException as e:
                     self.crash.put(e)
                 else:

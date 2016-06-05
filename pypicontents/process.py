@@ -35,6 +35,7 @@ def process(lrange='0-z'):
     pypiapiend = 'https://pypi.python.org/pypi'
     cachedir = os.path.join(os.environ['HOME'], '.cache', 'pip')
     basedir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+    wrapper = os.path.join(basedir, 'wrapper.py')
     pypi = ServerProxy(pypiapiend)
 
     for pkgname in filter_package_list(pypi.list_packages(), lrange):
@@ -152,7 +153,7 @@ def process(lrange='0-z'):
                 sys.path.append(pkgpath)
 
                 try:
-                    setupargs = execute_setup(setuppath)
+                    setupargs = execute_setup(wrapper, setuppath)
                 except KeyboardInterrupt:
                     raise
                 except BaseException as e:
@@ -180,7 +181,7 @@ def process(lrange='0-z'):
                 try:
                     os.chdir(basedir)
                     sys.path.remove(pkgpath)
-                    shutil.rmtree(pkgpath)
+                    # shutil.rmtree(pkgpath)
                 except KeyboardInterrupt:
                     raise
                 except BaseException as e:

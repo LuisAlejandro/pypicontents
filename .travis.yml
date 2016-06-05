@@ -1,8 +1,7 @@
 sudo: false
 language: python
 cache: pip
-python:
-    - 3.5
+python: 3.5
 env:
     matrix:
         - PYPICONTENTSRANGE="0-9"
@@ -43,5 +42,5 @@ after_success:
     - git config --global user.name "${GHUSERNAME}"
     - git config --global user.email "${GHUSERMAIL}"
     - git add --all .
-    - git commit -a -m "Updating pypicontents.json"
+    - git commit -a -m "[ci skip] Updating pypicontents.json."
     - git push -fq "https://${GHTOKEN}@${GHREPO#*//}" master > /dev/null 2>&1

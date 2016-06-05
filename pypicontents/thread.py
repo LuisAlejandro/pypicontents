@@ -1,7 +1,16 @@
 
+import os
+import glob
 import errno
+import signal
 import ctypes
 import threading
+from subprocess import check_output
+from ast import literal_eval
+
+ctypes_py_object = ctypes.py_object
+ctypes_clong = ctypes.c_long
+ctypes_py_thread_exec = ctypes.pythonapi.PyThreadState_SetAsyncExc
 
 try:
     from Queue import Queue, Empty
@@ -14,50 +23,44 @@ from .utils import create_file_from_setup, timeout
 
 class SetupThread(threading.Thread):
 
-    def __init__(self, crash, result, env):
+    def __init__(self, wrapper, setuppath, crash, result):
         threading.Thread.__init__(self)
-        self.code = open(env['__file__'], 'rb').read()
-        self.who = env['__file__']
+        self.daemon = True
+        self.wrapper = wrapper
+        self.setuppath = setuppath
         self.crash = crash
         self.result = result
-        self.env = env
 
     def run(self):
-        while True:
+        for pybin in glob.glob('/usr/bin/python?.?'):
             try:
-                exec(compile(self.code, self.who, 'exec'), self.env)
+                self.output = check_output([pybin, self.wrapper, self.setuppath],
+                                           preexec_fn=os.setsid)
             except BaseException as e:
-                if (type(e) == IOError or type(e) == OSError
-                    and e.errno == errno.ENOENT and e.filename):
-                    create_file_from_setup(self.who, e.filename)
-                else:
-                    self.crash.put(e)
-                    break
+                self.crash.put(e)
             else:
-                self.result.put(self.env['setupargs'])
-                break
+                try:
+                    setupargs = literal_eval(self.output)
+                except BaseException as e:
+                    self.crash.put(e)
+                else:
+                    self.result.put(setupargs)
+                    break
 
     def stop(self):
         if not self.isAlive():
             return
-
-        e = ctypes.py_object(SystemExit)
-        r = ctypes.pythonapi.PyThreadState_SetAsyncExc(ctypes.c_long(self.ident), e)
-
-        if r == 0:
-            raise ValueError("nonexistent thread id")
-        elif r > 1:
-            ctypes.pythonapi.PyThreadState_SetAsyncExc(self.ident, None)
-            raise SystemError("PyThreadState_SetAsyncExc failed")
+        os.killpg(os.getpgid(self.output.pid), signal.SIGTERM)
+        ctypes_py_thread_exec(ctypes_clong(self.ident),
+                              ctypes_py_object(SystemExit))
 
 
-def execute_setup(setuppath):
+def execute_setup(wrapper, setuppath):
     sec = 0
     crash = Queue()
     result = Queue()
-    env = patchedglobals(setuppath)
 
-    t = SetupThread(crash, result, env)
+    t = SetupThread(wrapper, setuppath, crash, result)
     t.start()
 
     while sec < 200:

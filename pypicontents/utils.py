@@ -3,9 +3,9 @@
 import os
 import re
 import sys
+import signal
 import logging
 import logging.config
-import signal
 
 try:
     from urlparse import urlparse, urlunparse
@@ -18,15 +18,21 @@ except ImportError:
     from urllib.parse import quote
 
 if sys.version_info < (3,):
-    import codecs
-    def u(x):
-        return codecs.unicode_escape_decode(x)[0]
     default_import_level = -1
 else:
-    def u(x):
-        return x
     default_import_level = 0
+    unicode = str
 
+
+def u(x):
+    if isinstance(x, unicode):
+        return x
+    return x.decode('utf-8')
+
+def s(x):
+    if isinstance(x, bytes):
+        return x
+    return x.encode('utf-8')
 
 class timeout(object):
     def __init__(self, sec=20, error='Operation timed out.'):

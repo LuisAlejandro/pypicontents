@@ -47,7 +47,13 @@ def false_import(name, globals={}, locals={},
 
     def false_setup(*args, **kwargs):
         global setupargs
-        setupargs = kwargs
+        setupargs = {}
+        if 'py_modules' in kwargs:
+            setupargs.update({'py_modules': kwargs['py_modules']})
+        if 'packages' in kwargs:
+            setupargs.update({'packages': kwargs['packages']})
+        if 'scripts' in kwargs:
+            setupargs.update({'scripts': kwargs['scripts']})
 
     if name in modules_to_fake:
         return ImpostorModule()
@@ -65,10 +71,9 @@ def false_import(name, globals={}, locals={},
         mod.system = do_nothing
     return mod
 
-def patchedglobals(setuppath):
+def patchedglobals():
     env = globals()
     env.update({
-        '__file__': setuppath,
         '__name__': '__main__',
         '__package__': None,
     })

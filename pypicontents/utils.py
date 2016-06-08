@@ -6,6 +6,7 @@ import sys
 import signal
 import logging
 import logging.config
+from collections import Iterable
 
 try:
     from urlparse import urlparse, urlunparse
@@ -22,6 +23,7 @@ if sys.version_info < (3,):
 else:
     default_import_level = 0
     unicode = str
+    basestring = str
 
 
 def u(x):
@@ -76,6 +78,13 @@ def getlogging():
 
     return logging.getLogger('pypicontents')
 
+def flatten_list(l=[]):
+    for el in l:
+        if isinstance(el, Iterable) and not isinstance(el, basestring):
+            for sub in flatten_list(el):
+                yield sub
+        else:
+            yield el
 
 def filter_package_list(pkglist=[], lrange='0-z'):
     if '-' in lrange:

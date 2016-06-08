@@ -1,10 +1,12 @@
 sudo: false
 language: python
 cache: pip
-python: 3.5
-branches:
-    only:
-        - master
+python: 2.7
+addons:
+    apt:
+        packages:
+            - python3-setuptools
+            - python-setuptools
 env:
     matrix:
         - PYPICONTENTSRANGE="0-9"
@@ -35,19 +37,23 @@ env:
         - PYPICONTENTSRANGE="y"
         - PYPICONTENTSRANGE="z"
     global:
-        - secure: baI2qf5jDaIKzXsegmTM3No4o/P3X7GdAkiZO550kTPc+QJRvX2QKENDBeiM9Ymg2uQgDzVce5eD1uOlxnKVEj9MmbH7u/eJuefwjdimwlIa4Y2wv+Hn1dFLpuv8T1Os6QwXpu+qapin8YALgEXBB7MeT0lLrc4H0/GzCQMaBmjzLIzy/4glnGfezwr/AN/shnZ1g7MDBZtEbTaECsTWJmWD6HpjrmDBMz/dQsi/W9eruVHJCn3t/YQGCUP+MXZO+sbig4Hfz7vulGMQsnUd6tfjtEyouTrhKFRJkGps6guQNB+HQ2RaB2UB8tGlZKZ1RzmTD1U6yHdmhc2tOP6v0fGjwr6USxkWCKRLyDprwITjnCaRm+LYOlEWfavhoY17F/3/LSIN2hpaCMAOCtD2Div3+cwIfvluNr65NKbuuEIbH7l+tpVuykULWutlcUvr357+NfPBRhBJ5Uo2P559Bq8ClUWtEW/hQ0xLmVFVQj5YBpPmR4OOR+zAZ2MxPDbGEPxMHvpzoCgg9y/K725/e0NyVbYVG93rF1Tjc1aT8O+l/VWbflP17GtFlB/hHGScKYjmwCNDWXHSlEeLzlJuSa1xqhjEF6hFbk/F7nvRBFfojJiQXRMtSS+VSRXQKGcRXaSR+S7TYf8/kMD2Kzhl6XQKXXCoDvKC2B/3B3+LooA=
-        - secure: T/CHA0/nsh+Lpv2Sz1pX1VQj5LIrfUcazPTaxm34vnyq//i+HHVK2MMLdgNhTVprcdQcNozpkD9xSrGwDn3ciiFo5UaXwqBmrg5XBpnUx9EMvHVTqZPHOgAKYB6lqZYKCldK/+DSOltjgIVFinb79wEcr9ubTw0Dr/PSrEtgW6s7GbCcsfeiYG1G0kCGQxaKuCv0shnF/8RnueDYMAB2oKl3Yc4xohbytlad7wejHACvxd/UqLqQPUZ9bf9Ckir+4Xe7N/6pUlLr4X2np6OegJv4rJmuDWR6aAlNmd1HXBlxtcbdeLn+lAXindh6ZZmTGpUEPRqnXVWeYfZ4gvJ97F/KGUzwT8WFmUbZhhJc55h5R8v+PPpTubU2Wm525fisxr1SPjP2AuMbAh3YLjDvq/V3ZvzL3/ZgdZ5Lh9jUiSHNeTrcUfatJiQ2rvRshepnUqfgDyPuVgs3/pR0HINv5pfJBxddv13GDlJz2pfAsZBjzKrTSnksfggFo4EFPsF86mtOoCamT0mDcveJrypHq2xp5s/7k5KrLFuj1/oM9q97AGQvvOdkz1lLo8Zz5yXKlZRpp3nB4xthYYq7rEMVtQxlf/c8A+QDB6ciBC3YN3cTL4Xf2mHQ7/5+KS5ITVcEvsXKArQcxyPXziQBvGi0bjOSriNNikVGNViYttmhtU0=
-        - secure: Dclz4R1+dIPLQhi0+ScBkeOSkyUhpipmp/Sd6kcCJTQG/+TZi6si9CZTiuIV4SgkKaTyBO05KQI3crAa8N9rKqGASIbC+ji8UfnBD1GbW0tBWbl9MFPN7p9mwYGkeyS50om9M+2duUJ8Y51kRk+tU0BJNy/SebU9x1OZNJDy1CMTHGlqkko/pqB2GAbUL0K/pSzdSRX29g5Jb6VvwgHnBdxTQ5xYAr6jvRxNXMXn+RYI9GHDmNUY6o3ECmOHfVAJAZGJzkzlT0BkFFiqx/vMUJt9E6G24kmpzYoJxl85dhsNXmkyUYWEFhWNoQsWBg4j9JVGAiIc4fbBF6TCd6X/HHgJ4QA3BRjucI69V2HcHhuPR6D+2zGN5CAFtyahV0G6ZnKXHpTJMcpGM42Rq4oRKtV6OepZV5a0Bw4Sei7CTfJ8XW+9LymFz/ERZRJsgCWfYNUPQY3ohpSRaJdhN//w46mg8/LiPIkQ/7Ni/Nr8JhX10pK+UmhbBH8N/I/idgYWO3YAnUC3OSu6WzIXCWF6heQENvjL4Ok1my/oOGf5CjBx9BZv4/waR70OR51jSOOXmUXBozBkzYkq0AgOuLo6tGNAy1oGZTHpfjAzpaO+kWdzWs0Jr1J2/yefFIhiesS2wozYOdtOxaYD2zjzMoGcji88FDTUOllfVPRT/am43eQ=
-        - secure: br4YKoMqpFQf+Pzx3jWu0mVifVHcXcXsvgsn1krq7KP37gYuxwFw0IKg3VEwpqO6LA7RdIVn8F7HG1emHWr8bWXSKqjuM7axibU6agxlUA6aoxzRLMScKo4kv6GOfsfyxpUvHBXrhBjXaLReUAQ2ISHJSGVHCafEwlUiwzU9/cLsDOKLgp8LpvEMQgPHYavL+JsdjF47TlCrjwu6yaMeXe62z3WeMyEAocStyQ9n+36XB0CuUTUJDaXUwNXUw00fOyDQlqzpP2nr2Gfc7Yi1kgII+ODYLD8CxHlmqnLqHA7GIhjWPo/ADt9iowUf3stUTGiz/zOdrWIEQHVJasq/Qds7VCSXkinkDkbPimaQJxIyfb0Z82NkfgfUCPMcyf4C4AE37/3dm8A564RN/+W4XiVoQBaLiltTBnx3a2llvcMTdU/qZVZ8R/25WxJh47fu9m5dZE6LffppardHY3ayvgy8hsu/X6BAky5kbaLA0CLWEIHr7cvn7rOKb6LoFwcaEaGVblQoTI7RLuNf2foCJ5D0Jei822yNCbJ+pmtvCWL2mkHMmEYwK3SWbynLASs3BUPcsMwWfg9A8JEmKXHWb20pYn9TXl6o0tZ8iJVZYemD26KfwkYIauOSk0fATJm+OQnVRQSEmyIpTPV0UUwsPBu8hDUdO6/qYZh11kp1siE=
+        - GITUSERNAME="Luis Alejandro Martínez Faneyth"
+        - GITUSERMAIL="luis@huntingbears.com.ve"
+        - GHREPO="https://github.com/LuisAlejandro/pypicontents"
+        - secure: PKeUMQDxsnkHQJi81leTdU/u1a0YhCvvV7UGUwTVOrnjZQ7uQzX/h2bEe85DpdzMtFdStxeLK+cNvyAYZPfjxn+3x4bl/z0baX0VePARshNdukopAyohHjsLNdtVcO1SY1WrQiFQsI9kelR38P3P9OaFpFds1mZusTTOM9eAyw8xnNWU7JBBGsDCjujMJCYhrsc4EgyzFd/DgypjPUb/duardWXfxv2YUD4MT6bSDscEH9FySZQCu90HDdyDBWuoJ+tNiIB5lKeJJpfhwciImnTCvK9gBEPnhcHceaWmllb4nDKoYjAQq4kOS+/zEGLYqrw11eGtBOuxwuUJGwCYM//wFbTx3IjxrFm+YPba47pXqfIa7Nj3ZewjFmmCMNP4ZHv2fTdzQ7rJukRUefesMNcdBT/1YNNuZKsRl6pqq3/qTUmFEDuSnUGYsLVIJbLBiz2X1bc8ieVdOUVX6OdfvipYQ9mbvzIbkMr9E02MeXUaxdBmiYSlwkxyPCGcwwWue6yaXESbniqUaq2XstBUblItaklH/MdBkVSto09uIr5JvILx0ZCaEo3GXvBxDDlxyO1BlLiwBS66msGsWPmLPIGiXNoMfb/tJhTUvxGM+oVgnEHTbIOjL8JMa9WO97O3HbkpxCtSQslPEZ1FkHSWvlTm/A86wh3n1EJhHIWThCk=
 before_script:
-    - git config --global user.name "${GITUSERNAME}"
-    - git config --global user.email "${GITUSERMAIL}"
     - git fetch origin contents:contents
     - git checkout master
+    - git checkout contents data
 script:
     - python main.py
 after_success:
-    - git checkout contents
+    - git config --global user.name "${GITUSERNAME}"
+    - git config --global user.email "${GITUSERMAIL}"
     - git add --all .
-    - git commit -a -m "[ci skip] Updating pypicontents.json."
-    - git push -f "https://${GHTOKEN}@${GHREPO#*//}" contents
+    - git commit -a -m "[ci skip]"
+    - git checkout contents
+    - git checkout master data
+    - git add --all .
+    - git commit -a -m "Updating pypicontents.json."
+    - git push -q "https://${GHTOKEN}@${GHREPO#*//}" contents > /dev/null 2>&1

@@ -1,23 +1,21 @@
 # -*- coding: utf-8 -*-
 
+import os
 import io
+import json
 
 try:
+    import __builtin__ as bi
     from __builtin__ import __import__ as _import
 except ImportError:
+    import builtins as bi
     from builtins import __import__ as _import
 
-from .utils import default_import_level
+from .utils import default_import_level, u
 
 
 def false_import(name, globals={}, locals={},
                  fromlist=[], level=default_import_level):
-
-    modules_to_fake = ['distribute_setup', 'Cython.build', 'Cython.Build',
-                       'Cython.Distutils', 'pypandoc', 'numpy', 'numpy.distutils',
-                       'numpy.random', 'numpy.core.numeric', 'numpy.core', 'ez_setup',
-                       'scipy.weave', 'ldap3', 'ldap3.utils.conv', 'ldap3.protocol.rfc4511',
-                       'yaml', 'arrayfire', 'django.utils', 'django.conf']
 
     class ImpostorModule(object):
         def __init__(self, *args, **kwargs):
@@ -46,8 +44,10 @@ def false_import(name, globals={}, locals={},
         pass
 
     def false_setup(*args, **kwargs):
-        global setupargs
         setupargs = {}
+        pkgpath = os.path.dirname(globals['__file__'])
+        storepath = os.path.join(pkgpath, 'store.json')
+
         if 'py_modules' in kwargs:
             setupargs.update({'py_modules': kwargs['py_modules']})
         if 'packages' in kwargs:
@@ -55,10 +55,13 @@ def false_import(name, globals={}, locals={},
         if 'scripts' in kwargs:
             setupargs.update({'scripts': kwargs['scripts']})
 
-    if name in modules_to_fake:
-        return ImpostorModule()
+        with open(storepath, 'w') as store:
+            store.write(u(json.dumps(setupargs)))
 
-    mod = _import(name, globals, locals, fromlist, level)
+    try:
+        mod = _import(name, globals, locals, fromlist, level)
+    except ImportError:
+        mod = ImpostorModule()
 
     if name in ['setuptools', 'distutils.core']:
         mod.setup = false_setup
@@ -69,17 +72,14 @@ def false_import(name, globals={}, locals={},
     if name == 'os':
         mod._exit = do_nothing
         mod.system = do_nothing
+    if name == 'subprocess':
+        mod.Popen = ImpostorModule
+        mod.Popen.communicate = lambda *args: ('', '')
     return mod
 
 def patchedglobals():
-    env = globals()
-    env.update({
-        '__name__': '__main__',
-        '__package__': None,
-    })
-    env['__builtins__'].update({
-        'open': io.open,
-        'exit': lambda *args: None,
-        '__import__': false_import
-    })
-    return env
+    bi.open = io.open
+    bi.exit = lambda *args: None
+    bi.__import__ = false_import
+    return dict(__name__='__main__', __doc__=None,
+                __package__=None, __builtins__=bi)

@@ -8,8 +8,9 @@ This project aims to (sort of) mimic what the [Contents file](https://www.debian
 based package repository, but for the PyPI.
 
 It works by generating a content index instead of just a package index. In the
-file `pypicontents.json` you will find a dictionary with all the packages
-registered at the main PyPI instance, each one with the following information:
+file [contents.json](https://github.com/LuisAlejandro/pypicontents/blob/contents/contents.json)
+you will find a dictionary with all the packages registered at the main PyPI instance,
+each one with the following information:
 
 ```json
 {
@@ -41,7 +42,7 @@ registered at the main PyPI instance, each one with the following information:
 }
 ```
 
-This index is generated using [Travis](https://travis-ci.org/LuisAlejandro/pypicontents) and triggered every night with [nightli.es](https://nightli.es/). It's done by executing the setup.py of each package through a monkeypatch that allows us to read the parameters that were passed to `setup()`, and then we get `packages`, `py_modules` and `scripts`. Checkout `pypicontents/process.py` for more info.
+This index is generated using [Travis](https://travis-ci.org/LuisAlejandro/pypicontents). It's done by executing the setup.py of each package through a monkeypatch that allows us to read the parameters that were passed to `setup()`, and then we get `packages`, `py_modules` and `scripts`. Checkout `pypicontents/process.py` for more info.
 
 
 ### Use cases
@@ -52,7 +53,7 @@ This index is generated using [Travis](https://travis-ci.org/LuisAlejandro/pypic
 import json
 import urllib2
 
-pypic = 'https://raw.githubusercontent.com/LuisAlejandro/pypicontents/master/pypicontents.json'
+pypic = 'https://raw.githubusercontent.com/LuisAlejandro/pypicontents/contents/contents.json'
 
 f = urllib2.urlopen(pipyc)
 pypicontents = json.loads(f.read())
@@ -74,20 +75,15 @@ print list(find_package(pypicontents, 'numpy'))
 
 > Hint: Use a module finder tool like [snakefood](https://bitbucket.org/blais/snakefood) or [modulefinder](https://docs.python.org/2/library/modulefinder.html) to search for imports in your project, then use pypicontents to search which packages contain them.
 
-* Search which package (or packages) provides an specific commandline binary.
-
-
-
 
 ### Known Issues
 
 * Some packages have partial or totally absent data because of some of these
   reasons:
-    1. Currently this script only supports Python 2.7, so any package that implements py3k-dependant (not backward compatible) code in its `setup.py` will get indexed with empty data.
-    2. Some packages depend on other packages outside of `stdlib`. We try to
+    1. Some packages depend on other packages outside of `stdlib`. We try to
        override these imports but if the setup heavily depends on it, it will fail anyway.
-    3. Some packages are broken and error out when executing `setup.py`.
-    4. Some packages are empty or have no releases.
+    2. Some packages are broken and error out when executing `setup.py`.
+    3. Some packages are empty or have no releases.
 * If a package gets updated on PyPI and the change introduces or deletes
   modules, then it won't be reflected until the next index rebuild. You
   should check for the `version` field for consisntency. Also, if you need a

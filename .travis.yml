@@ -1,12 +1,8 @@
-sudo: false
+sudo: required
+services: docker
 language: python
 cache: pip
 python: 2.7
-addons:
-    apt:
-        packages:
-            - python3-setuptools
-            - python-setuptools
 env:
     matrix:
         - PYPICONTENTSRANGE="0-9"
@@ -37,7 +33,7 @@ env:
         - PYPICONTENTSRANGE="y"
         - PYPICONTENTSRANGE="z"
     global:
-        - GITUSERNAME="Luis Alejandro Martínez Faneyth"
+        - GITUSERNAME="PyPIContents Bot"
         - GITUSERMAIL="luis@huntingbears.com.ve"
         - GHREPO="https://github.com/LuisAlejandro/pypicontents"
         - secure: PKeUMQDxsnkHQJi81leTdU/u1a0YhCvvV7UGUwTVOrnjZQ7uQzX/h2bEe85DpdzMtFdStxeLK+cNvyAYZPfjxn+3x4bl/z0baX0VePARshNdukopAyohHjsLNdtVcO1SY1WrQiFQsI9kelR38P3P9OaFpFds1mZusTTOM9eAyw8xnNWU7JBBGsDCjujMJCYhrsc4EgyzFd/DgypjPUb/duardWXfxv2YUD4MT6bSDscEH9FySZQCu90HDdyDBWuoJ+tNiIB5lKeJJpfhwciImnTCvK9gBEPnhcHceaWmllb4nDKoYjAQq4kOS+/zEGLYqrw11eGtBOuxwuUJGwCYM//wFbTx3IjxrFm+YPba47pXqfIa7Nj3ZewjFmmCMNP4ZHv2fTdzQ7rJukRUefesMNcdBT/1YNNuZKsRl6pqq3/qTUmFEDuSnUGYsLVIJbLBiz2X1bc8ieVdOUVX6OdfvipYQ9mbvzIbkMr9E02MeXUaxdBmiYSlwkxyPCGcwwWue6yaXESbniqUaq2XstBUblItaklH/MdBkVSto09uIr5JvILx0ZCaEo3GXvBxDDlxyO1BlLiwBS66msGsWPmLPIGiXNoMfb/tJhTUvxGM+oVgnEHTbIOjL8JMa9WO97O3HbkpxCtSQslPEZ1FkHSWvlTm/A86wh3n1EJhHIWThCk=
@@ -46,7 +42,8 @@ before_script:
     - git checkout master
     - git checkout contents data
 script:
-    - python main.py
+    - docker pull luisalejandro/python:sid
+    - docker run -v ${PWD}:${PWD} -v ${HOME}/.cache/pip:/root/.cache/pip -w ${PWD} -e PYPICONTENTSRANGE=${PYPICONTENTSRANGE} luisalejandro/python:sid python main.py
 after_success:
     - git config --global user.name "${GITUSERNAME}"
     - git config --global user.email "${GITUSERMAIL}"
@@ -55,5 +52,5 @@ after_success:
     - git checkout contents
     - git checkout master data
     - git add --all .
-    - git commit -a -m "Updating pypicontents.json."
+    - git commit -a -m "[ci skip] [PyPIContents Bot] Updating PyPIContents index through Travis cron jobs."
     - git push -q "https://${GHTOKEN}@${GHREPO#*//}" contents > /dev/null 2>&1

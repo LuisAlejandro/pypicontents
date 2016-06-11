@@ -78,14 +78,6 @@ def getlogging():
 
     return logging.getLogger('pypicontents')
 
-def flatten_list(l=[]):
-    for el in l:
-        if isinstance(el, Iterable) and not isinstance(el, basestring):
-            for sub in flatten_list(el):
-                yield sub
-        else:
-            yield el
-
 def filter_package_list(pkglist=[], lrange='0-z'):
     if '-' in lrange:
         lrange = [ord(lrange.split('-')[0]), ord(lrange.split('-')[1])+1]

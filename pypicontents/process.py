@@ -23,37 +23,39 @@ except ImportError:
 from pkg_resources import parse_version
 
 from .utils import (get_archive_extension, urlesc, filter_package_list,
-                    create_empty_json, getlogging, u, timeout, flatten_list)
+                    create_empty_json, getlogging, u, timeout)
 
 lg = getlogging()
 pypiapiend = 'https://pypi.python.org/pypi'
 cachedir = os.path.join(os.environ.get('HOME'), '.cache', 'pip')
 basedir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-wrapper = os.path.join(basedir, 'main.py')
+wrapper = os.path.join(basedir, 'wrapper.py')
 pypi = ServerProxy(pypiapiend)
 
 
 def execute_setup(wrapper, setuppath, pkgname):
-    pybinpaths = ['/usr/bin/python?.?']
-    pybins = flatten_list([glob.glob(py) for py in pybinpaths])
+    errlist = []
+    pybins = ['/usr/bin/python2.7', '/usr/bin/python3.5']
     pkgpath = os.path.dirname(setuppath)
     storepath = os.path.join(pkgpath, 'store.json')
 
     for cmd in [(pybin, wrapper, setuppath) for pybin in pybins]:
         lg.info('(%s) Parsing %s with %s' % (pkgname, setuppath, cmd[0]))
-        p = Popen(cmd, stdout=PIPE, stderr=PIPE)
 
         try:
             with timeout():
+                p = Popen(cmd, stdout=PIPE, stderr=PIPE)
                 stdout, stderr = p.communicate()
         except BaseException as e:
             p.kill()
             raise
-
-        if not stderr and os.path.isfile(storepath):
+        if os.path.isfile(storepath):
             with open(storepath) as store:
                 return json.loads(store.read())
-    raise RuntimeError(stderr)
+        if not stderr:
+            stderr = 'Failed for unknown reason.'
+        errlist.append('\n%s: %s' % (cmd[0], stderr))
+    raise RuntimeError(''.join(errlist))
 
 def get_pkgdata_from_api(pkgname):
     try:
@@ -203,6 +205,9 @@ def process(lrange='0-z'):
 
         if not processsetup:
             continue
+
+        if not os.path.isdir(cachedir):
+            os.makedirs(cachedir)
 
         arname = os.path.basename(arurl)
         arpath = os.path.join(cachedir, arname)

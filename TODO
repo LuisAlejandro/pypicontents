@@ -1,0 +1,4 @@
+- Modificar valores del json por cada módulo.
+- Escribir un while-try-except para cuando pypi no responda
+- Guardar logs
+- Hacer un contents.tar.gz

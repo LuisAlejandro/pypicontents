@@ -222,7 +222,7 @@ def process(lrange='0-z'):
             continue
 
         pkgdir = os.path.normpath(cmplist[0]).split(os.sep)[0]
-        pkgpath = os.path.join(cachedir, pkgdir)
+        pkgpath = os.path.normpath(os.path.join(cachedir, pkgdir))
         setuppath = os.path.join(pkgpath, 'setup.py')
 
         if not os.path.isfile(setuppath):
@@ -240,9 +240,12 @@ def process(lrange='0-z'):
             jsondict[pkgname]['version'] = pkgversion
             jsondict[pkgname].update(setupargs)
 
-        os.chdir(basedir)
-        sys.path.remove(pkgpath)
-        shutil.rmtree(pkgpath)
+        try:
+            os.chdir(basedir)
+            sys.path.remove(pkgpath)
+            shutil.rmtree(pkgpath)
+        except Exception as e:
+            lg.error('(%s) %s: %s' % (pkgname, type(e).__name__, e))
 
         if pkg == len(pkglist)-1:
             writejson = True

@@ -41,6 +41,7 @@ before_script:
     - git fetch origin contents:contents
     - git checkout master
     - git checkout contents data
+    - git checkout contents logs
 script:
     - mkdir -p logs/${PYPICONTENTSRANGE}
     - docker pull luisalejandro/python:sid
@@ -51,8 +52,9 @@ after_success:
     - git add --all .
     - git commit -a -m "[ci skip]"
     - git checkout contents
+    - git pull origin contents
     - git checkout master data
     - git checkout master logs
     - git add --all .
-    - git commit -a -m "[ci skip] [PyPIContents Bot] Updating PyPIContents index through Travis cron jobs."
+    - git commit -a -m "[ci skip] Updating PyPIContents index through Travis cron jobs."
     - git push -q "https://${GHTOKEN}@${GHREPO#*//}" contents > /dev/null 2>&1

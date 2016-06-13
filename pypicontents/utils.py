@@ -106,12 +106,6 @@ def create_empty_json(filename):
     return jsonfile
 
 
-def create_file_from_setup(setup, filename):
-    setupdir = os.path.dirname(setup)
-    defilerel = os.path.relpath(filename, setupdir)
-    defile = os.path.join(setupdir, defilerel)
-    return create_file_if_notfound(defile)
-
 
 def urlesc(url):
     parts = urlparse(url)

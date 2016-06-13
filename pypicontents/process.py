@@ -26,10 +26,10 @@ from .utils import (get_archive_extension, urlesc, filter_package_list,
                     create_empty_json, getlogging, u, timeout)
 
 lg = getlogging()
-pypiapiend = 'https://pypi.python.org/pypi'
 cachedir = os.path.join(os.environ.get('HOME'), '.cache', 'pip')
 basedir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 wrapper = os.path.join(basedir, 'wrapper.py')
+pypiapiend = 'https://pypi.python.org/pypi'
 pypi = ServerProxy(pypiapiend)
 
 
@@ -46,7 +46,7 @@ def execute_setup(wrapper, setuppath, pkgname):
             with timeout():
                 p = Popen(cmd, stdout=PIPE, stderr=PIPE)
                 stdout, stderr = p.communicate()
-        except BaseException as e:
+        except Exception as e:
             p.kill()
             raise
         if os.path.isfile(storepath):
@@ -58,47 +58,51 @@ def execute_setup(wrapper, setuppath, pkgname):
     raise RuntimeError(''.join(errlist))
 
 def get_pkgdata_from_api(pkgname):
-    try:
-        pkgjsonfile = urlopen(url='%s/%s/json' % (pypiapiend, pkgname),
-                              timeout=10).read()
-    except KeyboardInterrupt:
-        raise
-    except BaseException as e:
+    tries = 0
+    while tries < 2:
+        tries += 1
         try:
+            pkgjsonfile = urlopen(url='%s/%s/json' % (pypiapiend, pkgname),
+                                  timeout=10).read()
+        except Exception as e:
             lg.warning('(%s) JSON API error: %s' % (pkgname, e))
-            pkgjson = {'info': {'version': ''}, 'releases': {}}
+        else:
+            return json.loads(pkgjsonfile.decode('utf-8'))
+
+        try:
             pkgreleases = pypi.package_releases(pkgname)
-            if pkgreleases:
-                pkgreleases = [parse_version(v) for v in pkgreleases]
-                pkgversion = str(sorted(pkgreleases)[-1])
-                pkgjson['info']['version'] = pkgversion
-                pkgjson['releases'][pkgversion] = pypi.release_urls(pkgname, pkgversion)
-            else:
-                raise RuntimeError('There are no releases for this package.')
-        except KeyboardInterrupt:
-            raise
-        except BaseException as e:
+        except Exception as e:
             lg.error('(%s) XMLRPC API error: %s' % (pkgname, e))
-            return False
+            continue
+
+        if not pkgreleases:
+            lg.error('(%s) There are no releases for this package.' % pkgname)
+            continue
+
+        pkgversion = str(sorted([parse_version(v) for v in pkgreleases])[-1])
+
+        try:
+            return {'info': {'version': pkgversion},
+                    'releases': {pkgversion: pypi.release_urls(pkgname,
+                                                               pkgversion)}}
+        except Exception as e:
+            lg.error('(%s) XMLRPC API error: %s' % (pkgname, e))
     else:
-        pkgjson = json.loads(pkgjsonfile.decode('utf-8'))
-    return pkgjson
+        return False
 
 
 def download_package(pkgname, arurl, arpath):
     tries = 0
     while tries < 10:
+        tries += 1
         try:
             ardownobj = urlopen(url=urlesc(arurl), timeout=10).read()
-            with open(arpath, 'wb') as f:
-                f.write(ardownobj)
-        except KeyboardInterrupt:
-            raise
-        except BaseException as e:
-            tries += 1
+        except Exception as e:
             lg.warning('(%s) Download error: %s'
                        ' (Try: %s)' % (pkgname, e, tries))
         else:
+            with open(arpath, 'wb') as f:
+                f.write(ardownobj)
             return True
     else:
         return False
@@ -126,39 +130,28 @@ def extract_and_list_archive(pkgname, arname, arpath, cachedir):
             with compressed(arpath, armode) as cmp:
                 cmp.extractall(cachedir)
                 cmplist = cmp.list()
-    except KeyboardInterrupt:
-        raise
-    except BaseException as e:
+    except Exception as e:
         lg.error('(%s) %s' % (pkgname, e))
         return False
     else:
         return cmplist
 
-def inject_setupargs(jsondict, setupargs, pkgname, pkgpath, pkgversion, cmplist):
-    if 'py_modules' in setupargs:
-        jsondict[pkgname]['modules'] = setupargs['py_modules']
-
-    if 'packages' in setupargs:
-        if isinstance(setupargs['packages'], list):
-            if setupargs['packages']:
-                jsondict[pkgname]['modules'] = setupargs['packages']
-            else:
-                pys = glob.glob(os.path.join(pkgpath, '*.py'))
-                pys = [os.path.splitext(os.path.basename(p))[0] for p in pys if
-                       os.path.basename(p) != 'setup.py']
-                jsondict[pkgname]['modules'] = pys
-
-    if 'scripts' in setupargs:
-        jsondict[pkgname]['scripts'] = setupargs['scripts']
-
-    jsondict[pkgname]['contents'] = cmplist
-    jsondict[pkgname]['version'][0] = pkgversion
-    return jsondict
+def get_package_list(lrange):
+    tries = 0
+    while tries < 2:
+        tries += 1
+        try:
+            pkglist = pypi.list_packages()
+        except Exception as e:
+            lg.error('XMLRPC API error: %s' % e)
+        else:
+            return filter_package_list(pkglist, lrange)
+    else:
+        return []
 
 def process(lrange='0-z'):
-
     jsonlist = []
-    pkglist = filter_package_list(pypi.list_packages(), lrange)
+    pkglist = get_package_list(lrange)
 
     for pkg in range(0, len(pkglist)):
         readjson = False
@@ -184,8 +177,7 @@ def process(lrange='0-z'):
         if not pkgname in jsondict:
             jsondict[pkgname] = {'version':[''],
                                  'modules':[''],
-                                 'contents':[''],
-                                 'scripts':['']}
+                                 'cmdline':['']}
 
         pkgjson = get_pkgdata_from_api(pkgname)
         if not pkgjson:
@@ -234,13 +226,10 @@ def process(lrange='0-z'):
 
         try:
             setupargs = execute_setup(wrapper, setuppath, pkgname)
-        except KeyboardInterrupt:
-            raise
-        except BaseException as e:
+        except Exception as e:
             lg.error('(%s) %s: %s' % (pkgname, type(e).__name__, e))
         else:
-            jsondict = inject_setupargs(jsondict, setupargs, pkgname,
-                                        pkgpath, pkgversion, cmplist)
+            jsondict[pkgname].update(setupargs)
 
         os.chdir(basedir)
         sys.path.remove(pkgpath)

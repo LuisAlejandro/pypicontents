@@ -54,8 +54,8 @@ def execute_setup(wrapper, setuppath, pkgname):
                 return json.loads(store.read())
         if not stderr:
             stderr = 'Failed for unknown reason.'
-        errlist.append('\n%s: %s' % (cmd[0], stderr))
-    raise RuntimeError(''.join(errlist))
+        errlist.append('(%s) %s' % (cmd[0], stderr))
+    raise RuntimeError(' '.join(errlist))
 
 def get_pkgdata_from_api(pkgname):
     tries = 0
@@ -65,18 +65,19 @@ def get_pkgdata_from_api(pkgname):
             pkgjsonfile = urlopen(url='%s/%s/json' % (pypiapiend, pkgname),
                                   timeout=10).read()
         except Exception as e:
-            lg.warning('(%s) JSON API error: %s' % (pkgname, e))
+            lg.warning('(%s) JSON API error: %s (Try: %s)' % (pkgname, e, tries))
         else:
             return json.loads(pkgjsonfile.decode('utf-8'))
 
         try:
             pkgreleases = pypi.package_releases(pkgname)
         except Exception as e:
-            lg.error('(%s) XMLRPC API error: %s' % (pkgname, e))
+            lg.error('(%s) XMLRPC API error: %s (Try: %s)' % (pkgname, e, tries))
             continue
 
         if not pkgreleases:
-            lg.error('(%s) There are no releases for this package.' % pkgname)
+            lg.error('(%s) There are no releases for this package. (Try: %s)' %
+                     (pkgname, tries))
             continue
 
         pkgversion = str(sorted([parse_version(v) for v in pkgreleases])[-1])
@@ -86,7 +87,7 @@ def get_pkgdata_from_api(pkgname):
                     'releases': {pkgversion: pypi.release_urls(pkgname,
                                                                pkgversion)}}
         except Exception as e:
-            lg.error('(%s) XMLRPC API error: %s' % (pkgname, e))
+            lg.error('(%s) XMLRPC API error: %s (Try: %s)' % (pkgname, e, tries))
     else:
         return False
 
@@ -98,8 +99,7 @@ def download_package(pkgname, arurl, arpath):
         try:
             ardownobj = urlopen(url=urlesc(arurl), timeout=10).read()
         except Exception as e:
-            lg.warning('(%s) Download error: %s'
-                       ' (Try: %s)' % (pkgname, e, tries))
+            lg.warning('(%s) Download error: %s (Try: %s)' % (pkgname, e, tries))
         else:
             with open(arpath, 'wb') as f:
                 f.write(ardownobj)
@@ -143,7 +143,7 @@ def get_package_list(lrange):
         try:
             pkglist = pypi.list_packages()
         except Exception as e:
-            lg.error('XMLRPC API error: %s' % e)
+            lg.error('XMLRPC API error: %s (Try: %s)' % (e, tries))
         else:
             return filter_package_list(pkglist, lrange)
     else:
@@ -180,6 +180,7 @@ def process(lrange='0-z'):
                                  'cmdline':['']}
 
         pkgjson = get_pkgdata_from_api(pkgname)
+
         if not pkgjson:
             continue
 
@@ -208,6 +209,12 @@ def process(lrange='0-z'):
             if not download_package(pkgname, arurl, arpath):
                 continue
 
+        for oldar in glob.glob('%s/%s-%s*' %(cachedir, pkgname, oldpkgversion)):
+            if os.path.isfile(oldar):
+                os.remove(oldar)
+            elif os.path.isdir(oldar):
+                shutil.rmtree(oldar)
+
         cmplist = extract_and_list_archive(pkgname, arname, arpath,
                                            cachedir)
         if not cmplist:
@@ -229,6 +236,7 @@ def process(lrange='0-z'):
         except Exception as e:
             lg.error('(%s) %s: %s' % (pkgname, type(e).__name__, e))
         else:
+            jsondict[pkgname]['version'][0] = pkgversion
             jsondict[pkgname].update(setupargs)
 
         os.chdir(basedir)

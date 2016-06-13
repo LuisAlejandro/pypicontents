@@ -95,23 +95,28 @@ def false_import(name, globals={}, locals={},
         cmdline = []
         pkgpath = os.path.dirname(globals['__file__'])
         storepath = os.path.join(pkgpath, 'store.json')
+        banned_options = ['setup_requires', 'test_requires']
 
         from distutils.dist import Distribution
         from distutils.command.build_py import build_py
+        from pkg_resources import EntryPoint
+
+        for opt in banned_options:
+            kwargs.pop(opt, None)
 
         kwargs.update({'script_name': globals['__file__'],
                        'script_args': []})
         bpy = build_py(Distribution(kwargs))
         bpy.finalize_options()
         modules = ['.'.join([p, m]) for p, m, f in bpy.find_all_modules()]
-        modules = [m.strip('.__init__.py') for m in modules if m.endswith('.__init__.py')]
+        modules = [m.strip('.__init__') if m.endswith('.__init__') else m for m in modules]
 
         if 'scripts' in kwargs:
             cmdline.extend([os.path.basename(s) for s in kwargs['scripts']])
         if 'entry_points' in kwargs:
-            if 'console_scripts' in kwargs['entry_points']:
-                cmds = kwargs['entry_points']['console_scripts']
-                cmdline.extend([c.split('=')[0].strip() for c in cmds])
+            entrymap = EntryPoint.parse_map(kwargs['entry_points'])
+            if 'console_scripts' in entrymap:
+                cmdline.extend(entrymap['console_scripts'].keys())
 
         with open(storepath, 'w') as store:
             store.write(u(json.dumps({'modules': modules,

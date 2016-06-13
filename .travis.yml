@@ -42,8 +42,9 @@ before_script:
     - git checkout master
     - git checkout contents data
 script:
+    - mkdir -p logs/${PYPICONTENTSRANGE}
     - docker pull luisalejandro/python:sid
-    - docker run -v ${PWD}:${PWD} -v ${HOME}/.cache/pip:/root/.cache/pip -w ${PWD} -e PYPICONTENTSRANGE=${PYPICONTENTSRANGE} luisalejandro/python:sid python main.py
+    - docker run -v ${PWD}:${PWD} -v ${HOME}/.cache/pip:/root/.cache/pip -w ${PWD} -e PYPICONTENTSRANGE=${PYPICONTENTSRANGE} luisalejandro/python:sid python main.py | tee logs/${PYPICONTENTSRANGE}/contents.log
 after_success:
     - git config --global user.name "${GITUSERNAME}"
     - git config --global user.email "${GITUSERMAIL}"
@@ -51,6 +52,7 @@ after_success:
     - git commit -a -m "[ci skip]"
     - git checkout contents
     - git checkout master data
+    - git checkout master logs
     - git add --all .
     - git commit -a -m "[ci skip] [PyPIContents Bot] Updating PyPIContents index through Travis cron jobs."
     - git push -q "https://${GHTOKEN}@${GHREPO#*//}" contents > /dev/null 2>&1

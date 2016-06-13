@@ -92,19 +92,30 @@ def false_import(name, globals={}, locals={},
         pass
 
     def false_setup(*args, **kwargs):
-        setupargs = {}
+        cmdline = []
         pkgpath = os.path.dirname(globals['__file__'])
         storepath = os.path.join(pkgpath, 'store.json')
 
-        if 'py_modules' in kwargs:
-            setupargs.update({'py_modules': kwargs['py_modules']})
-        if 'packages' in kwargs:
-            setupargs.update({'packages': kwargs['packages']})
+        from distutils.dist import Distribution
+        from distutils.command.build_py import build_py
+
+        kwargs.update({'script_name': globals['__file__'],
+                       'script_args': []})
+        bpy = build_py(Distribution(kwargs))
+        bpy.finalize_options()
+        modules = ['.'.join([p, m]) for p, m, f in bpy.find_all_modules()]
+        modules = [m.strip('.__init__.py') for m in modules if m.endswith('.__init__.py')]
+
         if 'scripts' in kwargs:
-            setupargs.update({'scripts': kwargs['scripts']})
+            cmdline.extend([os.path.basename(s) for s in kwargs['scripts']])
+        if 'entry_points' in kwargs:
+            if 'console_scripts' in kwargs['entry_points']:
+                cmds = kwargs['entry_points']['console_scripts']
+                cmdline.extend([c.split('=')[0].strip() for c in cmds])
 
         with open(storepath, 'w') as store:
-            store.write(u(json.dumps(setupargs)))
+            store.write(u(json.dumps({'modules': modules,
+                                      'cmdline': cmdline})))
 
     try:
         mod = _import(name, globals, locals, fromlist, level)
@@ -117,7 +128,6 @@ def false_import(name, globals={}, locals={},
         mod.use_setuptools = return_zero
     if name in ['setuptools', 'distutils.core']:
         mod.setup = false_setup
-        print mod.setup
     if name == 'pip.req':
         mod.parse_requirements = return_empty_list
     if name == 'sys':

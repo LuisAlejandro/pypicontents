@@ -17,6 +17,6 @@ if __name__ == '__main__':
 
     try:
         with open(setuppath) as _sfile:
-            exec(s(_sfile.read()), env)
+            exec(compile(s(_sfile.read()), setuppath, 'exec'), env)
     except Exception as e:
         sys.stderr.write(str(e))

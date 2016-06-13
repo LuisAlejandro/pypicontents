@@ -175,9 +175,9 @@ def process(lrange='0-z'):
                 jsondict = json.loads(f.read())
 
         if not pkgname in jsondict:
-            jsondict[pkgname] = {'version':[''],
-                                 'modules':[''],
-                                 'cmdline':['']}
+            jsondict[pkgname] = {'version':'',
+                                 'modules':[],
+                                 'cmdline':[]}
 
         pkgjson = get_pkgdata_from_api(pkgname)
 
@@ -185,7 +185,7 @@ def process(lrange='0-z'):
             continue
 
         pkgversion = pkgjson['info']['version']
-        oldpkgversion = jsondict[pkgname]['version'][0]
+        oldpkgversion = jsondict[pkgname]['version']
 
         if oldpkgversion != pkgversion:
             pkgdownloads = pkgjson['releases'][pkgversion]
@@ -210,10 +210,11 @@ def process(lrange='0-z'):
                 continue
 
         for oldar in glob.glob('%s/%s-%s*' %(cachedir, pkgname, oldpkgversion)):
-            if os.path.isfile(oldar):
-                os.remove(oldar)
-            elif os.path.isdir(oldar):
-                shutil.rmtree(oldar)
+            if oldar != arpath:
+                if os.path.isfile(oldar):
+                    os.remove(oldar)
+                elif os.path.isdir(oldar):
+                    shutil.rmtree(oldar)
 
         cmplist = extract_and_list_archive(pkgname, arname, arpath,
                                            cachedir)
@@ -236,7 +237,7 @@ def process(lrange='0-z'):
         except Exception as e:
             lg.error('(%s) %s: %s' % (pkgname, type(e).__name__, e))
         else:
-            jsondict[pkgname]['version'][0] = pkgversion
+            jsondict[pkgname]['version'] = pkgversion
             jsondict[pkgname].update(setupargs)
 
         os.chdir(basedir)

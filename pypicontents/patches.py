@@ -108,7 +108,7 @@ def false_import(name, globals={}, locals={},
                        'script_args': []})
         bpy = build_py(Distribution(kwargs))
         bpy.finalize_options()
-        modules = ['.'.join([p, m]) for p, m, f in bpy.find_all_modules()]
+        modules = ['.'.join([p, m]).strip('.') for p, m, f in bpy.find_all_modules()]
         modules = [m.strip('.__init__') if m.endswith('.__init__') else m for m in modules]
 
         if 'scripts' in kwargs:

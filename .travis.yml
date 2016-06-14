@@ -54,8 +54,8 @@ before_script:
     - git checkout contents data/${PYPICONTENTSRANGE}/contents.json logs/${PYPICONTENTSRANGE}/contents.log
 script:
     - docker run -v ${PWD}:${PWD} -v ${HOME}/.cache/pip:/root/.cache/pip -w ${PWD} -e PYPICONTENTSRANGE=${PYPICONTENTSRANGE} luisalejandro/python:sid python main.py | tee logs/${PYPICONTENTSRANGE}/contents.log
-after_success:
     - sudo chown -R ${USER}:${USER} data logs ${HOME}/.cache/pip
+after_success:
     - git config --global user.name "${GITUSERNAME}"
     - git config --global user.email "${GITUSERMAIL}"
     - git add data/${PYPICONTENTSRANGE}/contents.json logs/${PYPICONTENTSRANGE}/contents.log

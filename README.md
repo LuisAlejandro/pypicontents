@@ -23,12 +23,7 @@ each one with the following information:
             "module_2",
             "..."
         ],
-        "scripts": [
-            "script_1",
-            "script_2",
-            "..."
-        ],
-        "contents": [
+        "cmdline": [
             "path_1",
             "path_2",
             "..."
@@ -42,7 +37,7 @@ each one with the following information:
 }
 ```
 
-This index is generated using [Travis](https://travis-ci.org/LuisAlejandro/pypicontents). It's done by executing the setup.py of each package through a monkeypatch that allows us to read the parameters that were passed to `setup()`, and then we get `packages`, `py_modules` and `scripts`. Checkout `pypicontents/process.py` for more info.
+This index is generated using [Travis](https://travis-ci.org/LuisAlejandro/pypicontents). It's done by executing the setup.py of each package through a monkeypatch that allows us to read the parameters that were passed to `setup()`, and then we get `modules`, `cmdline`. Checkout `pypicontents/process.py` for more info.
 
 
 ### Use cases

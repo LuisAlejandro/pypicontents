@@ -43,7 +43,7 @@ def execute_setup(wrapper, setuppath, pkgname):
         lg.info('(%s) Parsing %s with %s' % (pkgname, setuppath, cmd[0]))
 
         try:
-            with timeout():
+            with timeout(error='Execution of setup.py took too much time.'):
                 p = Popen(cmd, stdout=PIPE, stderr=PIPE)
                 stdout, stderr = p.communicate()
         except Exception as e:

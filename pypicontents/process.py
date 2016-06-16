@@ -7,6 +7,8 @@ import glob
 import shutil
 import tarfile
 import zipfile
+import tempfile
+import itertools
 import threading
 from subprocess import Popen, PIPE
 
@@ -58,41 +60,27 @@ def execute_setup(wrapper, setuppath, pkgname):
     raise RuntimeError(' '.join(errlist))
 
 def get_pkgdata_from_api(pkgname):
-    tries = 0
-    while tries < 2:
-        tries += 1
-        try:
-            pkgjsonfile = urlopen(url='%s/%s/json' % (pypiapiend, pkgname),
-                                  timeout=10).read()
-        except Exception as e:
-            lg.warning('(%s) JSON API error: %s (Try: %s)' % (pkgname, e, tries))
-        else:
-            return json.loads(pkgjsonfile.decode('utf-8'))
-
-        try:
-            pkgreleases = pypi.package_releases(pkgname)
-        except Exception as e:
-            lg.error('(%s) XMLRPC API error: %s (Try: %s)' % (pkgname, e, tries))
-            continue
-
-        if not pkgreleases:
-            lg.error('(%s) There are no releases for this package. (Try: %s)' %
-                     (pkgname, tries))
-            continue
-
-        pkgversion = str(sorted([parse_version(v) for v in pkgreleases])[-1])
-
-        try:
-            return {'info': {'version': pkgversion},
-                    'releases': {pkgversion: pypi.release_urls(pkgname,
-                                                               pkgversion)}}
-        except Exception as e:
-            lg.error('(%s) XMLRPC API error: %s (Try: %s)' % (pkgname, e, tries))
+    try:
+        pkgjsonfile = urlopen(url='%s/%s/json' % (pypiapiend, pkgname),
+                              timeout=10).read()
+    except Exception as e:
+        lg.warning('(%s) JSON API error: %s' % (pkgname, e))
     else:
-        return False
+        pkgj = json.loads(pkgjsonfile.decode('utf-8'))
+        return dict(info=pkgj['info'], releases=pkgj['releases'])
 
+    try:
+        pkgreleases = pypi.package_releases(pkgname)
+        pkgversion = str(sorted([parse_version(v) for v in pkgreleases])[-1])
+        pkgurls = pypi.release_urls(pkgname, pkgversion)
+    except Exception as e:
+        lg.error('(%s) XMLRPC API error: %s' % (pkgname, e))
+        return {}
+    else:
+        return {'info': {'version': pkgversion},
+                'releases': {pkgversion: pkgurls}}
 
-def download_package(pkgname, arurl, arpath):
+def download_archive(pkgname, arurl, arpath):
     tries = 0
     while tries < 10:
         tries += 1
@@ -107,9 +95,7 @@ def download_package(pkgname, arurl, arpath):
     else:
         return False
 
-def extract_and_list_archive(pkgname, arname, arpath, cachedir):
-    arext = get_archive_extension(arpath)
-
+def get_archive_filelist(pkgname, arname, arpath, arext, extractdir):
     if arext == '.zip':
         armode = 'r'
         compressed = zipfile.ZipFile
@@ -121,20 +107,17 @@ def extract_and_list_archive(pkgname, arname, arpath, cachedir):
         tarfile.TarFile.list = tarfile.TarFile.getnames
         if arext == '.tar.bz2':
             armode = 'r:bz2'
-    else:
-        lg.error('(%s) Unsupported format: %s' % (pkgname, arname))
-        return False
 
     try:
         with timeout(error='Uncompressing took too much time.'):
             with compressed(arpath, armode) as cmp:
-                cmp.extractall(cachedir)
-                cmplist = cmp.list()
+                cmp.extractall(extractdir)
+                arlist = cmp.list()
     except Exception as e:
-        lg.error('(%s) %s' % (pkgname, e))
+        lg.error('(%s) %s: %s' % (pkgname, type(e).__name__, e))
         return False
     else:
-        return cmplist
+        return arlist
 
 def get_package_list(lrange):
     tries = 0
@@ -150,29 +133,18 @@ def get_package_list(lrange):
         return []
 
 def process(lrange='0-z'):
-    jsonlist = []
-    pkglist = get_package_list(lrange)
 
-    for pkg in range(0, len(pkglist)):
-        readjson = False
-        writejson = False
-        processsetup = False
-        pkgname = pkglist[pkg]
-        pkginit = pkgname[0].lower()
-        pypijson = os.path.join(basedir, 'data', pkginit, 'contents.json')
+    if not os.path.isdir(cachedir):
+        os.makedirs(cachedir)
+
+    for pkgname in get_package_list(lrange):
+        pypijson = os.path.join(basedir, 'data', pkgname[0].lower(), 'contents.json')
 
         if not os.path.isfile(pypijson):
             pypijson = create_empty_json(pypijson)
 
-        if pkg == 0:
-            readjson = True
-        else:
-            if pkginit != pkglist[pkg-1][0].lower():
-                readjson = True
-
-        if readjson:
-            with open(pypijson, 'r') as f:
-                jsondict = json.loads(f.read())
+        with open(pypijson, 'r') as f:
+            jsondict = json.loads(f.read())
 
         if not pkgname in jsondict:
             jsondict[pkgname] = {'version':'',
@@ -182,55 +154,86 @@ def process(lrange='0-z'):
         pkgjson = get_pkgdata_from_api(pkgname)
 
         if not pkgjson:
+            lg.warning('(%s) Could not get info for this package.' % pkgname)
             continue
 
         pkgversion = pkgjson['info']['version']
         oldpkgversion = jsondict[pkgname]['version']
 
-        if oldpkgversion != pkgversion:
-            pkgdownloads = pkgjson['releases'][pkgversion]
-            if pkgdownloads:
-                for pkgtar in pkgdownloads:
-                    if pkgtar['packagetype'] == 'sdist':
-                        processsetup = True
-                        arurl = pkgtar['url']
-                        break
-
-        if not processsetup:
+        if oldpkgversion == pkgversion:
+            lg.info('(%s) This package is up to date.' % pkgname)
             continue
 
-        if not os.path.isdir(cachedir):
-            os.makedirs(cachedir)
+        pkgdownloads = pkgjson['releases'][pkgversion]
 
-        arname = os.path.basename(arurl)
-        arpath = os.path.join(cachedir, arname)
+        if not pkgdownloads:
+            lg.warning('(%s) This package does not have downloadable releases.' % pkgname)
+            continue
 
-        if not os.path.isfile(arpath):
-            if not download_package(pkgname, arurl, arpath):
+        for pkgtar in pkgdownloads:
+            pkgpath = None
+            setuppath = None
+            extractdir = None
+            arlist = None
+            arpath = None
+            arname = None
+            arurl = None
+            arext = None
+            pkgtopdir = None
+
+            if pkgtar['packagetype'] not in ['sdist', 'bdist_egg']:
                 continue
 
-        for oldar in glob.glob('%s/%s-%s*' %(cachedir, pkgname, oldpkgversion)):
-            if oldar != arpath:
-                if os.path.isfile(oldar):
-                    os.remove(oldar)
-                elif os.path.isdir(oldar):
-                    shutil.rmtree(oldar)
+            arurl = pkgtar['url']
+            arname = os.path.basename(arurl)
+            arpath = os.path.join(cachedir, arname)
+            arext = get_archive_extension(arpath)
 
-        cmplist = extract_and_list_archive(pkgname, arname, arpath,
-                                           cachedir)
-        if not cmplist:
+            if arext not in ['.zip', '.tgz', '.tar.gz', '.tar.bz2']:
+                continue
+
+            if not os.path.isfile(arpath):
+                if not download_archive(pkgname, arurl, arpath):
+                    lg.warning('(%s) There was an error downloading this package.' % pkgname)
+                    continue
+
+            extractdir = tempfile.mkdtemp()
+            arlist = get_archive_filelist(pkgname, arname, arpath, arext,
+                                          extractdir)
+            if not arlist:
+                lg.warning('(%s) There was an error extracting this package.' % pkgname)
+                continue
+
+            pkgtopdir = arlist[0].split(os.sep)[0]
+
+            if pkgtopdir == '.':
+                continue
+
+            pkgpath = os.path.normpath(os.path.join(extractdir, pkgtopdir))
+            setuppath = os.path.join(pkgpath, 'setup.py')
+
+            if os.path.isfile(setuppath):
+                break
+
+            pkgpath = extractdir
+            setuppath = os.path.join(pkgpath, 'setup.py')
+
+            if os.path.isfile(setuppath):
+                break
+
+            try:
+                os.remove(arpath)
+                shutil.rmtree(extractdir)
+            except Exception as e:
+                lg.warning('(%s) %s: %s' % (pkgname, type(e).__name__, e))
+
+        if not setuppath:
+            lg.info('(%s) Could not find a suitable archive to download.' % pkgname)
             continue
-
-        pkgdir = os.path.normpath(cmplist[0]).split(os.sep)[0]
-        pkgpath = os.path.normpath(os.path.join(cachedir, pkgdir))
-        setuppath = os.path.join(pkgpath, 'setup.py')
 
         if not os.path.isfile(setuppath):
-            lg.error('(%s) No setup.py found.' % pkgname)
+            lg.warning('(%s) This package has no setup script.' % pkgname)
             continue
-
-        os.chdir(pkgpath)
-        sys.path.append(pkgpath)
 
         try:
             setupargs = execute_setup(wrapper, setuppath, pkgname)
@@ -241,19 +244,11 @@ def process(lrange='0-z'):
             jsondict[pkgname].update(setupargs)
 
         try:
-            os.chdir(basedir)
-            sys.path.remove(pkgpath)
-            shutil.rmtree(pkgpath)
+            shutil.rmtree(extractdir)
         except Exception as e:
-            lg.error('(%s) %s: %s' % (pkgname, type(e).__name__, e))
+            lg.warning('(%s) Post clean %s: %s' % (pkgname, type(e).__name__, e))
 
-        if pkg == len(pkglist)-1:
-            writejson = True
-        else:
-            if pkginit != pkglist[pkg+1][0].lower():
-                writejson = True
+        with open(pypijson, 'w') as f:
+            f.write(u(json.dumps(jsondict, separators=(',', ': '),
+                                 sort_keys=True, indent=4)))
 
-        if writejson:
-            with open(pypijson, 'w') as f:
-                f.write(u(json.dumps(jsondict, separators=(',', ': '),
-                                     sort_keys=True, indent=4)))

@@ -26,33 +26,33 @@ if sys.version_info < (3,):
 def false_import(name, globals={}, locals={},
                  fromlist=[], level=default_import_level):
 
-    banned_impostors = ['antlr3', 'astor', 'autowrap', 'babel',
-    'bacpypes', 'BEEMINDER_KEY', 'bibtexparser', 'Bio', 'botocore',
-    'bzrlib', 'celerid', 'celery', 'cffi', 'charade', 'circuits', 'click',
-    'clint', 'COIN_INSTALL_DIR', 'commons', 'creole', 'Crypto', 'Cython',
-    'Cython.Distutils.build_ext', 'cythrust', 'dd', 'distutils2',
-    'distutils.command.py', 'DistUtilsExtra', 'django', 'dns', 'docutils',
-    'epsilon', '__file__', 'flask', 'foruse', 'gfworks', 'git_revision',
-    'google', 'grako', 'graph_db', 'h5config', 'hgtools', 'IDL_DIR',
-    'INCLUDEDIR', 'installed_solvers', 'IPython', 'itools', 'java', 'jip',
-    'kiwi', 'lib', 'libsovereign', 'llvm', 'LOGNAME', 'mako', 'marshmallow',
-    'matplotlib', 'mercurial', 'mytools', 'name', 'ndg', 'networkx', 'nisext',
-    'nummodule', 'numpy', 'numpydoc', 'packaging', 'parsimonious', 'paver',
-    'pgp', 'pip._vendor.six.moves', 'pip._vendor.six', 'plib', 'ply', 'portage',
-    'protorpc', 'psycopg2', 'PWD', 'py2exe', 'pycoin', 'pyfftw', 'pygame', 'pyglet',
-    'pygments', 'pykern', 'pymongo', 'PyQt4', 'PyQt5', 'rabird', 'rdflib',
-    'reviewboard', 'rimudns', 'salt', 'scipy', 'SDL', 'selenium',
-    'setuptools.command.config', 'sflib', 'six', 'sklearn', 'sleipnir.core',
-    'sphinx', 'storm', 'stsci', 'subunit', 'SYSTEMDRIVE', 'tiddlywebplugins',
-    'torfy.utils', 'tornado', 'trac', 'twisted', 'uliweb', 'utils',
-    '__version__', 'werkzeug', 'win32com', 'win_unicode_console', 'wx', 'yormi',
-    'org', 'org.python', 'pip._vendor.requests.packages.urllib3.exceptions',
-    'pip._vendor.requests.packages.urllib3', 'pip._vendor.requests.packages',
-    'pip._vendor.requests', 'autowrap', 'BEEMINDER_KEY', 'Cython.Compiler',
-    'Cython.Distutils', '__file__', 'gdbm', 'gfworks.templates', 'jinja2',
-    'markdown', 'ndg.httpsclient', 'numpy.distutils', 'pandas',
-    'pip._vendor.packaging', 'twisted.python', 'win32com.client']
-
+    # banned_impostors = ['antlr3', 'astor', 'autowrap', 'babel',
+    # 'bacpypes', 'BEEMINDER_KEY', 'bibtexparser', 'Bio', 'botocore',
+    # 'bzrlib', 'celerid', 'celery', 'cffi', 'charade', 'circuits', 'click',
+    # 'clint', 'COIN_INSTALL_DIR', 'commons', 'creole', 'Crypto', 'Cython',
+    # 'Cython.Distutils.build_ext', 'cythrust', 'dd', 'distutils2',
+    # 'distutils.command.py', 'DistUtilsExtra', 'django', 'dns', 'docutils',
+    # 'epsilon', '__file__', 'flask', 'foruse', 'gfworks', 'git_revision',
+    # 'google', 'grako', 'graph_db', 'h5config', 'hgtools', 'IDL_DIR',
+    # 'INCLUDEDIR', 'installed_solvers', 'IPython', 'itools', 'java', 'jip',
+    # 'kiwi', 'lib', 'libsovereign', 'llvm', 'LOGNAME', 'mako', 'marshmallow',
+    # 'matplotlib', 'mercurial', 'mytools', 'name', 'ndg', 'networkx', 'nisext',
+    # 'nummodule', 'numpy', 'numpydoc', 'packaging', 'parsimonious', 'paver',
+    # 'pgp', 'pip._vendor.six.moves', 'pip._vendor.six', 'plib', 'ply', 'portage',
+    # 'protorpc', 'psycopg2', 'PWD', 'py2exe', 'pycoin', 'pyfftw', 'pygame', 'pyglet',
+    # 'pygments', 'pykern', 'pymongo', 'PyQt4', 'PyQt5', 'rabird', 'rdflib',
+    # 'reviewboard', 'rimudns', 'salt', 'scipy', 'SDL', 'selenium',
+    # 'setuptools.command.config', 'sflib', 'six', 'sklearn', 'sleipnir.core',
+    # 'sphinx', 'storm', 'stsci', 'subunit', 'SYSTEMDRIVE', 'tiddlywebplugins',
+    # 'torfy.utils', 'tornado', 'trac', 'twisted', 'uliweb', 'utils',
+    # '__version__', 'werkzeug', 'win32com', 'win_unicode_console', 'wx', 'yormi',
+    # 'org', 'org.python', 'pip._vendor.requests.packages.urllib3.exceptions',
+    # 'pip._vendor.requests.packages.urllib3', 'pip._vendor.requests.packages',
+    # 'pip._vendor.requests', 'autowrap', 'BEEMINDER_KEY', 'Cython.Compiler',
+    # 'Cython.Distutils', '__file__', 'gdbm', 'gfworks.templates', 'jinja2',
+    # 'markdown', 'ndg.httpsclient', 'numpy.distutils', 'pandas',
+    # 'pip._vendor.packaging', 'twisted.python', 'win32com.client']
+    #
     class ImpostorModule(object):
         def __init__(self, *args, **kwargs):
             pass
@@ -95,7 +95,11 @@ def false_import(name, globals={}, locals={},
         cmdline = []
         pkgpath = os.path.dirname(globals['__file__'])
         storepath = os.path.join(pkgpath, 'store.json')
-        banned_options = ['setup_requires', 'test_requires']
+        banned_options = ['setup_requires', 'test_requires', 'conda_buildnum',
+                          'd2to1', 'distclass', 'email', 'entry_points',
+                          'executables', 'home_page', 'include_package_data',
+                          'install_requires', 'licesne', 'namespace_packages',
+                          'pbr', 'platform', 'use_2to3', 'use_scm_version']
 
         from distutils.dist import Distribution
         from distutils.command.build_py import build_py
@@ -125,8 +129,8 @@ def false_import(name, globals={}, locals={},
     try:
         mod = _import(name, globals, locals, fromlist, level)
     except ImportError:
-        if name in banned_impostors:
-            raise
+        # if name in banned_impostors:
+        #     raise
         mod = ImpostorModule()
 
     if name == 'distribute_setup':

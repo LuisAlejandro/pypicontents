@@ -53,7 +53,7 @@ before_script:
     - git checkout master
     - git checkout contents data/${PYPICONTENTSRANGE}/contents.json logs/${PYPICONTENTSRANGE}/contents.log
 script:
-    - docker run -v ${PWD}:${PWD} -v ${HOME}/.cache/pip:/root/.cache/pip -w ${PWD} -e PYPICONTENTSRANGE=${PYPICONTENTSRANGE} luisalejandro/python:sid python main.py | tee logs/${PYPICONTENTSRANGE}/contents.log
+    - timeout -k 1 2400 docker run -v ${PWD}:${PWD} -v ${HOME}/.cache/pip:/root/.cache/pip -w ${PWD} -e PYPICONTENTSRANGE=${PYPICONTENTSRANGE} luisalejandro/python:sid python main.py | tee logs/${PYPICONTENTSRANGE}/contents.log || true
     - sudo chown -R ${USER}:${USER} data logs ${HOME}/.cache/pip
 after_success:
     - git config --global user.name "${GITUSERNAME}"
@@ -65,5 +65,5 @@ after_success:
     - git pull origin contents
     - git checkout master data/${PYPICONTENTSRANGE}/contents.json logs/${PYPICONTENTSRANGE}/contents.log
     - git add data/${PYPICONTENTSRANGE}/contents.json logs/${PYPICONTENTSRANGE}/contents.log
-    - git commit -m "[ci skip]" data/${PYPICONTENTSRANGE}/contents.json logs/${PYPICONTENTSRANGE}/contents.log
+    - git commit -m "[ci skip] Updating PyPIContents index." data/${PYPICONTENTSRANGE}/contents.json logs/${PYPICONTENTSRANGE}/contents.log
     - git push -q "https://${GHTOKEN}@${GHREPO#*//}" contents > /dev/null 2>&1

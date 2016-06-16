@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 import os
 import sys
@@ -19,4 +21,4 @@ if __name__ == '__main__':
         with open(setuppath) as _sfile:
             exec(compile(s(_sfile.read()), setuppath, 'exec'), env)
     except Exception as e:
-        sys.stderr.write(str(e))
+        sys.stderr.write('%s: %s' % (type(e).__name__, str(e)))

@@ -144,7 +144,7 @@ def process(lrange='0-z'):
             pypijson = create_empty_json(pypijson)
 
         with open(pypijson, 'r') as f:
-            jsondict = json.loads(f.read())
+            jsondict = json.loads(f.read() or '{}')
 
         if not pkgname in jsondict:
             jsondict[pkgname] = {'version':'',

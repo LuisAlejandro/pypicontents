@@ -25,9 +25,9 @@ except ImportError:
 from pkg_resources import parse_version
 
 from .utils import (get_archive_extension, urlesc, filter_package_list,
-                    create_empty_json, getlogging, u, timeout)
+                    create_file_if_notfound, getlogging, u, timeout)
 
-lg = getlogging()
+extractdir = os.path.join('/tmp', 'pypicontents')
 cachedir = os.path.join(os.environ.get('HOME'), '.cache', 'pip')
 basedir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 wrapper = os.path.join(basedir, 'wrapper.py')
@@ -35,7 +35,7 @@ pypiapiend = 'https://pypi.python.org/pypi'
 pypi = ServerProxy(pypiapiend)
 
 
-def execute_setup(wrapper, setuppath, pkgname):
+def execute_setup(lg, wrapper, setuppath, pkgname):
     errlist = []
     pybins = ['/usr/bin/python2.7', '/usr/bin/python3.5']
     pkgpath = os.path.dirname(setuppath)
@@ -59,7 +59,7 @@ def execute_setup(wrapper, setuppath, pkgname):
         errlist.append('(%s) %s' % (cmd[0], stderr))
     raise RuntimeError(' '.join(errlist))
 
-def get_pkgdata_from_api(pkgname):
+def get_pkgdata_from_api(lg, pkgname):
     try:
         pkgjsonfile = urlopen(url='%s/%s/json' % (pypiapiend, pkgname),
                               timeout=10).read()
@@ -80,7 +80,7 @@ def get_pkgdata_from_api(pkgname):
         return {'info': {'version': pkgversion},
                 'releases': {pkgversion: pkgurls}}
 
-def download_archive(pkgname, arurl, arpath):
+def download_archive(lg, pkgname, arurl, arpath):
     tries = 0
     while tries < 10:
         tries += 1
@@ -95,7 +95,7 @@ def download_archive(pkgname, arurl, arpath):
     else:
         return False
 
-def get_archive_filelist(pkgname, arname, arpath, arext, extractdir):
+def get_archive_filelist(lg, pkgname, arname, arpath, arext, extractdir):
     if arext == '.zip':
         armode = 'r'
         compressed = zipfile.ZipFile
@@ -126,7 +126,7 @@ def get_package_list(lrange):
         try:
             pkglist = pypi.list_packages()
         except Exception as e:
-            lg.error('XMLRPC API error: %s (Try: %s)' % (e, tries))
+            pass
         else:
             return filter_package_list(pkglist, lrange)
     else:
@@ -134,14 +134,23 @@ def get_package_list(lrange):
 
 def process(lrange='0-z'):
 
+    if not os.path.isdir(extractdir):
+        os.makedirs(extractdir)
+
     if not os.path.isdir(cachedir):
         os.makedirs(cachedir)
 
     for pkgname in get_package_list(lrange):
         pypijson = os.path.join(basedir, 'data', pkgname[0].lower(), 'contents.json')
+        pypilog = os.path.join(basedir, 'logs', pkgname[0].lower(), 'contents.log')
 
         if not os.path.isfile(pypijson):
-            pypijson = create_empty_json(pypijson)
+            create_file_if_notfound(pypijson)
+
+        if not os.path.isfile(pypilog):
+            create_file_if_notfound(pypilog)
+
+        lg = getlogging(pypilog)
 
         with open(pypijson, 'r') as f:
             jsondict = json.loads(f.read() or '{}')
@@ -151,7 +160,7 @@ def process(lrange='0-z'):
                                  'modules':[],
                                  'cmdline':[]}
 
-        pkgjson = get_pkgdata_from_api(pkgname)
+        pkgjson = get_pkgdata_from_api(lg, pkgname)
 
         if not pkgjson:
             lg.warning('(%s) Could not get info for this package.' % pkgname)
@@ -173,7 +182,6 @@ def process(lrange='0-z'):
         for pkgtar in pkgdownloads:
             pkgpath = None
             setuppath = None
-            extractdir = None
             arlist = None
             arpath = None
             arname = None
@@ -193,12 +201,11 @@ def process(lrange='0-z'):
                 continue
 
             if not os.path.isfile(arpath):
-                if not download_archive(pkgname, arurl, arpath):
+                if not download_archive(lg, pkgname, arurl, arpath):
                     lg.warning('(%s) There was an error downloading this package.' % pkgname)
                     continue
 
-            extractdir = tempfile.mkdtemp()
-            arlist = get_archive_filelist(pkgname, arname, arpath, arext,
+            arlist = get_archive_filelist(lg, pkgname, arname, arpath, arext,
                                           extractdir)
             if not arlist:
                 lg.warning('(%s) There was an error extracting this package.' % pkgname)
@@ -223,7 +230,7 @@ def process(lrange='0-z'):
 
             try:
                 os.remove(arpath)
-                shutil.rmtree(extractdir)
+                shutil.rmtree(pkgpath)
             except Exception as e:
                 lg.warning('(%s) %s: %s' % (pkgname, type(e).__name__, e))
 
@@ -236,7 +243,7 @@ def process(lrange='0-z'):
             continue
 
         try:
-            setupargs = execute_setup(wrapper, setuppath, pkgname)
+            setupargs = execute_setup(lg, wrapper, setuppath, pkgname)
         except Exception as e:
             lg.error('(%s) %s: %s' % (pkgname, type(e).__name__, e))
         else:
@@ -244,7 +251,7 @@ def process(lrange='0-z'):
             jsondict[pkgname].update(setupargs)
 
         try:
-            shutil.rmtree(extractdir)
+            shutil.rmtree(pkgpath)
         except Exception as e:
             lg.warning('(%s) Post clean %s: %s' % (pkgname, type(e).__name__, e))
 

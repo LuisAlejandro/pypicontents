@@ -47,23 +47,25 @@ env:
         - GHREPO="https://github.com/LuisAlejandro/pypicontents"
         - secure: PKeUMQDxsnkHQJi81leTdU/u1a0YhCvvV7UGUwTVOrnjZQ7uQzX/h2bEe85DpdzMtFdStxeLK+cNvyAYZPfjxn+3x4bl/z0baX0VePARshNdukopAyohHjsLNdtVcO1SY1WrQiFQsI9kelR38P3P9OaFpFds1mZusTTOM9eAyw8xnNWU7JBBGsDCjujMJCYhrsc4EgyzFd/DgypjPUb/duardWXfxv2YUD4MT6bSDscEH9FySZQCu90HDdyDBWuoJ+tNiIB5lKeJJpfhwciImnTCvK9gBEPnhcHceaWmllb4nDKoYjAQq4kOS+/zEGLYqrw11eGtBOuxwuUJGwCYM//wFbTx3IjxrFm+YPba47pXqfIa7Nj3ZewjFmmCMNP4ZHv2fTdzQ7rJukRUefesMNcdBT/1YNNuZKsRl6pqq3/qTUmFEDuSnUGYsLVIJbLBiz2X1bc8ieVdOUVX6OdfvipYQ9mbvzIbkMr9E02MeXUaxdBmiYSlwkxyPCGcwwWue6yaXESbniqUaq2XstBUblItaklH/MdBkVSto09uIr5JvILx0ZCaEo3GXvBxDDlxyO1BlLiwBS66msGsWPmLPIGiXNoMfb/tJhTUvxGM+oVgnEHTbIOjL8JMa9WO97O3HbkpxCtSQslPEZ1FkHSWvlTm/A86wh3n1EJhHIWThCk=
 before_script:
-    - mkdir -p logs/${PYPICONTENTSRANGE}
     - docker pull luisalejandro/python:sid
     - git fetch origin contents:contents
     - git checkout master
     - git checkout contents data/${PYPICONTENTSRANGE}/contents.json logs/${PYPICONTENTSRANGE}/contents.log
 script:
     - timeout -k 1 2400 docker run -v ${PWD}:${PWD} -v ${HOME}/.cache/pip:/root/.cache/pip -w ${PWD} -e PYPICONTENTSRANGE=${PYPICONTENTSRANGE} luisalejandro/python:sid python main.py | tee logs/${PYPICONTENTSRANGE}/contents.log || true
-    - sudo chown -R ${USER}:${USER} data logs ${HOME}/.cache/pip
+    - sudo chown -R ${USER}:${USER} . ${HOME}/.cache/pip
+    - ls -lah ${HOME}/.cache/pip
 after_success:
+    - git checkout master
     - git config --global user.name "${GITUSERNAME}"
     - git config --global user.email "${GITUSERMAIL}"
     - git add data/${PYPICONTENTSRANGE}/contents.json logs/${PYPICONTENTSRANGE}/contents.log
     - git commit -m "[ci skip]" data/${PYPICONTENTSRANGE}/contents.json logs/${PYPICONTENTSRANGE}/contents.log
-    - git reset --hard && git clean -fxd
+    - git reset --hard
+    - git clean -fxd
     - git checkout contents
     - git pull origin contents
     - git checkout master data/${PYPICONTENTSRANGE}/contents.json logs/${PYPICONTENTSRANGE}/contents.log
     - git add data/${PYPICONTENTSRANGE}/contents.json logs/${PYPICONTENTSRANGE}/contents.log
-    - git commit -m "[ci skip] Updating PyPIContents index." data/${PYPICONTENTSRANGE}/contents.json logs/${PYPICONTENTSRANGE}/contents.log
+    - git commit -m "[ci skip] Updating PyPIContents index (letter ${PYPICONTENTSRANGE})." data/${PYPICONTENTSRANGE}/contents.json logs/${PYPICONTENTSRANGE}/contents.log
     - git push -q "https://${GHTOKEN}@${GHREPO#*//}" contents > /dev/null 2>&1

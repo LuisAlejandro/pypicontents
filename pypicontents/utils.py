@@ -49,7 +49,7 @@ class timeout(object):
         signal.alarm(0)
 
 
-def getlogging():
+def getlogging(logfile):
 
     logging.config.dictConfig({
         'version': 1,
@@ -65,11 +65,17 @@ def getlogging():
                 'class': 'logging.StreamHandler',
                 'stream': sys.stdout,
                 'formatter': 'standard'
+            },
+            'file': {
+                'level': 'INFO',
+                'class': 'logging.FileHandler',
+                'filename': logfile,
+                'formatter': 'standard'
             }
         },
         'loggers': {
             'pypicontents': {
-                'handlers': ['console'],
+                'handlers': ['console', 'file'],
                 'propagate': False,
                 'level': 'INFO'
             }
@@ -97,14 +103,6 @@ def create_file_if_notfound(filename):
         with open(filename, 'w') as f:
             os.utime(filename, None)
     return filename
-
-
-def create_empty_json(filename):
-    jsonfile = create_file_if_notfound(filename)
-    with open(jsonfile, 'w') as f:
-        f.write(u('{}'))
-    return jsonfile
-
 
 
 def urlesc(url):

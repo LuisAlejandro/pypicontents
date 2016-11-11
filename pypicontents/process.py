@@ -153,7 +153,10 @@ def process(lrange='0-z'):
         lg = getlogging(pypilog)
 
         with open(pypijson, 'r') as f:
-            jsondict = json.loads(f.read() or '{}')
+            try:
+                jsondict = json.loads(f.read() or '{}')
+            except Exception as e:
+                jsondict = {}
 
         if not pkgname in jsondict:
             jsondict[pkgname] = {'version':'',

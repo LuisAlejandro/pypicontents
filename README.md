@@ -59,13 +59,9 @@ def find_package(contents, module):
             if mod == module:
                 yield pkg
 
-# Which package(s) content the 'ldap' module?
+# Which package(s) content the 'django' module?
 # Output: 
-print list(find_package(pypicontents, 'ldap'))
-
-# Which package(s) content the 'numpy' module?
-# Output: 
-print list(find_package(pypicontents, 'numpy'))
+print list(find_package(pypicontents, 'django'))
 ```
 
 > Hint: Use a module finder tool like [snakefood](https://bitbucket.org/blais/snakefood) or [modulefinder](https://docs.python.org/2/library/modulefinder.html) to search for imports in your project, then use pypicontents to search which packages contain them.

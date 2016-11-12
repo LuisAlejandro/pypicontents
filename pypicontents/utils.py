@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
 
 import os
-import re
 import sys
 import signal
 import logging
 import logging.config
-from collections import Iterable
 
 try:
     from urlparse import urlparse, urlunparse
@@ -31,20 +29,25 @@ def u(x):
         return x
     return x.decode('utf-8')
 
+
 def s(x):
     if isinstance(x, bytes):
         return x
     return x.encode('utf-8')
 
+
 class timeout(object):
     def __init__(self, sec=20, error='Operation timed out.'):
         self.sec = sec
         self.error = error
+
     def handle_timeout(self, signum, frame):
         raise RuntimeError(self.error)
+
     def __enter__(self):
         signal.signal(signal.SIGALRM, self.handle_timeout)
         signal.alarm(self.sec)
+
     def __exit__(self, type, value, traceback):
         signal.alarm(0)
 
@@ -83,6 +86,7 @@ def getlogging(logfile):
     })
 
     return logging.getLogger('pypicontents')
+
 
 def filter_package_list(pkglist=[], lrange='0-z'):
     if '-' in lrange:

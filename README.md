@@ -50,7 +50,7 @@ import urllib2
 
 pypic = 'https://raw.githubusercontent.com/LuisAlejandro/pypicontents/contents/contents.json'
 
-f = urllib2.urlopen(pipyc)
+f = urllib2.urlopen(pypic)
 pypicontents = json.loads(f.read())
 
 def find_package(contents, module):

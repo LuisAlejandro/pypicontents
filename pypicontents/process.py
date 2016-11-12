@@ -1,15 +1,10 @@
 # -*- coding: utf-8 -*-
 
 import os
-import sys
 import json
-import glob
 import shutil
 import tarfile
 import zipfile
-import tempfile
-import itertools
-import threading
 from subprocess import Popen, PIPE
 
 try:
@@ -48,7 +43,7 @@ def execute_setup(lg, wrapper, setuppath, pkgname):
             with timeout(error='Execution of setup.py took too much time.'):
                 p = Popen(cmd, stdout=PIPE, stderr=PIPE)
                 stdout, stderr = p.communicate()
-        except Exception as e:
+        except Exception:
             p.kill()
             raise
         if os.path.isfile(storepath):
@@ -58,6 +53,7 @@ def execute_setup(lg, wrapper, setuppath, pkgname):
             stderr = 'Failed for unknown reason.'
         errlist.append('(%s) %s' % (cmd[0], stderr))
     raise RuntimeError(' '.join(errlist))
+
 
 def get_pkgdata_from_api(lg, pkgname):
     try:
@@ -80,6 +76,7 @@ def get_pkgdata_from_api(lg, pkgname):
         return {'info': {'version': pkgversion},
                 'releases': {pkgversion: pkgurls}}
 
+
 def download_archive(lg, pkgname, arurl, arpath):
     tries = 0
     while tries < 10:
@@ -94,6 +91,7 @@ def download_archive(lg, pkgname, arurl, arpath):
             return True
     else:
         return False
+
 
 def get_archive_filelist(lg, pkgname, arname, arpath, arext, extractdir):
     if arext == '.zip':
@@ -119,18 +117,21 @@ def get_archive_filelist(lg, pkgname, arname, arpath, arext, extractdir):
     else:
         return arlist
 
+
 def get_package_list(lrange):
     tries = 0
     while tries < 2:
         tries += 1
         try:
             pkglist = pypi.list_packages()
-        except Exception as e:
+        except Exception:
             pass
         else:
-            return filter_package_list(pkglist, lrange)
+            return sorted(filter_package_list(pkglist, lrange),
+                          key=lambda s: s.lower())
     else:
         return []
+
 
 def process(lrange='0-z'):
 
@@ -140,7 +141,15 @@ def process(lrange='0-z'):
     if not os.path.isdir(cachedir):
         os.makedirs(cachedir)
 
-    for pkgname in get_package_list(lrange):
+    pkglist = get_package_list(lrange)
+
+    summary_updated = 0
+    summary_uptodate = 0
+    summary_error = 0
+    summary_without_downloads = 0
+    summary_no_response_from_api = 0
+
+    for pkgname in pkglist:
         pypijson = os.path.join(basedir, 'data', pkgname[0].lower(), 'contents.json')
         pypilog = os.path.join(basedir, 'logs', pkgname[0].lower(), 'contents.log')
 
@@ -158,27 +167,30 @@ def process(lrange='0-z'):
             except Exception as e:
                 jsondict = {}
 
-        if not pkgname in jsondict:
-            jsondict[pkgname] = {'version':'',
-                                 'modules':[],
-                                 'cmdline':[]}
+        if pkgname not in jsondict:
+            jsondict[pkgname] = {'version': '',
+                                 'modules': [],
+                                 'cmdline': []}
 
         pkgjson = get_pkgdata_from_api(lg, pkgname)
 
         if not pkgjson:
             lg.warning('(%s) Could not get info for this package.' % pkgname)
+            summary_no_response_from_api += 1
             continue
 
         pkgversion = pkgjson['info']['version']
         oldpkgversion = jsondict[pkgname]['version']
 
         if oldpkgversion == pkgversion:
+            summary_uptodate += 1
             lg.info('(%s) This package is up to date.' % pkgname)
             continue
 
         pkgdownloads = pkgjson['releases'][pkgversion]
 
         if not pkgdownloads:
+            summary_without_downloads += 1
             lg.warning('(%s) This package does not have downloadable releases.' % pkgname)
             continue
 
@@ -239,26 +251,43 @@ def process(lrange='0-z'):
 
         if not setuppath:
             lg.info('(%s) Could not find a suitable archive to download.' % pkgname)
+            summary_error += 1
             continue
 
         if not os.path.isfile(setuppath):
             lg.warning('(%s) This package has no setup script.' % pkgname)
+            summary_error += 1
             continue
 
         try:
             setupargs = execute_setup(lg, wrapper, setuppath, pkgname)
         except Exception as e:
             lg.error('(%s) %s: %s' % (pkgname, type(e).__name__, e))
+            summary_error += 1
+            continue
         else:
             jsondict[pkgname]['version'] = pkgversion
             jsondict[pkgname].update(setupargs)
-
-        try:
-            shutil.rmtree(pkgpath)
-        except Exception as e:
-            lg.warning('(%s) Post clean %s: %s' % (pkgname, type(e).__name__, e))
+            summary_updated += 1
 
         with open(pypijson, 'w') as f:
             f.write(u(json.dumps(jsondict, separators=(',', ': '),
                                  sort_keys=True, indent=4)))
 
+    summary_processed = (summary_updated + summary_uptodate + summary_error +
+                         summary_without_downloads +
+                         summary_no_response_from_api)
+    summary_not_processed = len(pkglist) - summary_processed
+
+    print
+    print
+    print 'Total number of packages: %s' % len(pkglist)
+    print '    Number of processed packages: %s' % summary_processed
+    print '        Number of updated packages: %s' % summary_updated
+    print '        Number of up-to-date packages: %s' % summary_uptodate
+    print '        Number of errored packages: %s' % summary_error
+    print '        Number of packages without downloads: %s' % summary_without_downloads
+    print '        Number of packages without response from API: %s' % summary_no_response_from_api
+    print '    Number of packages that could not be processed: %s' % summary_not_processed
+    print
+    print

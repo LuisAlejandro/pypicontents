@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import time
 import json
 import shutil
 import tarfile
@@ -149,7 +150,16 @@ def process(lrange='0-z'):
     summary_without_downloads = 0
     summary_no_response_from_api = 0
 
+    start_time = time.time()
+
     for pkgname in pkglist:
+
+        if time.time() - start_time >= 2100:
+            print
+            lg.warning('Processing has taken more than 35min. Interrupting.')
+            lg.warning('Processing will continue in next iteration.')
+            break
+
         pypijson = os.path.join(basedir, 'data', pkgname[0].lower(), 'contents.json')
         pypilog = os.path.join(basedir, 'logs', pkgname[0].lower(), 'contents.log')
 

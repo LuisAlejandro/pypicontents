@@ -45,7 +45,7 @@ env:
         - GITUSERNAME="Luis Alejandro Martínez Faneyth"
         - GITUSERMAIL="luis@huntingbears.com.ve"
         - GHREPO="https://github.com/LuisAlejandro/pypicontents"
-        - secure: PKeUMQDxsnkHQJi81leTdU/u1a0YhCvvV7UGUwTVOrnjZQ7uQzX/h2bEe85DpdzMtFdStxeLK+cNvyAYZPfjxn+3x4bl/z0baX0VePARshNdukopAyohHjsLNdtVcO1SY1WrQiFQsI9kelR38P3P9OaFpFds1mZusTTOM9eAyw8xnNWU7JBBGsDCjujMJCYhrsc4EgyzFd/DgypjPUb/duardWXfxv2YUD4MT6bSDscEH9FySZQCu90HDdyDBWuoJ+tNiIB5lKeJJpfhwciImnTCvK9gBEPnhcHceaWmllb4nDKoYjAQq4kOS+/zEGLYqrw11eGtBOuxwuUJGwCYM//wFbTx3IjxrFm+YPba47pXqfIa7Nj3ZewjFmmCMNP4ZHv2fTdzQ7rJukRUefesMNcdBT/1YNNuZKsRl6pqq3/qTUmFEDuSnUGYsLVIJbLBiz2X1bc8ieVdOUVX6OdfvipYQ9mbvzIbkMr9E02MeXUaxdBmiYSlwkxyPCGcwwWue6yaXESbniqUaq2XstBUblItaklH/MdBkVSto09uIr5JvILx0ZCaEo3GXvBxDDlxyO1BlLiwBS66msGsWPmLPIGiXNoMfb/tJhTUvxGM+oVgnEHTbIOjL8JMa9WO97O3HbkpxCtSQslPEZ1FkHSWvlTm/A86wh3n1EJhHIWThCk=
+        - secure: "TIOeJ/QSHzNENPTyDs2Sezh8BAFCinqvIQzYekGuDPfSXPspMflNSqY7/AZ6XOUgFLo8MEk1RlUlyYGo0GiYnX+254At1W0vRwFr6Hxp/RBrG18AcV6O334P7g81GYwitFp/VKp5JFMrs2vXUfLk352RToiFTlI5KOUwNQqLY8RpqxB20MiAOLynraXHIiZW4s97FcoZChO/Kj4sAvwvMaLrBcq3jb6Tu2uR6XH/7r5pxOH+MDIqlkmxZK58KKMg1YBEbqVjWXYDfWmDAQNZu0uMF4Rjs2R++tfZXz5Z0a0icGIwjRTNsaSuYNRorUMJEkVLmTT1HhPaMsHlLYYJCxSkUe4wk91OOOP45WoLlCisBYVKnWLyJeV6QEKrx3YV3RvEmVmmIpnTQUse1n2XCNenTTTv/3g05BxBq7qMO2O0i7x7Q3LGh2+H1sBBAALwiny8k82esKiKwiETkpaR0VWjZvn6pcRl7F8BAM5z/cFTs+FELf1vazLopXWuTExHdWug5wlmGheS0/cgZjkoexCuEzV5YWK/C2/xAwRyZlpHxTNVNjw1xCB2fVTE6G/VpZ51HKxSzhEO1pFcQr/N2IbcHy9HxOfgGdtwp7Mawr3pOOwVcMu6CzwR2SeIqJ62ftSPzU1zXWW2fNO4++saADKUTydaLfGAMWmIywIPu0k="
 before_script:
     - docker pull luisalejandro/python:sid
     - git fetch origin contents:contents
@@ -54,6 +54,7 @@ before_script:
     - sudo chown -R ${USER}:${USER} . ${HOME}/.cache/pip
 script:
     - docker run -v ${PWD}:${PWD} -v ${HOME}/.cache/pip:/root/.cache/pip -w ${PWD} -e PYPICONTENTSRANGE=${PYPICONTENTSRANGE} luisalejandro/python:sid python main.py | tee logs/${PYPICONTENTSRANGE}/contents.log
+    - sudo chown -R ${USER}:${USER} . ${HOME}/.cache/pip
 after_success:
     - git checkout master
     - git config --global user.name "${GITUSERNAME}"

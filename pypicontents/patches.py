@@ -94,10 +94,13 @@ def false_import(name, globals={}, locals={},
 
         kwargs.update({'script_name': globals['__file__'],
                        'script_args': []})
+
         bpy = build_py(Distribution(kwargs))
         bpy.finalize_options()
+
         modules = ['.'.join([p, m]).strip('.') for p, m, f in bpy.find_all_modules()]
-        modules = [m.strip('.__init__') if m.endswith('.__init__') else m for m in modules]
+        modules = ['.'.join(m.split('.')[:-1]) if m.endswith('.__init__') else m for m in modules]
+        modules = ['.'.join(m.split('.')[:-1]) if m.endswith('.__main__') else m for m in modules]
 
         if 'scripts' in kwargs:
             cmdline.extend([os.path.basename(s) for s in kwargs['scripts']])
@@ -107,8 +110,8 @@ def false_import(name, globals={}, locals={},
                 cmdline.extend(entrymap['console_scripts'].keys())
 
         with open(storepath, 'w') as store:
-            store.write(u(json.dumps({'modules': modules,
-                                      'cmdline': cmdline})))
+            store.write(u(json.dumps({'modules': sorted(set(modules)),
+                                      'cmdline': sorted(set(cmdline))})))
 
     try:
         mod = _import(name, globals, locals, fromlist, level)

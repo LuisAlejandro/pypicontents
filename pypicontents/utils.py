@@ -90,7 +90,7 @@ def getlogging(logfile):
 
 def filter_package_list(pkglist=[], lrange='0-z'):
     if '-' in lrange:
-        lrange = [ord(lrange.split('-')[0]), ord(lrange.split('-')[1])+1]
+        lrange = [ord(lrange.split('-')[0]), ord(lrange.split('-')[1]) + 1]
         lrange = [chr(i) for i in range(*lrange) if 47 < i < 58 or 96 < i < 123]
     elif ',' in lrange:
         lrange = lrange.lower().split(',')

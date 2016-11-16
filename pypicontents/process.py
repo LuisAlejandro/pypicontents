@@ -67,11 +67,13 @@ def get_pkgdata_from_api(lg, pkgname):
         return dict(info=pkgj['info'], releases=pkgj['releases'])
 
     try:
-        pkgreleases = pypi.package_releases(pkgname)
-        pkgversion = str(sorted([parse_version(v) for v in pkgreleases])[-1])
+        pkgreleases = [parse_version(v) for v in pypi.package_releases(pkgname)]
+        if not pkgreleases:
+            raise
+        pkgversion = str(sorted(pkgreleases)[-1])
         pkgurls = pypi.release_urls(pkgname, pkgversion)
     except Exception as e:
-        lg.error('(%s) XMLRPC API error: %s' % (pkgname, e))
+        lg.warning('(%s) XMLRPC API error: %s' % (pkgname, e))
         return {}
     else:
         return {'info': {'version': pkgversion},

@@ -112,11 +112,12 @@ def false_import(name, globals={}, locals={},
 
     try:
         mod = _import(name, globals, locals, fromlist, level)
-    except ImportError:
-        # if name in banned_impostors:
-        #     raise
+    except (ImportError, KeyError):
         mod = ImpostorModule()
 
+    if name == 'warnings':
+        mod.showwarning = ImpostorModule()
+        mod.filterwarnings = do_nothing
     if name == 'distribute_setup':
         mod.use_setuptools = return_zero
     if name in ['setuptools', 'distutils.core']:

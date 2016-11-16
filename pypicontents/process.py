@@ -144,6 +144,7 @@ def process(lrange='0-z'):
     if not os.path.isdir(cachedir):
         os.makedirs(cachedir)
 
+    jsondict = {}
     pkglist = get_package_list(lrange)
 
     summary_updated = 0
@@ -156,33 +157,34 @@ def process(lrange='0-z'):
 
     for pkgname in pkglist:
 
+        pypijson = os.path.join(basedir, 'data', pkgname[0].lower(), 'contents.json')
+
+        if not os.path.isfile(pypijson):
+            create_file_if_notfound(pypijson)
+
+        if pkgname not in jsondict:
+            with open(pypijson, 'r') as f:
+                jsondict.update(json.loads(f.read() or '{}'))
+
+        if pkgname not in jsondict:
+            jsondict[pkgname] = {'version': '',
+                                 'modules': [],
+                                 'cmdline': []}
+
+    for pkgname in pkglist:
+
         if time.time() - start_time >= 2100:
             print
             lg.warning('Processing has taken more than 35min. Interrupting.')
             lg.warning('Processing will continue in next iteration.')
             break
 
-        pypijson = os.path.join(basedir, 'data', pkgname[0].lower(), 'contents.json')
         pypilog = os.path.join(basedir, 'logs', pkgname[0].lower(), 'contents.log')
-
-        if not os.path.isfile(pypijson):
-            create_file_if_notfound(pypijson)
 
         if not os.path.isfile(pypilog):
             create_file_if_notfound(pypilog)
 
         lg = getlogging(pypilog)
-
-        with open(pypijson, 'r') as f:
-            try:
-                jsondict = json.loads(f.read() or '{}')
-            except Exception as e:
-                jsondict = {}
-
-        if pkgname not in jsondict:
-            jsondict[pkgname] = {'version': '',
-                                 'modules': [],
-                                 'cmdline': []}
 
         pkgjson = get_pkgdata_from_api(lg, pkgname)
 
@@ -262,12 +264,12 @@ def process(lrange='0-z'):
                 lg.warning('(%s) %s: %s' % (pkgname, type(e).__name__, e))
 
         if not setuppath:
-            lg.info('(%s) Could not find a suitable archive to download.' % pkgname)
+            lg.error('(%s) Could not find a suitable archive to download.' % pkgname)
             summary_error += 1
             continue
 
         if not os.path.isfile(setuppath):
-            lg.warning('(%s) This package has no setup script.' % pkgname)
+            lg.error('(%s) This package has no setup script.' % pkgname)
             summary_error += 1
             continue
 
@@ -282,8 +284,12 @@ def process(lrange='0-z'):
             jsondict[pkgname].update(setupargs)
             summary_updated += 1
 
+    for i in sorted(set(map(lambda x: x[0].lower(), pkglist))):
+        pypijson = os.path.join(basedir, 'data', i, 'contents.json')
+        j = dict((k, v) for k, v in jsondict.iteritems() if k[0] == i)
+
         with open(pypijson, 'w') as f:
-            f.write(u(json.dumps(jsondict, separators=(',', ': '),
+            f.write(u(json.dumps(j, separators=(',', ': '),
                                  sort_keys=True, indent=4)))
 
     summary_processed = (summary_updated + summary_uptodate + summary_error +

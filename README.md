@@ -47,6 +47,7 @@ This index is generated using [Travis](https://travis-ci.org/LuisAlejandro/pypic
 ```python
 import json
 import urllib2
+from pprint import pprint
 
 pypic = 'https://raw.githubusercontent.com/LuisAlejandro/pypicontents/contents/contents.json'
 
@@ -57,11 +58,11 @@ def find_package(contents, module):
     for pkg, data in contents.items():
         for mod in data['modules']:
             if mod == module:
-                yield pkg
+                yield {pkg: data['modules']}
 
 # Which package(s) content the 'django' module?
 # Output: 
-print list(find_package(pypicontents, 'django'))
+pprint(list(find_package(pypicontents, 'django')))
 ```
 
 > Hint: Use a module finder tool like [snakefood](https://bitbucket.org/blais/snakefood) or [modulefinder](https://docs.python.org/2/library/modulefinder.html) to search for imports in your project, then use pypicontents to search which packages contain them.

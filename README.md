@@ -8,7 +8,7 @@ This project aims to (sort of) mimic what the [Contents file](https://www.debian
 based package repository, but for the PyPI.
 
 It works by generating a content index instead of just a package index. In the
-file [contents.json](https://github.com/LuisAlejandro/pypicontents/blob/contents/contents.json)
+file [pypi.json](https://github.com/LuisAlejandro/pypicontents/blob/contents/pypi.json)
 you will find a dictionary with all the packages registered at the main PyPI instance,
 each one with the following information:
 
@@ -49,7 +49,7 @@ import json
 import urllib2
 from pprint import pprint
 
-pypic = 'https://raw.githubusercontent.com/LuisAlejandro/pypicontents/contents/contents.json'
+pypic = 'https://raw.githubusercontent.com/LuisAlejandro/pypicontents/contents/pypi.json'
 
 f = urllib2.urlopen(pypic)
 pypicontents = json.loads(f.read())

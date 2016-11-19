@@ -157,7 +157,7 @@ def process(lrange='0-z'):
 
     for pkgname in pkglist:
 
-        pypijson = os.path.join(basedir, 'data', pkgname[0].lower(), 'contents.json')
+        pypijson = os.path.join(basedir, 'data', pkgname[0].lower(), 'pypi.json')
 
         if not os.path.isfile(pypijson):
             create_file_if_notfound(pypijson)
@@ -179,7 +179,7 @@ def process(lrange='0-z'):
             lg.warning('Processing will continue in next iteration.')
             break
 
-        pypilog = os.path.join(basedir, 'logs', pkgname[0].lower(), 'contents.log')
+        pypilog = os.path.join(basedir, 'logs', pkgname[0].lower(), 'pypi.log')
 
         if not os.path.isfile(pypilog):
             create_file_if_notfound(pypilog)
@@ -285,7 +285,7 @@ def process(lrange='0-z'):
             summary_updated += 1
 
     for i in sorted(set(map(lambda x: x[0].lower(), pkglist))):
-        pypijson = os.path.join(basedir, 'data', i, 'contents.json')
+        pypijson = os.path.join(basedir, 'data', i, 'pypi.json')
         j = dict((k, v) for k, v in jsondict.iteritems() if k[0] == i)
 
         with open(pypijson, 'w') as f:

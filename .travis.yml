@@ -3,6 +3,10 @@ services: docker
 language: python
 cache: pip
 python: 2.7
+branches:
+    only:
+        - master
+        - build
 env:
     matrix:
         - PYPICONTENTSRANGE="0"

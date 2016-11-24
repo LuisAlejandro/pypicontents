@@ -6,7 +6,9 @@ import json
 import shutil
 import tarfile
 import zipfile
+import pkgutil
 from subprocess import Popen, PIPE
+from distutils import sysconfig
 
 try:
     from urllib2 import urlopen
@@ -14,15 +16,24 @@ except ImportError:
     from urllib.request import urlopen
 
 try:
+    from urlparse import urlparse, urlunparse
+except ImportError:
+    from urllib.parse import urlparse, urlunparse
+
+try:
     from xmlrpclib import ServerProxy
 except ImportError:
     from xmlrpc.client import ServerProxy
 
 from pkg_resources import parse_version
+from setuptools import find_packages
 
 from .utils import (get_archive_extension, urlesc, filter_package_list,
-                    create_file_if_notfound, getlogging, u, timeout)
+                    create_file_if_notfound, getlogging, u, timeout,
+                    find_files, list_files, is_valid_path,
+                    custom_sys_path, remove_sys_modules)
 
+libdir = sysconfig.get_config_var('LIBDEST')
 extractdir = os.path.join('/tmp', 'pypicontents')
 cachedir = os.path.join(os.environ.get('HOME'), '.cache', 'pip')
 basedir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
@@ -31,15 +42,91 @@ pypiapiend = 'https://pypi.python.org/pypi'
 pypi = ServerProxy(pypiapiend)
 
 
-def execute_setup(lg, wrapper, setuppath, pkgname):
+def get_package_dirs(path):
+    """
+    List directories containing python packages on ``path``.
+
+    :param path: a path pointing to a directory containing python code.
+    :return: a list containing directories of packages.
+
+    .. versionadded:: 0.1.0
+    """
+    package_dirs = []
+    for init in find_files(path, '__init__.py'):
+        pkgdir = os.path.dirname(init)
+        if os.path.commonprefix([pkgdir, path]) == path and \
+           is_valid_path(os.path.relpath(pkgdir, path)):
+            while True:
+                init = os.path.split(init)[0]
+                if not os.path.isfile(os.path.join(init, '__init__.py')):
+                    break
+            if init not in package_dirs:
+                package_dirs.append(init)
+    return package_dirs
+
+
+def get_packages(path):
+    """
+    List packages living in ``path`` with its directory.
+
+    :param path: a path pointing to a directory containing python code.
+    :return: a list of tuples containing the name of the package and
+             the package directory. For example::
+
+                 [
+                    ('package_a', '/path/to/package_a'),
+                    ('package_b.module_b', '/path/to/package_b/module_b'),
+                    ('package_c.module_c', '/path/to/package_c/module_c')
+                 ]
+
+    .. versionadded:: 0.1.0
+    """
+    packages = []
+    package_dirs = get_package_dirs(path)
+
+    for _dir in package_dirs:
+        for pkgname in find_packages(_dir):
+            try:
+                with custom_sys_path([_dir, libdir]):
+                    with remove_sys_modules([pkgname]):
+                        pkgdir = pkgutil.get_loader(pkgname).filename
+            except:
+                pkgdir = os.path.join(_dir, os.sep.join(pkgname.split('.')))
+            packages.append([pkgname, pkgdir])
+    return packages
+
+
+def get_modules(pkgdata):
+    """
+    List modules inside packages provided in ``pkgdata``.
+
+    :param pkgdata: a list of tuples containing the name of a package and
+                    the directory where its located.
+    :return: a list of the modules according to the list of packages
+             provided in ``pkgdata``.
+
+    .. versionadded:: 0.1.0
+    """
+    modules = []
+
+    for pkgname, pkgdir in pkgdata:
+        for py in list_files(pkgdir, '*.py'):
+            module = os.path.splitext(os.path.basename(py))[0]
+            if not module.startswith('__'):
+                modname = '.'.join([pkgname, module])
+            else:
+                modname = pkgname
+            modules.append(modname)
+    return sorted(list(set(modules)))
+
+
+def execute_setup(wrapper, setuppath, pkgname):
     errlist = []
     pybins = ['/usr/bin/python2.7', '/usr/bin/python3.5']
     pkgpath = os.path.dirname(setuppath)
     storepath = os.path.join(pkgpath, 'store.json')
 
     for cmd in [(pybin, wrapper, setuppath) for pybin in pybins]:
-        lg.info('(%s) Parsing %s with %s' % (pkgname, setuppath, cmd[0]))
-
         try:
             with timeout(error='Execution of setup.py took too much time.'):
                 p = Popen(cmd, stdout=PIPE, stderr=PIPE)
@@ -82,7 +169,7 @@ def get_pkgdata_from_api(lg, pkgname):
 
 def download_archive(lg, pkgname, arurl, arpath):
     tries = 0
-    while tries < 10:
+    while tries < 5:
         tries += 1
         try:
             ardownobj = urlopen(url=urlesc(arurl), timeout=10).read()
@@ -149,10 +236,11 @@ def process(lrange='0-z'):
 
     summary_updated = 0
     summary_uptodate = 0
-    summary_error = 0
+    summary_setup_error = 0
     summary_without_downloads = 0
     summary_no_response_from_api = 0
-
+    summary_no_sdist = 0
+    summary_no_setup = 0
     start_time = time.time()
 
     for pkgname in pkglist:
@@ -203,6 +291,27 @@ def process(lrange='0-z'):
 
         pkgdownloads = pkgjson['releases'][pkgversion]
 
+        if not pkgdownloads and 'download_url' in pkgjson['info']:
+            if pkgjson['info']['download_url'] and \
+               pkgjson['info']['download_url'] != 'UNKNOWN':
+                _url = urlparse(pkgjson['info']['download_url'])
+
+                if _url.netloc in ['gitlab.com', 'www.gitlab.com']:
+                    _path = os.path.join(*_url.path.split('/')[:3])
+                    _path = os.path.join(_path, 'repository', 'archive.tar.gz')
+                    _tar = urlunparse(('https', 'gitlab.com', _path, '',
+                                       'ref=master', ''))
+
+                elif _url.netloc in ['github.com', 'www.github.com']:
+                    _path = os.path.join(*_url.path.split('/')[:3])
+                    _path = os.path.join(_path, 'legacy.tar.gz', 'master')
+                    _tar = urlunparse(('https', 'codeload.github.com', _path,
+                                       '', '', ''))
+
+                else:
+                    _tar = pkgjson['info']['download_url']
+                pkgdownloads = [{'url': _tar, 'packagetype': 'sdist'}]
+
         if not pkgdownloads:
             summary_without_downloads += 1
             lg.warning('(%s) This package does not have downloadable releases.' % pkgname)
@@ -222,7 +331,19 @@ def process(lrange='0-z'):
                 continue
 
             arurl = pkgtar['url']
-            arname = os.path.basename(arurl)
+            parurl = urlparse(arurl)
+
+            if parurl.netloc in ['gitlab.com', 'www.gitlab.com'] and \
+               os.path.basename(parurl.path) == 'archive.tar.gz':
+                arname = '{0}-{1}.tar.gz'.format(pkgname, pkgversion)
+
+            elif parurl.netloc in ['codeload.github.com'] and \
+                 os.path.basename(parurl.path) == 'master':
+                arname = '{0}-{1}.tar.gz'.format(pkgname, pkgversion)
+
+            else:
+                arname = os.path.basename(arurl)
+
             arpath = os.path.join(cachedir, arname)
             arext = get_archive_extension(arpath)
 
@@ -265,24 +386,36 @@ def process(lrange='0-z'):
 
         if not setuppath:
             lg.error('(%s) Could not find a suitable archive to download.' % pkgname)
-            summary_error += 1
+            summary_no_sdist += 1
             continue
 
         if not os.path.isfile(setuppath):
             lg.error('(%s) This package has no setup script.' % pkgname)
-            summary_error += 1
+            summary_no_setup += 1
             continue
 
         try:
-            setupargs = execute_setup(lg, wrapper, setuppath, pkgname)
+            setupargs = execute_setup(wrapper, setuppath, pkgname)
+            lg.info('(%s) Executing %s ...' % (pkgname, setuppath))
         except Exception as e:
-            lg.error('(%s) %s: %s' % (pkgname, type(e).__name__, e))
-            summary_error += 1
-            continue
-        else:
-            jsondict[pkgname]['version'] = pkgversion
-            jsondict[pkgname].update(setupargs)
-            summary_updated += 1
+
+            try:
+                setupdir = os.path.dirname(setuppath)
+                os.chdir(setupdir)
+                packages = get_packages(setupdir)
+                setupargs = {'modules': get_modules(packages),
+                             'cmdline': []}
+                os.chdir(basedir)
+                lg.info('(%s) Inspecting %s ...' % (pkgname, setupdir))
+
+            except Exception as e:
+                lg.error('(%s) %s: %s' % (pkgname, type(e).__name__, e))
+                summary_setup_error += 1
+                continue
+
+        jsondict[pkgname]['version'] = pkgversion
+        jsondict[pkgname].update(setupargs)
+        summary_updated += 1
 
     for i in sorted(set(map(lambda x: x[0].lower(), pkglist))):
         pypijson = os.path.join(basedir, 'data', i, 'pypi.json')
@@ -292,9 +425,10 @@ def process(lrange='0-z'):
             f.write(u(json.dumps(j, separators=(',', ': '),
                                  sort_keys=True, indent=4)))
 
-    summary_processed = (summary_updated + summary_uptodate + summary_error +
-                         summary_without_downloads +
-                         summary_no_response_from_api)
+    summary_processed = (
+        summary_updated + summary_uptodate + summary_setup_error +
+        summary_no_sdist + summary_no_setup + summary_without_downloads +
+        summary_no_response_from_api)
     summary_not_processed = len(pkglist) - summary_processed
 
     print
@@ -303,7 +437,9 @@ def process(lrange='0-z'):
     print '    Number of processed packages: %s' % summary_processed
     print '        Number of updated packages: %s' % summary_updated
     print '        Number of up-to-date packages: %s' % summary_uptodate
-    print '        Number of errored packages: %s' % summary_error
+    print '        Number of packages unable to read setup: %s' % summary_setup_error
+    print '        Number of packages with no source downloads: %s' % summary_no_sdist
+    print '        Number of packages without setup script: %s' % summary_no_setup
     print '        Number of packages without downloads: %s' % summary_without_downloads
     print '        Number of packages without response from API: %s' % summary_no_response_from_api
     print '    Number of packages that could not be processed: %s' % summary_not_processed

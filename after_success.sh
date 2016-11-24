@@ -2,7 +2,7 @@
 
 set -ev
 
-if [ -n ${PYPICONTENTSRANGE+x} ]; then
+if [ -n ${PYPICONTENTSRANGE} ]; then
 	git checkout master
 	git config --global user.name "${GITUSERNAME}"
 	git config --global user.email "${GITUSERMAIL}"
@@ -19,7 +19,7 @@ if [ -n ${PYPICONTENTSRANGE+x} ]; then
 fi
 
 
-if [ -n ${STDLIBCONTENTS+x} ]; then
+if [ -n ${STDLIBCONTENTS} ]; then
 	git checkout master
 	git config --global user.name "${GITUSERNAME}"
 	git config --global user.email "${GITUSERMAIL}"

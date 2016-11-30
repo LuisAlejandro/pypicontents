@@ -7,6 +7,7 @@ import shutil
 import tarfile
 import zipfile
 import pkgutil
+import resource
 from subprocess import Popen, PIPE
 from distutils import sysconfig
 
@@ -355,9 +356,21 @@ def process(lrange='0-z'):
 
         logger.config(pypilog)
 
-        if time.time() - start_time >= 2100:
+        if time.time() - start_time > 2100:
             print
             logger.warning('Processing has taken more than 35min. Interrupting.')
+            logger.warning('Processing will continue in next iteration.')
+            break
+
+        if int(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss) > 3*1024*1024:
+            print
+            logger.warning('This process is taking more than 3GB of memory.')
+            logger.warning('Processing will continue in next iteration.')
+            break
+
+        if int(os.path.getsize(pypilog)) > 3*1024:
+            print
+            logger.warning('The log of this process is taking more than 3MB. Interrupting.')
             logger.warning('Processing will continue in next iteration.')
             break
 

@@ -140,6 +140,8 @@ def false_import(name, globals={}, locals={},
         mod.Popen.stdin = None
         mod.call = return_zero
         mod.check_output = return_empty_str
+    if name == 'pycvf.management':
+        mod = ImpostorModule()
     return mod
 
 

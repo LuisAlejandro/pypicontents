@@ -5,7 +5,6 @@ import sys
 import signal
 import fnmatch
 import logging
-import logging.config
 from contextlib import contextmanager
 
 try:
@@ -52,42 +51,6 @@ class timeout(object):
 
     def __exit__(self, type, value, traceback):
         signal.alarm(0)
-
-
-def getlogging(logfile):
-
-    logging.config.dictConfig({
-        'version': 1,
-        'disable_existing_loggers': True,
-        'formatters': {
-            'standard': {
-                'format': '[%(levelname)s] %(message)s'
-            }
-        },
-        'handlers': {
-            'console': {
-                'level': 'INFO',
-                'class': 'logging.StreamHandler',
-                'stream': sys.stdout,
-                'formatter': 'standard'
-            },
-            'file': {
-                'level': 'INFO',
-                'class': 'logging.FileHandler',
-                'filename': logfile,
-                'formatter': 'standard'
-            }
-        },
-        'loggers': {
-            'pypicontents': {
-                'handlers': ['console', 'file'],
-                'propagate': False,
-                'level': 'INFO'
-            }
-        }
-    })
-
-    return logging.getLogger('pypicontents')
 
 
 def filter_package_list(pkglist=[], lrange='0-z'):
@@ -226,3 +189,47 @@ def is_valid_path(path):
            component not in ['.', '..']:
             return False
     return True
+
+
+class ControlableLogger(logging.Logger):
+    """
+    This class represents a logger object that can be started and stopped.
+
+    It has a start method which allows you to specify a logging level. The stop
+    method halts output.
+    """
+
+    def __init__(self, name=None):
+        """
+        Initialize this ``ControlableLogger``.
+
+        The name defaults to the application name. Loggers with the same name
+        refer to the same underlying object. Names are hierarchical, e.g.
+        'parent.child' defines a logger that is a descendant of 'parent'.
+
+        :param name: a string containig the logger name.
+        :return: a ``ControlableLogger`` instance.
+
+        .. versionadded:: 0.1.0
+        """
+        super(ControlableLogger, self).__init__(name or __name__.split('.')[0])
+
+        #: Attribute ``formatstring`` (string): Stores the string that
+        #: will be used to format the logger output.
+        self.formatstring = '[%(levelname)s] %(message)s'
+        self.setLevel('INFO')
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setFormatter(logging.Formatter(self.formatstring))
+        self.addHandler(handler)
+
+    def config(self, filename):
+        for h in list(self.handlers):
+            if isinstance(h, logging.FileHandler):
+                self.removeHandler(h)
+
+        handler = logging.FileHandler(filename)
+        handler.setFormatter(logging.Formatter(self.formatstring))
+        self.addHandler(handler)
+
+
+logger = ControlableLogger()

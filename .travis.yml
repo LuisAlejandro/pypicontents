@@ -56,9 +56,9 @@ env:
           - STDLIBCONTENTS="2.6"
           - STDLIBCONTENTS="2.7"
           - STDLIBCONTENTS="3.2"
-          - STDLIBCONTENTS="3.3"
           - STDLIBCONTENTS="3.4"
           - STDLIBCONTENTS="3.5"
+          - STDLIBCONTENTS="3.6"
 before_script:
     - |
         if [ -n "${PYPICONTENTSRANGE}" ]; then
@@ -80,15 +80,17 @@ script:
             docker run -v ${PWD}:${PWD} -v ${HOME}/.cache/pip:/root/.cache/pip \
                 -w ${PWD} -e PYPICONTENTSRANGE=${PYPICONTENTSRANGE} \
                 luisalejandro/pypicontents:2.7 pypirazzi process \
+                    -o data/${PYPICONTENTSRANGE}/pypi.json \
                     -f logs/${PYPICONTENTSRANGE}/pypi.log \
-                    -j data/${PYPICONTENTSRANGE}/pypi.json \
                     -R ${PYPICONTENTSRANGE} -L 3M -M 2G -T 2100
         fi
 
         if [ -n "${STDLIBCONTENTS}" ]; then
             docker run -v ${PWD}:${PWD} -v ${HOME}/.cache/pip:/root/.cache/pip \
                 -w ${PWD} -e STDLIBCONTENTS=${STDLIBCONTENTS} \
-                luisalejandro/pypicontents:${STDLIBCONTENTS} pypirazzi stdlib
+                luisalejandro/pypicontents:${STDLIBCONTENTS} pypirazzi stdlib \
+                    -o stdlib/${STDLIBCONTENTS}/stdlib.json \
+                    -p ${STDLIBCONTENTS}
         fi
 
         sudo chown -R ${USER}:${USER} . ${HOME}/.cache/pip

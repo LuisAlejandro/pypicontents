@@ -59,6 +59,72 @@ env:
           - STDLIBCONTENTS="3.3"
           - STDLIBCONTENTS="3.4"
           - STDLIBCONTENTS="3.5"
-before_script: ./before_script.sh
-script: ./script.sh
-after_success: ./after_success.sh
+before_script:
+    - |
+        if [ -n "${PYPICONTENTSRANGE}" ]; then
+            git fetch origin contents:contents
+            git checkout master
+            git checkout contents data/${PYPICONTENTSRANGE}/pypi.json logs/${PYPICONTENTSRANGE}/pypi.log
+        fi
+
+        if [ -n "${STDLIBCONTENTS}" ]; then
+            git fetch origin contents:contents
+            git checkout master
+            git checkout contents stdlib/${STDLIBCONTENTS}/stdlib.json
+        fi
+script:
+    - |
+        sudo chown -R ${USER}:${USER} . ${HOME}/.cache/pip
+
+        if [ -n "${PYPICONTENTSRANGE}" ]; then
+            docker run -v ${PWD}:${PWD} -v ${HOME}/.cache/pip:/root/.cache/pip \
+                -w ${PWD} -e PYPICONTENTSRANGE=${PYPICONTENTSRANGE} \
+                luisalejandro/pypicontents:2.7 pypirazzi process \
+                    -f logs/${PYPICONTENTSRANGE}/pypi.log \
+                    -j data/${PYPICONTENTSRANGE}/pypi.json \
+                    -R ${PYPICONTENTSRANGE} -L 3M -M 2G -T 2100
+        fi
+
+        if [ -n "${STDLIBCONTENTS}" ]; then
+            docker run -v ${PWD}:${PWD} -v ${HOME}/.cache/pip:/root/.cache/pip \
+                -w ${PWD} -e STDLIBCONTENTS=${STDLIBCONTENTS} \
+                luisalejandro/pypicontents:${STDLIBCONTENTS} pypirazzi stdlib
+        fi
+
+        sudo chown -R ${USER}:${USER} . ${HOME}/.cache/pip
+after_success:
+    - |
+        if [ -n "${PYPICONTENTSRANGE}" ]; then
+            git checkout master
+            git config --global user.name "${GITUSERNAME}"
+            git config --global user.email "${GITUSERMAIL}"
+            git add data/${PYPICONTENTSRANGE}/pypi.json logs/${PYPICONTENTSRANGE}/pypi.log
+            git commit -m "[ci skip]" data/${PYPICONTENTSRANGE}/pypi.json logs/${PYPICONTENTSRANGE}/pypi.log
+            git reset --hard
+            git clean -fxd
+            git checkout contents
+            git pull origin contents
+            git checkout master data/${PYPICONTENTSRANGE}/pypi.json logs/${PYPICONTENTSRANGE}/pypi.log
+            git add data/${PYPICONTENTSRANGE}/pypi.json logs/${PYPICONTENTSRANGE}/pypi.log
+            git commit -m "[ci skip] Updating PyPIContents index (letter ${PYPICONTENTSRANGE})." \
+                data/${PYPICONTENTSRANGE}/pypi.json logs/${PYPICONTENTSRANGE}/pypi.log
+            git push -q "https://${GHTOKEN}@${GHREPO#*//}" contents > /dev/null 2>&1
+        fi
+
+
+        if [ -n "${STDLIBCONTENTS}" ]; then
+            git checkout master
+            git config --global user.name "${GITUSERNAME}"
+            git config --global user.email "${GITUSERMAIL}"
+            git add stdlib/${STDLIBCONTENTS}/stdlib.json
+            git commit -m "[ci skip]" stdlib/${STDLIBCONTENTS}/stdlib.json
+            git reset --hard
+            git clean -fxd
+            git checkout contents
+            git pull origin contents
+            git checkout master stdlib/${STDLIBCONTENTS}/stdlib.json
+            git add stdlib/${STDLIBCONTENTS}/stdlib.json
+            git commit -m "[ci skip] Updating stdlib index (version ${STDLIBCONTENTS})." \
+                stdlib/${STDLIBCONTENTS}/stdlib.json
+            git push -q "https://${GHTOKEN}@${GHREPO#*//}" contents > /dev/null 2>&1
+        fi

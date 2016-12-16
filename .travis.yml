@@ -78,22 +78,20 @@ script:
 
         if [ -n "${PYPICONTENTSRANGE}" ]; then
             docker run -v ${PWD}:${PWD} -v ${HOME}/.cache/pip:/root/.cache/pip \
-                -w ${PWD} -e PYPICONTENTSRANGE=${PYPICONTENTSRANGE} \
-                luisalejandro/pypicontents:2.7 pypirazzi process \
+                -w ${PWD} luisalejandro/pypicontents:2.7 pypirazzi process \
                     -o data/${PYPICONTENTSRANGE}/pypi.json \
                     -f logs/${PYPICONTENTSRANGE}/pypi.log \
                     -R ${PYPICONTENTSRANGE} -L 3M -M 2G -T 2100
         fi
 
+        sudo chown -R ${USER}:${USER} . ${HOME}/.cache/pip
+
         if [ -n "${STDLIBCONTENTS}" ]; then
-            docker run -v ${PWD}:${PWD} -v ${HOME}/.cache/pip:/root/.cache/pip \
-                -w ${PWD} -e STDLIBCONTENTS=${STDLIBCONTENTS} \
+            docker run -v ${PWD}:${PWD} -w ${PWD} \
                 luisalejandro/pypicontents:${STDLIBCONTENTS} pypirazzi stdlib \
                     -o stdlib/${STDLIBCONTENTS}/stdlib.json \
                     -p ${STDLIBCONTENTS}
         fi
-
-        sudo chown -R ${USER}:${USER} . ${HOME}/.cache/pip
 after_success:
     - |
         if [ -n "${PYPICONTENTSRANGE}" ]; then

@@ -1,0 +1,2 @@
+sphinx
+pipsalabim==0.1.1

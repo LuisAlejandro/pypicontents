@@ -38,11 +38,11 @@
 
 .. _pipsalabim: https://github.com/LuisAlejandro/pipsalabim
 .. _full documentation: https://pypicontents.readthedocs.org
-.. _Contents file: https://www.debian.org/distrib/packages#search_contents
+.. _Contents: https://www.debian.org/distrib/packages#search_contents
 
 PyPIContents generates a configurable index written in ``JSON`` format that serves as a database for applications
 like `pipsalabim`_. It can be configured to process only a range of packages (by initial letter) and to have
-memory, time or log size limits. It basically aims to mimic what the `Contents file`_ means for a Debian
+memory, time or log size limits. It basically aims to mimic what the `Contents`_ file means for a Debian
 based package repository, but for the Python Package Index.
 
 This repository stores the application in the ``master`` branch. It also stores a Module Index in the ``contents``
@@ -104,14 +104,16 @@ at the main PyPI instance, each one with the following information::
         "...": {}
     }
 
-This index is generated using `Travis`_. This is done by executing the ``setup.py`` file
+This index is generated using Travis_. This is done by executing the ``setup.py`` file
 of each package through a monkeypatch that allows us to read the parameters that were passed
-to ``setup()``. Check out `pypicontents/api/process.py` for more info.
+to ``setup()``. Check out ``pypicontents/api/process.py`` for more info.
 
 Use cases
 ~~~~~~~~~
 
-* Search which package (or packages) contain a python module. Useful to determine a project's `requirements.txt` or `install_requires`.
+.. _Pip Sala Bim: https://github.com/LuisAlejandro/pipsalabim
+
+* Search which package (or packages) contain a python module. Useful to determine a project's ``requirements.txt`` or ``install_requires``.
 
 ::
 
@@ -136,20 +138,20 @@ Use cases
 
 ..
 
-    Hint: Use a module finder tool like [snakefood](https://bitbucket.org/blais/snakefood) or [modulefinder](https://docs.python.org/2/library/modulefinder.html) to search for imports in your project, then use pypicontents to search which packages contain them.
+    Hint: Check out `Pip Sala Bim`_.
 
 Known Issues
 ~~~~~~~~~~~~
 
 * Some packages have partial or totally absent data because of some of these
   reasons:
-    1. Some packages depend on other packages outside of `stdlib`. We try to
+    1. Some packages depend on other packages outside of ``stdlib``. We try to
        override these imports but if the setup heavily depends on it, it will fail anyway.
-    2. Some packages are broken and error out when executing `setup.py`.
+    2. Some packages are broken and error out when executing ``setup.py``.
     3. Some packages are empty or have no releases.
 * If a package gets updated on PyPI and the change introduces or deletes
   modules, then it won't be reflected until the next index rebuild. You
-  should check for the `version` field for consistency. Also, if you need a
+  should check for the ``version`` field for consistency. Also, if you need a
   more up-to-date index, feel free to download this software and build your own
   index.
 

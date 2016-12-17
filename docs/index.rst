@@ -1,6 +1,9 @@
 .. image:: https://gitcdn.xyz/repo/LuisAlejandro/pypicontents/master/docs/_static/title.svg
 
------
+..
+
+    PyPIContents is an application that generates a Module Index from the Python Package Index (PyPI)
+    and also from various versions of the Python Standard Library.
 
 .. image:: https://img.shields.io/pypi/v/pypicontents.svg
    :target: https://pypi.python.org/pypi/pypicontents
@@ -22,25 +25,27 @@
    :target: https://readthedocs.org/projects/pypicontents/?badge=latest
    :alt: Read The Docs
 
-.. image:: https://cla-assistant.io/LuisAlejandro/pypicontents
-   :target: https://cla-assistant.io/readme/badge/LuisAlejandro/pypicontents
+.. image:: https://cla-assistant.io/readme/badge/LuisAlejandro/pypicontents
+   :target: https://cla-assistant.io/LuisAlejandro/pypicontents
    :alt: Contributor License Agreement
 
 .. image:: https://badges.gitter.im/LuisAlejandro/pypicontents.svg
    :target: https://gitter.im/LuisAlejandro/pypicontents
    :alt: Gitter Chat
 
-PyPIContents is an assistant to guess your pip dependencies from your code, without using a
-requirements file.
+|
+|
 
-PyPIContents will tell you which packages you need to install to satisfy the dependencies of
-your project. It uses a simple AST visitor for detecting imports and `PyPIContents`_ to
-search which packages contain these imports.
+.. _pipsalabim: https://github.com/LuisAlejandro/pipsalabim
+.. _Contents: https://www.debian.org/distrib/packages#search_contents
 
-* Free software: GPL-3
-* Documentation: https://pypicontents.readthedocs.org
+PyPIContents generates a configurable index written in ``JSON`` format that serves as a database for applications
+like `pipsalabim`_. It can be configured to process only a range of packages (by initial letter) and to have
+memory, time or log size limits. It basically aims to mimic what the `Contents`_ file means for a Debian
+based package repository, but for the Python Package Index.
 
-.. _PyPIContents: https://github.com/LuisAlejandro/pypicontents
+This repository stores the application in the ``master`` branch. It also stores a Module Index in the ``contents``
+branch that is updated daily through a Travis cron. Read below for more information on how to use one or the other.
 
 Table of Contents
 -----------------

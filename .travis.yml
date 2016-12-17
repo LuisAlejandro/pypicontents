@@ -1,4 +1,10 @@
 language: python
+branches:
+    only:
+        - master
+        - pypi
+        - stdlib
+        - merge
 matrix:
     include:
         - python: 2.6
@@ -16,6 +22,6 @@ matrix:
 install:
     - pip install -r requirements-dev.txt
 script:
-    - tox -e $TOXENV
+    - tox -e ${TOXENV}
 after_success:
     - coveralls

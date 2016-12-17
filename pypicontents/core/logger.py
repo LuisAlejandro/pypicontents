@@ -61,7 +61,7 @@ class ControlableLogger(logging.Logger):
         #: will be used to format the logger output.
         self.formatstring = '[%(levelname)s] %(message)s'
 
-    def start(self, filename):
+    def start(self, filename=None):
         """
         Start logging with this logger.
 
@@ -74,9 +74,10 @@ class ControlableLogger(logging.Logger):
             sh = logging.StreamHandler(sys.stdout)
             sh.setFormatter(logging.Formatter(self.formatstring))
             self.addHandler(sh)
-            fh = logging.FileHandler(filename, mode='w')
-            fh.setFormatter(logging.Formatter(self.formatstring))
-            self.addHandler(fh)
+            if filename:
+                fh = logging.FileHandler(filename, mode='w')
+                fh.setFormatter(logging.Formatter(self.formatstring))
+                self.addHandler(fh)
             self.active = True
 
     def stop(self):
@@ -92,12 +93,12 @@ class ControlableLogger(logging.Logger):
                 self.removeHandler(h)
             self.active = False
 
-    def loglevel(self, level='WARNING'):
+    def loglevel(self, level='INFO'):
         """
         Set the log level for this logger.
 
         Messages less than the given priority level will be ignored. The
-        default level is 'WARNING', which conforms to the *nix convention that
+        default level is 'INFO', which conforms to the *nix convention that
         a successful run should produce no diagnostic output. Available levels
         and their suggested meanings:
 

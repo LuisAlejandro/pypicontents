@@ -20,7 +20,7 @@
 """
 ``pypicontents.cli`` is a module for handling the command line interface.
 
-This modue handles the commands for using PyPIContents. It also parses
+This module handles the commands for using PyPIContents. It also parses
 parameters, show help, version and controls the logging level.
 """
 from __future__ import absolute_import, print_function
@@ -29,10 +29,9 @@ from argparse import ArgumentParser
 
 from . import __version__, __description__
 from .core.logger import logger
-from .api.process import main as process
+from .api.pypi import main as pypi
 from .api.stdlib import main as stdlib
-from .api.merge_pypi import main as merge_pypi
-from .api.merge_stdlib import main as merge_stdlib
+from .api.merge import main as merge
 from .api.errors import main as errors
 from .api.stats import main as stats
 
@@ -57,70 +56,78 @@ def commandline(argv=None):
         '-V', '--version', action='version',
         version='pypicontents {:s}'.format(__version__),
         help='Print version and exit.')
-
     subparsers = parser.add_subparsers(title='commands')
-    process_parser = subparsers.add_parser('process')
-    process_parser.set_defaults(command=process)
-    process_parser.add_argument(
-        '-l', '--loglevel', default='INFO',
-        help='')
-    process_parser.add_argument(
-        '-f', '--logfile', required=True,
-        help='')
-    process_parser.add_argument(
-        '-o', '--outputfile', required=True,
-        help='')
-    process_parser.add_argument(
-        '-R', '--letter-range', default='0-z',
-        help='')
-    process_parser.add_argument(
-        '-L', '--limit-log-size', default='3M',
-        help='')
-    process_parser.add_argument(
-        '-M', '--limit-mem', default='2G',
-        help='')
-    process_parser.add_argument(
-        '-T', '--limit-time', default='2100',
-        help='')
+
+    # pypi command
+    pypi_parser = subparsers.add_parser('pypi')
+    pypi_parser.set_defaults(command=pypi)
+    pypi_parser.add_argument(
+        '-l', '--loglevel', default='INFO', metavar='<level>',
+        choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
+        help=('Logger verbosity level (default: INFO). Must be one of: '
+              'DEBUG, INFO, WARNING, ERROR or CRITICAL.'))
+    pypi_parser.add_argument(
+        '-f', '--logfile', metavar='<path>',
+        help='A path pointing to a file to be used to store logs.')
+    pypi_parser.add_argument(
+        '-o', '--outputfile', required=True, metavar='<path>',
+        help=('A path pointing to a file that will be used to store the '
+              'JSON Module Index.'))
+    pypi_parser.add_argument(
+        '-R', '--letter-range', default='0-z', metavar='<letter/number>',
+        help=('An expression representing an alphanumeric range to be used to '
+              'filter packages from PyPI. You can use a single alphanumeric '
+              'character like "0" to process only packages beginning with '
+              '"0". You can use commas use as a list o dashes to use as an '
+              'interval.'))
+    pypi_parser.add_argument(
+        '-L', '--limit-log-size', default='3M', metavar='<size>',
+        help='Stop processing if log size exceeds <size>.')
+    pypi_parser.add_argument(
+        '-M', '--limit-mem', default='2G', metavar='<size>',
+        help='Stop processing if process memory exceeds <size>.')
+    pypi_parser.add_argument(
+        '-T', '--limit-time', default='2100', metavar='<sec>',
+        help='Stop processing if process time exceeds <sec>.')
+
+    # stdlib command
     stdlib_parser = subparsers.add_parser('stdlib')
     stdlib_parser.set_defaults(command=stdlib)
     stdlib_parser.add_argument(
-        '-o', '--outputfile', required=True,
+        '-o', '--outputfile', required=True, metavar='',
         help='')
     stdlib_parser.add_argument(
         '-p', '--pyver', default='2.7',
         help='')
-    merge_pypi_parser = subparsers.add_parser('merge_pypi')
-    merge_pypi_parser.set_defaults(command=merge_pypi)
-    merge_pypi_parser.add_argument(
-        '-i', '--inputdir', required=True,
+
+    # merge command
+    merge_parser = subparsers.add_parser('merge')
+    merge_parser.set_defaults(command=merge)
+    merge_parser.add_argument(
+        '-i', '--inputdir', required=True, metavar='',
         help='')
-    merge_pypi_parser.add_argument(
-        '-o', '--outputfile', required=True,
+    merge_parser.add_argument(
+        '-o', '--outputfile', required=True, metavar='',
         help='')
-    merge_stdlib_parser = subparsers.add_parser('merge_stdlib')
-    merge_stdlib_parser.set_defaults(command=merge_stdlib)
-    merge_stdlib_parser.add_argument(
-        '-i', '--inputdir', required=True,
-        help='')
-    merge_stdlib_parser.add_argument(
-        '-o', '--outputfile', required=True,
-        help='')
+
+    # errors command
     errors_parser = subparsers.add_parser('errors')
     errors_parser.set_defaults(command=errors)
     errors_parser.add_argument(
-        '-i', '--inputdir', required=True,
+        '-i', '--inputdir', required=True, metavar='',
         help='')
     errors_parser.add_argument(
-        '-o', '--outputfile', required=True,
+        '-o', '--outputfile', required=True, metavar='',
         help='')
+
+    # stats command
     stats_parser = subparsers.add_parser('stats')
     stats_parser.set_defaults(command=stats)
     stats_parser.add_argument(
-        '-i', '--inputdir', required=True,
+        '-i', '--inputdir', required=True, metavar='',
         help='')
     stats_parser.add_argument(
-        '-o', '--outputfile', required=True,
+        '-o', '--outputfile', required=True, metavar='',
         help='')
 
     return parser.parse_args(argv)

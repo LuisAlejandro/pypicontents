@@ -3,7 +3,7 @@ Internal API
 ============
 
 pypicontents
-==========
+============
 
 .. automodule:: pypicontents
     :members:
@@ -11,41 +11,33 @@ pypicontents
     :special-members:
 
 pypicontents.cli module
-=====================
+=======================
 
 .. automodule:: pypicontents.cli
     :members:
     :private-members:
     :special-members:
 
+pypicontents.wrapper module
+===========================
+
+.. automodule:: pypicontents.wrapper
+    :members:
+    :private-members:
+    :special-members:
+
 pypicontents.api package
-======================
+========================
 
 .. automodule:: pypicontents.api
     :members:
     :private-members:
     :special-members:
 
-pypicontents.api.errors module
-===========================
-
-.. automodule:: pypicontents.api.errors
-    :members:
-    :private-members:
-    :special-members:
-
 pypicontents.api.process module
-============================
+===============================
 
 .. automodule:: pypicontents.api.process
-    :members:
-    :private-members:
-    :special-members:
-
-pypicontents.api.stats module
-==========================
-
-.. automodule:: pypicontents.api.stats
     :members:
     :private-members:
     :special-members:
@@ -58,8 +50,24 @@ pypicontents.api.stdlib module
     :private-members:
     :special-members:
 
+pypicontents.api.errors module
+==============================
+
+.. automodule:: pypicontents.api.errors
+    :members:
+    :private-members:
+    :special-members:
+
+pypicontents.api.stats module
+=============================
+
+.. automodule:: pypicontents.api.stats
+    :members:
+    :private-members:
+    :special-members:
+
 pypicontents.api.merge_pypi module
-===============================
+==================================
 
 .. automodule:: pypicontents.api.merge_pypi
     :members:
@@ -67,7 +75,7 @@ pypicontents.api.merge_pypi module
     :special-members:
 
 pypicontents.api.merge_stdlib module
-=================================
+====================================
 
 .. automodule:: pypicontents.api.merge_stdlib
     :members:
@@ -75,7 +83,7 @@ pypicontents.api.merge_stdlib module
     :special-members:
 
 pypicontents.core package
-======================
+=========================
 
 .. automodule:: pypicontents.core
     :members:
@@ -83,7 +91,7 @@ pypicontents.core package
     :special-members:
 
 pypicontents.core.logger module
-============================
+===============================
 
 .. automodule:: pypicontents.core.logger
     :members:
@@ -91,7 +99,7 @@ pypicontents.core.logger module
     :special-members:
 
 pypicontents.core.utils module
-===========================
+==============================
 
 .. automodule:: pypicontents.core.utils
     :members:

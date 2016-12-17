@@ -71,6 +71,22 @@ directlty from GitHub like this::
 Using the application
 ---------------------
 
+PyPIContents is divided in several commands.
+
+pypicontents pypi
+~~~~~~~~~~~~~~~~~
+
+
+
+pypicontents stats
+~~~~~~~~~~~~~~~~~~
+pypicontents stdlib
+~~~~~~~~~~~~~~~~~~~
+pypicontents errors
+~~~~~~~~~~~~~~~~~~~
+pypicontents merge
+~~~~~~~~~~~~~~~~~~
+
 
 About the Module Index
 ----------------------
@@ -145,10 +161,12 @@ Known Issues
 
 * Some packages have partial or totally absent data because of some of these
   reasons:
+
     1. Some packages depend on other packages outside of ``stdlib``. We try to
        override these imports but if the setup heavily depends on it, it will fail anyway.
     2. Some packages are broken and error out when executing ``setup.py``.
     3. Some packages are empty or have no releases.
+
 * If a package gets updated on PyPI and the change introduces or deletes
   modules, then it won't be reflected until the next index rebuild. You
   should check for the ``version`` field for consistency. Also, if you need a

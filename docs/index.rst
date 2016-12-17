@@ -1,9 +1,6 @@
 .. image:: https://gitcdn.xyz/repo/LuisAlejandro/pypicontents/master/docs/_static/title.svg
 
-..
-
-    PyPIContents is an application that generates a Module Index from the Python Package Index (PyPI)
-    and also from various versions of the Python Standard Library.
+-----
 
 .. image:: https://img.shields.io/pypi/v/pypicontents.svg
    :target: https://pypi.python.org/pypi/pypicontents
@@ -33,11 +30,11 @@
    :target: https://gitter.im/LuisAlejandro/pypicontents
    :alt: Gitter Chat
 
-|
-|
-
 .. _pipsalabim: https://github.com/LuisAlejandro/pipsalabim
 .. _Contents: https://www.debian.org/distrib/packages#search_contents
+
+PyPIContents is an application that generates a Module Index from the Python Package Index (PyPI)
+and also from various versions of the Python Standard Library.
 
 PyPIContents generates a configurable index written in ``JSON`` format that serves as a database for applications
 like `pipsalabim`_. It can be configured to process only a range of packages (by initial letter) and to have
@@ -46,6 +43,9 @@ based package repository, but for the Python Package Index.
 
 This repository stores the application in the ``master`` branch. It also stores a Module Index in the ``contents``
 branch that is updated daily through a Travis cron. Read below for more information on how to use one or the other.
+
+* Free software: GPL-3
+* Documentation: https://pipsalabim.readthedocs.org
 
 Table of Contents
 -----------------

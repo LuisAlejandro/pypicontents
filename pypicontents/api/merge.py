@@ -5,7 +5,7 @@ import json
 from pipsalabim.core.util import find_files
 
 
-def main(**kwargs):
+def merge(**kwargs):
 
     mergedict = {}
     inputdir = os.path.abspath(kwargs.get('inputdir'))

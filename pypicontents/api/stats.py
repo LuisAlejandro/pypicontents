@@ -5,7 +5,7 @@ import re
 from pipsalabim.core.util import find_files
 
 
-def main(**kwargs):
+def stats(**kwargs):
 
     total = 0
     processed = 0

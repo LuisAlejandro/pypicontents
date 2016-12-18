@@ -17,7 +17,7 @@ class DummyApp(object):
         self.info = lambda *args: []
 
 
-def main(**kwargs):
+def stdlib(**kwargs):
 
     jsondict = {}
     outputfile = os.path.abspath(kwargs.get('outputfile'))

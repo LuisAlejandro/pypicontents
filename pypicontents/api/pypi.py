@@ -59,7 +59,7 @@ from ..core.utils import (get_archive_extension, urlesc, filter_package_list,
                           create_file_if_notfound, u, timeout, human2bytes,
                           translate_letter_range)
 
-pypi = ServerProxy(pypiapiend)
+pypiserver = ServerProxy(pypiapiend)
 
 
 def execute_setup(wrapper, setuppath, pkgname):
@@ -251,12 +251,12 @@ def get_pkgdata_from_api(pkgname):
         return dict(info=pkgj['info'], releases=pkgj['releases'])
 
     try:
-        pypireleases = pypi.package_releases(pkgname)
+        pypireleases = pypiserver.package_releases(pkgname)
         pkgreleases = [parse_version(v) for v in pypireleases]
         if not pkgreleases:
             raise
         pkgversion = str(sorted(pkgreleases)[-1])
-        pkgurls = pypi.release_urls(pkgname, pkgversion)
+        pkgurls = pypiserver.release_urls(pkgname, pkgversion)
     except Exception as e:
         logger.warning('XMLRPC API error: {0}'.format(e))
         return {}
@@ -271,7 +271,7 @@ def get_package_list(letter_range):
         tries += 1
         try:
             logger.info('Downloading package list from PyPI ...')
-            pkglist = pypi.list_packages()
+            pkglist = pypiserver.list_packages()
         except Exception:
             pass
         else:
@@ -281,7 +281,7 @@ def get_package_list(letter_range):
         return []
 
 
-def main(**kwargs):
+def pypi(**kwargs):
 
     jsondict = {}
     summary_updated = 0
@@ -294,7 +294,9 @@ def main(**kwargs):
     allowed_range = list(string.ascii_lowercase) + map(str, range(0, 10))
     start_time = time.time()
 
-    logfile = os.path.abspath(kwargs.get('logfile'))
+    logfile = kwargs.get('logfile')
+    if logfile:
+        logfile = os.path.abspath(logfile)
     outputfile = os.path.abspath(kwargs.get('outputfile'))
     limit_mem = kwargs.get('limit_mem')
     limit_log_size = kwargs.get('limit_log_size')
@@ -324,9 +326,6 @@ def main(**kwargs):
     if not os.path.isfile(outputfile):
         create_file_if_notfound(outputfile)
 
-    if not os.path.isfile(logfile):
-        create_file_if_notfound(logfile)
-
     for pkgname in get_package_list(', '.join(letter_range)):
 
         if pkgname not in jsondict:
@@ -341,10 +340,8 @@ def main(**kwargs):
     for pkgname in sorted(jsondict.keys()):
 
         logger.configpkg(pkgname)
-        elapsed_time = int(time.time() - start_time)
-        mem_usage = int(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
-        logsize = int(os.path.getsize(logfile))
 
+        elapsed_time = int(time.time() - start_time)
         if elapsed_time > limit_time:
             logger.configpkg()
             logger.warning('')
@@ -354,6 +351,7 @@ def main(**kwargs):
             logger.warning('')
             break
 
+        mem_usage = int(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
         if mem_usage > limit_mem:
             logger.configpkg()
             logger.warning('')
@@ -363,14 +361,16 @@ def main(**kwargs):
             logger.warning('')
             break
 
-        if logsize > limit_log_size:
-            logger.configpkg()
-            logger.warning('')
-            logger.warning('The log is taking more than {0} MB.'
-                           ' Interrupting.'.format(logsize / (1024 * 1024)))
-            logger.warning('Processing will continue in next iteration.')
-            logger.warning('')
-            break
+        if logfile:
+            logsize = int(os.path.getsize(logfile))
+            if logsize > limit_log_size:
+                logger.configpkg()
+                logger.warning('')
+                logger.warning('The log is taking more than {0} MB.'
+                               ' Interrupting.'.format(logsize / (1024 * 1024)))
+                logger.warning('Processing will continue in next iteration.')
+                logger.warning('')
+                break
 
         pkgjson = get_pkgdata_from_api(pkgname)
 

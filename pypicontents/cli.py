@@ -31,11 +31,11 @@ from argparse import ArgumentParser
 from . import __version__, __description__
 from .core.logger import logger
 from .core.utils import create_file_if_notfound
-from .api.pypi import main as pypi
-from .api.stdlib import main as stdlib
-from .api.merge import main as merge
-from .api.errors import main as errors
-from .api.stats import main as stats
+from .api.pypi import pypi
+from .api.stdlib import stdlib
+from .api.merge import merge
+from .api.errors import errors
+from .api.stats import stats
 
 
 def commandline(argv=None):
@@ -170,7 +170,7 @@ def commandline(argv=None):
     errors_options = errors_parser.add_argument_group('Errors Options')
     errors_options.add_argument(
         '-i', '--inputdir', required=True, metavar='<path>',
-        help=('A path pointing to a directory containing JSON files generated '
+        help=('A path pointing to a directory containing log files generated '
               'by the pypi command (required).'))
     errors_options.add_argument(
         '-o', '--outputfile', required=True, metavar='<path>',
@@ -221,7 +221,7 @@ def main(argv=None):
     args = commandline(argv)
 
     if args.command.__name__ == 'pypi':
-        if not os.path.isfile(args.logfile):
+        if args.logfile and not os.path.isfile(args.logfile):
             create_file_if_notfound(args.logfile)
     else:
         args.logfile = None

@@ -8,9 +8,9 @@ Too long, won't read
 --------------------
 
 1. Start your project with a cookiecutter template.
-2. Start a new release::
+2. Start your git flow workflow::
 
-    git flow release start <release number>
+    git flow init
 
 3. Start a new feature::
 
@@ -22,31 +22,35 @@ branch. Watch Travis go red. Write unit tests. Watch Travis go red again.
 
     git flow feature finish <feature name>
 
-6. Repeat 2-4 for every other feature you have planned for this release.
-7. Update your changelog::
+6. Repeat 3-5 for every other feature you have planned for this release.
+7. When you're done with the features and ready to publish, start a new release::
+
+    git flow release start <release number>
+
+8. Update your changelog::
 
     gitchangelog
 
-8. Bump your version::
+9. Bump your version::
 
     bumpversion
 
-9. Finish your release::
+10. Finish your release::
 
     git flow release finish <release number>
 
-10. Push your tags::
+11. Push your tags::
 
     git push --tags
 
-11. Draft a new release in GitHub and include a description. Also pick a codename
-because it makes you cool.
+12. Draft a new release in GitHub (based on the new version tag) and include
+a description. Also pick a codename because it makes you cool.
 
-12. Publish your new version to PyPI::
+13. Publish your new version to PyPI::
 
     python setup.py sdist upload
 
-13. Write about your new version in your blog. Tweet it, post it on facebook.
+14. Write about your new version in your blog. Tweet it, post it on facebook.
 
 Planning a new release
 ----------------------

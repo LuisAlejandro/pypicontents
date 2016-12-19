@@ -26,6 +26,7 @@ you need to install in order to satisfy dependencies.
 """
 
 import os
+import glob
 import time
 import json
 import resource
@@ -64,7 +65,7 @@ pypiserver = ServerProxy(pypiapiend)
 
 def execute_setup(wrapper, setuppath, pkgname):
     errlist = []
-    pybins = ['/usr/bin/python2.7', '/usr/bin/python3.5']
+    pybins = glob.glob('/usr/bin/python?.?')
     pkgpath = os.path.dirname(setuppath)
     storepath = os.path.join(pkgpath, 'store.json')
 
@@ -74,7 +75,8 @@ def execute_setup(wrapper, setuppath, pkgname):
                 p = Popen(cmd, stdout=PIPE, stderr=PIPE)
                 stdout, stderr = p.communicate()
         except Exception:
-            p.kill()
+            if p.poll() is None:
+                p.kill()
             raise
         if os.path.isfile(storepath):
             with open(storepath) as store:
@@ -395,7 +397,6 @@ def pypi(**kwargs):
             continue
 
         setuppath = get_setuppath(logger, pkgname, pkgversion, pkgdownloads)
-        setupdir = os.path.dirname(setuppath)
 
         if not setuppath:
             logger.error('Could not find a suitable archive to download.')
@@ -407,11 +408,12 @@ def pypi(**kwargs):
             summary_no_setup += 1
             continue
 
+        setupdir = os.path.dirname(setuppath)
+
         try:
             setupargs = execute_setup(wrapper, setuppath, pkgname)
             logger.info('Executing {0} ...'.format(setuppath))
         except Exception as e:
-            print(e)
             os.chdir(setupdir)
             setupargs = {'modules': get_modules(get_packages(setupdir)),
                          'cmdline': []}

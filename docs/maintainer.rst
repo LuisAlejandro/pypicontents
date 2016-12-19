@@ -12,49 +12,53 @@ Too long, won't read
 
     git flow init
 
-3. Start a new feature::
+3. Create a new milestone in GitHub. Plan the features of your new release. Assign
+existing bugs to your new milestone.
+4. Start a new feature::
 
     git flow feature start <feature name>
 
-4. Code, code and code. More coding. Fuck it up several times. Push to feature
+5. Code, code and code. More coding. Fuck it up several times. Push to feature
 branch. Watch Travis go red. Write unit tests. Watch Travis go red again.
-5. Finish your feature::
+6. Finish your feature::
 
     git flow feature finish <feature name>
 
-6. Repeat 3-5 for every other feature you have planned for this release.
-7. When you're done with the features and ready to publish, start a new release::
+7. Repeat 4-6 for every other feature you have planned for this release.
+8. When you're done with the features and ready to publish, start a new release::
 
     git flow release start <release number>
 
-8. Update your changelog (edit HISTORY.rst after to customize)::
+9. Update your changelog (edit HISTORY.rst after to customize)::
 
     gitchangelog > HISTORY.rst
 
-9. Bump your version (check everything before next step)::
+10. Bump your version (check everything before next step)::
 
     bumpversion --no-commit --no-tag
 
-10. Commit your changes to version files and changelog::
+11. Commit your changes to version files and changelog::
 
     git commit -aS
 
-10. Finish your release::
+12. Finish your release::
 
     git flow release finish <release number>
 
-11. Push your tags::
+13. Push your tags::
 
     git push --tags
 
-12. Draft a new release in GitHub (based on the new version tag) and include
+14. Draft a new release in GitHub (based on the new version tag) and include
 a description. Also pick a codename because it makes you cool.
 
-13. Publish your new version to PyPI::
+15. Close the milestone in GitHub.
+
+16. Publish your new version to PyPI::
 
     python setup.py sdist upload
 
-14. Write about your new version in your blog. Tweet it, post it on facebook.
+17. Write about your new version in your blog. Tweet it, post it on facebook.
 
 Planning a new release
 ----------------------

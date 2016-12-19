@@ -59,3 +59,4 @@ Table of Contents
    contributing
    authors
    history
+   maintainer

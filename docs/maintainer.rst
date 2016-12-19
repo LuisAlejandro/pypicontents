@@ -27,13 +27,13 @@ branch. Watch Travis go red. Write unit tests. Watch Travis go red again.
 
     git flow release start <release number>
 
-8. Update your changelog::
+8. Update your changelog (edit HISTORY.rst after to customize)::
 
-    gitchangelog
+    gitchangelog > HISTORY.rst
 
-9. Bump your version::
+9. Bump your version (check everything before commit)::
 
-    bumpversion
+    bumpversion --no-commit --no-tag
 
 10. Finish your release::
 

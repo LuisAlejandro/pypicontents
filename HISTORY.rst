@@ -1,10 +1,26 @@
 Changelog
 =========
 
+0.1.1 (2016-12-19)
+------------------
+
+- [REF] Updating documentation. [Luis Alejandro Martínez Faneyth]
+
+- [FIX] Removing fixed versions of python interpreters and replacing for
+  dynamic discovery. [FIX] Only killing Popen if is running. [FIX]
+  setupdir was misplaced. [REF] Improving documentation. [Luis Alejandro
+  Martínez Faneyth]
+
 0.1.0 (2016-12-19)
 ------------------
 
-- [REF] Improving documentation. [Luis Alejandro Martínez Faneyth]
+- Merge branch 'release/0.1.0' [Luis Alejandro Martínez Faneyth]
+
+- [REF] Improving docs. [Luis Alejandro Martínez Faneyth]
+
+- [REF] Commiting changelog. [Luis Alejandro Martínez Faneyth]
+
+- [REF] Improving docs. [Luis Alejandro Martínez Faneyth]
 
 - [REF] Adding maintainer info. [Luis Alejandro Martínez Faneyth]
 

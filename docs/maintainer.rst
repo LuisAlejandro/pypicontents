@@ -31,9 +31,13 @@ branch. Watch Travis go red. Write unit tests. Watch Travis go red again.
 
     gitchangelog > HISTORY.rst
 
-9. Bump your version (check everything before commit)::
+9. Bump your version (check everything before next step)::
 
     bumpversion --no-commit --no-tag
+
+10. Commit your changes to version files and changelog::
+
+    git commit -aS
 
 10. Finish your release::
 

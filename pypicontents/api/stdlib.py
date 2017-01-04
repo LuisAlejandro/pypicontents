@@ -14,7 +14,7 @@ from pipsalabim.core.util import list_files
 
 from .. import libdir
 from ..core.logger import logger
-from ..core.utils import s
+from ..core.utils import s, u
 
 
 def read_inventory(f, uri, bufsize=16 * 1024):
@@ -62,7 +62,7 @@ def read_inventory(f, uri, bufsize=16 * 1024):
                                         # for Python modules, and the first
                                         # one is correct
             continue
-        if location.endswith(u'$'):
+        if location.endswith(u('$')):
             location = location[:-1] + name
         location = os.path.join(uri, location)
         invdata.setdefault(type, {})[name] = (projname, version,
@@ -113,7 +113,7 @@ def stdlib(**kwargs):
 
     modules = sorted(list(set(inventorymodules + libmodules)))
 
-    jsondict.update({pyver: [s(m) for m in modules]})
+    jsondict.update({pyver: [u(m) for m in modules]})
 
     with open(outputfile, 'w') as j:
         j.write(json.dumps(jsondict, separators=(',', ': '),

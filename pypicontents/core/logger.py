@@ -26,6 +26,7 @@ until the logger is started.
 from __future__ import absolute_import, print_function
 
 import sys
+import types
 import logging
 
 
@@ -45,13 +46,19 @@ class ControlableLogger(logging.Logger):
         refer to the same underlying object. Names are hierarchical, e.g.
         'parent.child' defines a logger that is a descendant of 'parent'.
 
-        :param name: a string containig the logger name.
+        :param name: a string containing the logger name.
         :return: a ``ControlableLogger`` instance.
 
         .. versionadded:: 0.1.0
         """
-        super(ControlableLogger, self).__init__(name or __name__.split('.')[0])
-        self.addHandler(logging.NullHandler())
+        # Initializing according to old-style or new-style clases
+        if hasattr(types, 'ClassType') and \
+           isinstance(logging.Logger, types.ClassType):
+            logging.Logger.__init__(self, __name__.split('.')[0])
+        if (hasattr(types, 'TypeType') and
+           isinstance(logging.Logger, types.TypeType)) or \
+           isinstance(logging.Logger, type):
+            super(ControlableLogger, self).__init__(__name__.split('.')[0])
 
         #: Attribute ``active`` (boolean): Stores the current status of the
         #: logger.

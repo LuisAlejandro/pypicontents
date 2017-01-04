@@ -1,6 +1,15 @@
 Changelog
 =========
 
+0.1.3 (2017-01-04)
+------------------
+
+Fix
+~~~
+
+- [FIX] Adding coding to commands to avoid encoding issues. [Luis
+  Alejandro Martínez Faneyth]
+
 0.1.2 (2017-01-04)
 ------------------
 
@@ -42,6 +51,8 @@ Fix
 
 Other
 ~~~~~
+
+- Updating Changelog and version. [Luis Alejandro Martínez Faneyth]
 
 - Updating Changelog and version. [Luis Alejandro Martínez Faneyth]
 

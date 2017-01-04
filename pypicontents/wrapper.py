@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 #
 #   This file is part of PyPIContents.
-#   Copyright (C) 2016, PyPIContents Developers.
+#   Copyright (C) 2016-2017, PyPIContents Developers.
 #
 #   Please refer to AUTHORS.rst for a complete list of Copyright holders.
 #
@@ -130,10 +130,11 @@ def false_import(name, globals={}, locals={}, fromlist=[],
 
         bpy = build_py(Distribution(kwargs))
         bpy.finalize_options()
-
-        modules = ['.'.join([p, m]).strip('.') for p, m, f in bpy.find_all_modules()]
-        modules = ['.'.join(m.split('.')[:-1]) if m.endswith('.__init__') else m for m in modules]
-        modules = ['.'.join(m.split('.')[:-1]) if m.endswith('.__main__') else m for m in modules]
+        _bpy_mods = bpy.find_all_modules()
+        _join_mods = ['.'.join([p, m]).strip('.') for p, m, f in _bpy_mods]
+        modules = ['.'.join(m.split('.')[:-1])
+                   if m.endswith('.__init__') or m.endswith('.__main__')
+                   else m for m in _join_mods]
 
         if 'scripts' in kwargs:
             cmdline.extend([os.path.basename(s) for s in kwargs['scripts']])

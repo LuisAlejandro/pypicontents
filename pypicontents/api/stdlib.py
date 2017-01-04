@@ -14,7 +14,7 @@ from pipsalabim.core.util import list_files
 
 from .. import libdir
 from ..core.logger import logger
-from ..core.utils import s, u
+from ..core.utils import u
 
 
 def read_inventory(f, uri, bufsize=16 * 1024):

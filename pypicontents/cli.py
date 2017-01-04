@@ -125,11 +125,6 @@ def commandline(argv=None):
         '-o', '--outputfile', required=True, metavar='<path>',
         help=('A path pointing to a file that will be used to store the '
               'JSON Module Index (required).'))
-    stdlib_options.add_argument(
-        '-p', '--pyver', default='2.7', metavar='<version>',
-        choices=['2.6', '2.7', '3.2', '3.4', '3.5', '3.6'],
-        help=('Python version to be used for the Standard Library '
-              '(default: 2.7).'))
 
     # merge command
     merge_parser = subparsers.add_parser(

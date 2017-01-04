@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 #   This file is part of PyPIContents.
-#   Copyright (C) 2016, PyPIContents Developers.
+#   Copyright (C) 2016-2017, PyPIContents Developers.
 #
 #   Please refer to AUTHORS.rst for a complete list of Copyright holders.
 #
@@ -125,11 +125,6 @@ def commandline(argv=None):
         '-o', '--outputfile', required=True, metavar='<path>',
         help=('A path pointing to a file that will be used to store the '
               'JSON Module Index (required).'))
-    stdlib_options.add_argument(
-        '-p', '--pyver', default='2.7', metavar='<version>',
-        choices=['2.6', '2.7', '3.2', '3.4', '3.5', '3.6'],
-        help=('Python version to be used for the Standard Library '
-              '(default: 2.7).'))
 
     # merge command
     merge_parser = subparsers.add_parser(
@@ -230,7 +225,6 @@ def main(argv=None):
     logger.start(args.logfile)
     logger.loglevel(args.loglevel)
     logger.info('Starting execution.')
-    logger.debug('Processed arguments: {:s}'.format(vars(args)))
 
     try:
         status = args.command(**vars(args))

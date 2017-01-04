@@ -316,7 +316,7 @@ License
 .. _AUTHORS.rst: AUTHORS.rst
 .. _GPL-3 License: LICENSE.rst
 
-Copyright 2016, PyPIContents Developers (read AUTHORS.rst_ for a full list of copyright holders).
+Copyright 2016-2017, PyPIContents Developers (read AUTHORS.rst_ for a full list of copyright holders).
 
 Released under a `GPL-3 License`_ (read COPYING.rst_ for license details).
 

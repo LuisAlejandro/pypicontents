@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 #   This file is part of PyPIContents.
-#   Copyright (C) 2016, PyPIContents Developers.
+#   Copyright (C) 2016-2017, PyPIContents Developers.
 #
 #   Please refer to AUTHORS.rst for a complete list of Copyright holders.
 #
@@ -143,8 +143,8 @@ def get_setuppath(logger, pkgname, pkgversion, pkgdownloads):
            os.path.basename(parurl.path) == 'archive.tar.gz':
             arname = '{0}-{1}.tar.gz'.format(pkgname, pkgversion)
 
-        elif parurl.netloc in ['codeload.github.com'] and \
-             os.path.basename(parurl.path) == 'master':
+        elif (parurl.netloc in ['codeload.github.com'] and
+              os.path.basename(parurl.path) == 'master'):
             arname = '{0}-{1}.tar.gz'.format(pkgname, pkgversion)
 
         else:
@@ -368,8 +368,9 @@ def pypi(**kwargs):
             if logsize > limit_log_size:
                 logger.configpkg()
                 logger.warning('')
-                logger.warning('The log is taking more than {0} MB.'
-                               ' Interrupting.'.format(logsize / (1024 * 1024)))
+                logger.warning(
+                    'The log is taking more than {0} MB.'
+                    ' Interrupting.'.format(logsize / (1024 * 1024)))
                 logger.warning('Processing will continue in next iteration.')
                 logger.warning('')
                 break

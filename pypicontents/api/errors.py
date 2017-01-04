@@ -7,8 +7,13 @@ from pipsalabim.core.util import find_files
 
 
 def errors(**kwargs):
-
-    jsondict = {'setup': [], 'api': [], 'nosetup': [], 'nosdist': [], 'nodownloads': []}
+    jsondict = {
+        'setup': [],
+        'api': [],
+        'nosetup': [],
+        'nosdist': [],
+        'nodownloads': []
+    }
     inputdir = os.path.abspath(kwargs.get('inputdir'))
     outputfile = os.path.abspath(kwargs.get('outputfile'))
 
@@ -22,11 +27,19 @@ def errors(**kwargs):
         if not content:
             continue
 
-        setuplist = re.findall(r'\[ERROR\]\s*\((.*?)\)\s*\(SETUP\)', content)
-        nosetup = re.findall(r'\[ERROR\]\s*\((.*?)\)\s*This\s*package\s*has\s*no\s*setup\s*script.', content)
-        nosdist = re.findall(r'\[ERROR\]\s*\((.*?)\)\s*Could\s*not\s*find\s*a\s*suitable\s*archive\s*to\s*download.', content)
-        apilist = re.findall(r'\[WARNING\]\s*\((.*?)\)\s*XMLRPC\s*API', content)
-        nodownloadslist = re.findall(r'\[WARNING\]\s*\((.*?)\)\s*This\s*package', content)
+        re_setuplist = (r'\[ERROR\]\s*\((.*?)\)\s*\(SETUP\)')
+        re_nosetup = (r'\[ERROR\]\s*\((.*?)\)\s*This\s*package\s*has\s*'
+                      r'no\s*setup\s*script.')
+        re_nosdist = (r'\[ERROR\]\s*\((.*?)\)\s*Could\s*not\s*find\s*a\s*'
+                      r'suitable\s*archive\s*to\s*download.')
+        re_apilist = (r'\[WARNING\]\s*\((.*?)\)\s*XMLRPC\s*API')
+        re_nodownloadslist = (r'\[WARNING\]\s*\((.*?)\)\s*This\s*package')
+
+        setuplist = re.findall(re_setuplist, content)
+        nosetup = re.findall(re_nosetup, content)
+        nosdist = re.findall(re_nosdist, content)
+        apilist = re.findall(re_apilist, content)
+        nodownloadslist = re.findall(re_nodownloadslist, content)
 
         jsondict['setup'].extend(setuplist)
         jsondict['nosetup'].extend(nosetup)

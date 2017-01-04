@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 #   This file is part of PyPIContents.
-#   Copyright (C) 2016, PyPIContents Developers.
+#   Copyright (C) 2016-2017, PyPIContents Developers.
 #
 #   Please refer to AUTHORS.rst for a complete list of Copyright holders.
 #
@@ -34,7 +34,7 @@ from distutils import sysconfig
 
 __author__ = 'Luis Alejandro Martínez Faneyth'
 __email__ = 'luis@huntingbears.com.ve'
-__version__ = '0.1.1'
+__version__ = '0.1.2'
 __url__ = 'https://github.com/LuisAlejandro/pypicontents'
 __description__ = ('PyPIContents is an application that generates a Module '
                    'Index from the Python Package Index (PyPI) and also from '

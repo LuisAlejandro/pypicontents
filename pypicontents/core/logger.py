@@ -34,8 +34,8 @@ class ControlableLogger(logging.Logger):
     """
     This class represents a logger object that can be started and stopped.
 
-    It has a start method which allows you to specify a logging level. The stop
-    method halts output.
+    It has a start method which allows you to specify a logging level.
+    The stop method halts output.
     """
 
     def __init__(self, name=None):
@@ -54,15 +54,18 @@ class ControlableLogger(logging.Logger):
         # Initializing according to old-style or new-style clases
         if hasattr(types, 'ClassType') and \
            isinstance(logging.Logger, types.ClassType):
-            logging.Logger.__init__(self, __name__.split('.')[0])
+            logging.Logger.__init__(self, name)
         if (hasattr(types, 'TypeType') and
            isinstance(logging.Logger, types.TypeType)) or \
            isinstance(logging.Logger, type):
-            super(ControlableLogger, self).__init__(__name__.split('.')[0])
+            super(ControlableLogger, self).__init__(name)
 
-        #: Attribute ``active`` (boolean): Stores the current status of the
+        self.parent = logging.root
+
+        #: Attribute ``disabled`` (boolean): Stores the current status of the
         #: logger.
-        self.active = False
+        self.disabled = True
+        self.propagate = False
 
         #: Attribute ``formatstring`` (string): Stores the string that
         #: will be used to format the logger output.
@@ -77,7 +80,7 @@ class ControlableLogger(logging.Logger):
 
         .. versionadded:: 0.1.0
         """
-        if not self.active:
+        if self.disabled:
             sh = logging.StreamHandler(sys.stdout)
             sh.setFormatter(logging.Formatter(self.formatstring))
             self.addHandler(sh)
@@ -85,20 +88,20 @@ class ControlableLogger(logging.Logger):
                 fh = logging.FileHandler(filename, mode='w')
                 fh.setFormatter(logging.Formatter(self.formatstring))
                 self.addHandler(fh)
-            self.active = True
+            self.disabled = False
 
     def stop(self):
         """
         Stop logging with this logger.
 
-        Remove available handlers and set active attribute to ``False``.
+        Remove available handlers and set disabled attribute to ``True``.
 
         .. versionadded:: 0.1.0
         """
-        if self.active:
+        if not self.disabled:
             for h in list(self.handlers):
                 self.removeHandler(h)
-            self.active = False
+            self.disabled = True
 
     def loglevel(self, level='INFO'):
         """
@@ -122,8 +125,8 @@ class ControlableLogger(logging.Logger):
 
         .. versionadded:: 0.1.0
         """
-        if self.active:
-            self.setLevel(level)
+        if not self.disabled:
+            self.setLevel(logging._levelNames[level])
 
     def configpkg(self, name=None):
 
@@ -140,4 +143,5 @@ class ControlableLogger(logging.Logger):
                 self.addHandler(h)
 
 
-logger = ControlableLogger()
+logging.setLoggerClass(ControlableLogger)
+logger = logging.getLogger(__name__.split('.')[0])

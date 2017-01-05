@@ -1,6 +1,15 @@
 Changelog
 =========
 
+0.1.5 (2017-01-05)
+------------------
+
+Fix
+~~~
+
+- [FIX] Fixing logger behaviour in python 2.6 and adding case for
+  inventory v1 in the stdlib command. [Luis Alejandro Martínez Faneyth]
+
 0.1.4 (2017-01-05)
 ------------------
 
@@ -9,6 +18,11 @@ Fix
 
 - [FIX] Hotfix to fix python 2.6 support. [Luis Alejandro Martínez
   Faneyth]
+
+Other
+~~~~~
+
+- Updating Changelog and version. [Luis Alejandro Martínez Faneyth]
 
 0.1.3 (2017-01-04)
 ------------------

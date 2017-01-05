@@ -23,6 +23,7 @@ import re
 import sys
 import json
 import zlib
+import codecs
 
 try:
     from urllib2 import urlopen
@@ -37,10 +38,34 @@ from ..core.logger import logger
 from ..core.utils import u
 
 
-def read_inventory(f, uri, bufsize=16 * 1024):
+UTF8StreamReader = codecs.lookup('utf-8')[2]
+
+
+def read_inventory_v1(f, uri):
+    # type: (IO, unicode, Callable) -> Inventory
+    f = UTF8StreamReader(f)
+    invdata = {}  # type: Inventory
+    line = next(f)
+    projname = line.rstrip()[11:]
+    line = next(f)
+    version = line.rstrip()[11:]
+    for line in f:
+        name, type, location = line.rstrip().split(None, 2)
+        location = os.path.join(uri, location)
+        # version 1 did not add anchors to the location
+        if type == 'mod':
+            type = 'py:module'
+            location += '#module-' + name
+        else:
+            type = 'py:' + type
+            location += '#' + name
+        invdata.setdefault(type, {})[name] = (projname, version, location, '-')
+    return invdata
+
+
+def read_inventory_v2(f, uri, bufsize=16 * 1024):
     # type: (IO, unicode, Callable, int) -> Inventory
     invdata = {}  # type: Inventory
-    line = f.readline()
     line = f.readline()
     projname = line.rstrip()[11:].decode('utf-8')
     line = f.readline()
@@ -48,7 +73,7 @@ def read_inventory(f, uri, bufsize=16 * 1024):
     line = f.readline().decode('utf-8')
 
     if 'zlib' not in line:
-        raise ValueError
+        raise ValueError('This is not a gzipped file.')
 
     def read_chunks():
         # type: () -> Iterator[bytes]
@@ -90,6 +115,15 @@ def read_inventory(f, uri, bufsize=16 * 1024):
     return invdata
 
 
+def read_inventory(f, uri):
+    # type: (IO, unicode, Callable, int) -> Inventory
+    line = f.readline().rstrip().decode('utf-8')
+    if line == '# Sphinx inventory version 1':
+        return read_inventory_v1(f, uri)
+    elif line == '# Sphinx inventory version 2':
+        return read_inventory_v2(f, uri)
+
+
 def fetch_inventory(uri, inv):
     # type: (Sphinx, unicode, Any) -> Any
     """Fetch, parse and return an intersphinx inventory file."""
@@ -99,7 +133,7 @@ def fetch_inventory(uri, inv):
         f = urlopen(inv)
     except Exception as e:
         logger.warning('intersphinx inventory %r not fetchable due to '
-                       '%s: %s' % (inv, e.__class__, e))
+                       '%s: %s' % (inv, e.__class__.__name__, e))
         return
     try:
         invdata = read_inventory(f, uri)
@@ -122,7 +156,7 @@ def stdlib(**kwargs):
 
     inv = 'http://docs.python.org/{0}/objects.inv'.format(pyver)
     uri = 'http://docs.python.org/{0}'.format(pyver)
-    inventory = fetch_inventory(uri, inv)
+    inventory = fetch_inventory(uri, inv) or {'py:module': {}}
     inventorymodules = list(inventory.get('py:module').keys())
 
     libpackages = get_packages(libdir)

@@ -40,10 +40,15 @@ script:
         fi
     - |
         if [ -n "${FUNCTIONAL}" ]; then
+            set -ex
             docker run -v ${PWD}:${PWD} -w ${PWD} --name pypicontents-27-35 \
                 dockershelf/python:2.7-3.5 bash -c "python2.7 setup.py install"
 
             docker commit pypicontents-27-35 dockershelf/pypicontents:2.7-3.5
+
+            docker run -v ${PWD}:${PWD} -w ${PWD} -u $(id -u):$(id -g) \
+                dockershelf/pypicontents:2.7-3.5 bash -c "pypicontents pypi \
+                    -o data/y/pypi.json -f logs/0-9/pypi.log -R 0-9"
 
             docker run -v ${PWD}:${PWD} -w ${PWD} -u $(id -u):$(id -g) \
                 dockershelf/pypicontents:2.7-3.5 bash -c "pypicontents pypi \
@@ -68,6 +73,7 @@ script:
             docker run -v ${PWD}:${PWD} -w ${PWD} -u $(id -u):$(id -g) \
                 dockershelf/pypicontents:2.7-3.5 bash -c \
                     "pypicontents stats -o stats.txt -i logs"
+            set +ex
         fi
 after_success:
     - |

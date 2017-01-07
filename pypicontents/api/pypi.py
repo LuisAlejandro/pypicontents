@@ -31,7 +31,6 @@ import time
 import json
 import resource
 import string
-import shutil
 import tarfile
 import zipfile
 from subprocess import Popen, PIPE
@@ -52,9 +51,8 @@ except ImportError:
     from xmlrpc.client import ServerProxy
 
 from pkg_resources import parse_version
-from pipsalabim.api.report import get_modules, get_packages
 
-from .. import extractdir, cachedir, basedir, wrapper, pypiapiend
+from .. import extractdir, cachedir, wrapper, pypiapiend
 from ..core.logger import logger
 from ..core.utils import (get_archive_extension, urlesc, filter_package_list,
                           create_file_if_notfound, u, timeout, human2bytes,
@@ -83,24 +81,20 @@ def execute_setup(wrapper, setuppath, pkgname):
                 return json.loads(store.read())
         if not stderr:
             stderr = 'Failed for unknown reason.'
-        errlist.append('({0}) {1}'.format(cmd[0], stderr))
-    raise RuntimeError(' '.join(errlist))
+        errlist.append('{0}:\n{1}'.format(cmd[0], stderr))
+    raise RuntimeError('\n'.join(errlist))
 
 
 def download_archive(logger, pkgname, arurl, arpath):
-    tries = 0
-    while tries < 5:
-        tries += 1
-        try:
-            ardownobj = urlopen(url=urlesc(arurl), timeout=10).read()
-        except Exception as e:
-            logger.warning('Download error: {0} (Try: {1})'.format(e, tries))
-        else:
-            with open(arpath, 'wb') as f:
-                f.write(ardownobj)
-            return True
-    else:
+    try:
+        ardownobj = urlopen(url=urlesc(arurl), timeout=10).read()
+    except Exception as e:
+        logger.exception(e)
         return False
+    else:
+        with open(arpath, 'wb') as f:
+            f.write(ardownobj)
+        return True
 
 
 def get_archive_filelist(logger, pkgname, arname, arpath, arext, extractdir):
@@ -122,7 +116,7 @@ def get_archive_filelist(logger, pkgname, arname, arpath, arext, extractdir):
                 archive.extractall(extractdir)
                 arlist = archive.list()
     except Exception as e:
-        logger.error('{0}: {1}'.format(type(e).__name__, e))
+        logger.exception(e)
         return False
     else:
         return arlist
@@ -158,59 +152,29 @@ def get_setuppath(logger, pkgname, pkgversion, pkgdownloads):
 
         if not os.path.isfile(arpath):
             if not download_archive(logger, pkgname, arurl, arpath):
-                logger.warning('There was an error downloading this package.')
                 continue
 
         arlist = get_archive_filelist(logger, pkgname, arname, arpath, arext,
                                       extractdir)
         if not arlist:
-            logger.warning('There was an error extracting this package.')
-            try:
-                os.remove(arpath)
-            except Exception as e:
-                logger.warning('{0}: {1}'.format(type(e).__name__, e))
             continue
 
         pkgtopdir = arlist[0].split(os.sep)[0]
 
         if pkgtopdir == '.':
-            try:
-                os.remove(arpath)
-            except Exception as e:
-                logger.warning('{0}: {1}'.format(type(e).__name__, e))
             continue
 
         pkgpath = os.path.normpath(os.path.join(extractdir, pkgtopdir))
         setuppath = os.path.join(pkgpath, 'setup.py')
 
         if os.path.isfile(setuppath):
-            try:
-                os.remove(arpath)
-            except Exception as e:
-                logger.warning('{0}: {1}'.format(type(e).__name__, e))
             break
 
         pkgpath = extractdir
         setuppath = os.path.join(pkgpath, 'setup.py')
 
         if os.path.isfile(setuppath):
-            try:
-                os.remove(arpath)
-            except Exception as e:
-                logger.warning('{0}: {1}'.format(type(e).__name__, e))
             break
-
-        if os.path.isfile(arpath):
-            try:
-                os.remove(arpath)
-            except Exception as e:
-                logger.warning('{0}: {1}'.format(type(e).__name__, e))
-
-        if os.path.isdir(pkgpath):
-            try:
-                shutil.rmtree(pkgpath)
-            except Exception as e:
-                logger.warning('{0}: {1}'.format(type(e).__name__, e))
 
     return setuppath
 
@@ -247,7 +211,7 @@ def get_pkgdata_from_api(pkgname):
         pkgjsonfile = urlopen(url='{0}/{1}/json'.format(pypiapiend, pkgname),
                               timeout=10).read()
     except Exception as e:
-        logger.warning('JSON API error: {0}'.format(e))
+        logger.exception(e)
     else:
         pkgj = json.loads(pkgjsonfile.decode('utf-8'))
         return dict(info=pkgj['info'], releases=pkgj['releases'])
@@ -260,7 +224,7 @@ def get_pkgdata_from_api(pkgname):
         pkgversion = str(sorted(pkgreleases)[-1])
         pkgurls = pypiserver.release_urls(pkgname, pkgversion)
     except Exception as e:
-        logger.warning('XMLRPC API error: {0}'.format(e))
+        logger.exception(e)
         return {}
     else:
         return {'info': {'version': pkgversion},
@@ -286,13 +250,13 @@ def get_package_list(letter_range):
 def pypi(**kwargs):
 
     jsondict = {}
-    summary_updated = 0
-    summary_uptodate = 0
-    summary_setup_error = 0
-    summary_without_downloads = 0
-    summary_no_response_from_api = 0
-    summary_no_sdist = 0
-    summary_no_setup = 0
+    sum_updated = 0
+    sum_uptodate = 0
+    sum_nodata = 0
+    sum_nodown = 0
+    sum_noapi = 0
+    sum_nosdist = 0
+    sum_nosetup = 0
     allowed_range = list(string.ascii_lowercase) + map(str, range(0, 10))
     start_time = time.time()
 
@@ -378,8 +342,8 @@ def pypi(**kwargs):
         pkgjson = get_pkgdata_from_api(pkgname)
 
         if not pkgjson:
-            logger.warning('Could not get info for this package.')
-            summary_no_response_from_api += 1
+            logger.error('Could not get a response from API for this package.')
+            sum_noapi += 1
             continue
 
         pkgversion = pkgjson['info']['version']
@@ -387,48 +351,47 @@ def pypi(**kwargs):
 
         if oldpkgversion == pkgversion:
             logger.info('This package is up to date.')
-            summary_uptodate += 1
+            sum_uptodate += 1
             continue
 
         pkgdownloads = get_pkgdownloads(pkgjson, pkgversion)
 
         if not pkgdownloads:
-            summary_without_downloads += 1
-            logger.warning('This package does not have downloadable releases.')
+            logger.error('This package does not have downloadable releases.')
+            sum_nodown += 1
             continue
 
         setuppath = get_setuppath(logger, pkgname, pkgversion, pkgdownloads)
 
         if not setuppath:
             logger.error('Could not find a suitable archive to download.')
-            summary_no_sdist += 1
+            sum_nosdist += 1
             continue
 
         if not os.path.isfile(setuppath):
             logger.error('This package has no setup script.')
-            summary_no_setup += 1
+            sum_nosetup += 1
             continue
 
         setupdir = os.path.dirname(setuppath)
 
         try:
-            setupargs = execute_setup(wrapper, setuppath, pkgname)
             logger.info('Executing {0} ...'.format(setuppath))
+            setupargs = execute_setup(wrapper, setuppath, pkgname)
         except Exception as e:
-            os.chdir(setupdir)
-            setupargs = {'modules': get_modules(get_packages(setupdir)),
-                         'cmdline': []}
-            os.chdir(basedir)
-            logger.info('Inspecting {0} ...'.format(setupdir))
-
-        try:
-            shutil.rmtree(setupdir)
-        except Exception as e:
-            logger.warning('{0}: {1}'.format(type(e).__name__, e))
+            logger.exception(e)
+            try:
+                logger.info('Inspecting {0} ...'.format(setupdir))
+                setupargs = execute_setup(wrapper, setupdir, pkgname)
+            except Exception as e:
+                logger.exception(e)
+                logger.error('Could not extract data from this package.')
+                sum_nodata += 1
+                continue
 
         jsondict[pkgname]['version'] = pkgversion
         jsondict[pkgname].update(setupargs)
-        summary_updated += 1
+        sum_updated += 1
 
     for i in sorted(set(map(lambda x: x[0].lower(), sorted(jsondict.keys())))):
         j = dict((k, v) for k, v in jsondict.iteritems() if k[0] == i)
@@ -437,33 +400,23 @@ def pypi(**kwargs):
             f.write(u(json.dumps(j, separators=(',', ': '),
                                  sort_keys=True, indent=4)))
 
-    summary_processed = (
-        summary_updated + summary_uptodate + summary_setup_error +
-        summary_no_sdist + summary_no_setup + summary_without_downloads +
-        summary_no_response_from_api)
-    summary_not_processed = len(jsondict.keys()) - summary_processed
+    sum_processed = (sum_updated + sum_uptodate + sum_nodata +
+                     sum_nosdist + sum_nosetup + sum_nodown +
+                     sum_noapi)
+    sum_not_processed = len(jsondict.keys()) - sum_processed
 
     logger.configpkg('')
     logger.info('')
     logger.info('')
-    logger.info('Total number of packages: {0}'.format(len(jsondict.keys())))
-    logger.info('    Number of processed packages: {0}'
-                .format(summary_processed))
-    logger.info('        Number of updated packages: {0}'
-                .format(summary_updated))
-    logger.info('        Number of up-to-date packages: {0}'
-                .format(summary_uptodate))
-    logger.info('        Number of packages unable to read setup: {0}'
-                .format(summary_setup_error))
-    logger.info('        Number of packages with no source downloads: {0}'
-                .format(summary_no_sdist))
-    logger.info('        Number of packages without setup script: {0}'
-                .format(summary_no_setup))
-    logger.info('        Number of packages without downloads: {0}'
-                .format(summary_without_downloads))
-    logger.info('        Number of packages without response from API: {0}'
-                .format(summary_no_response_from_api))
-    logger.info('    Number of packages that could not be processed: {0}'
-                .format(summary_not_processed))
+    logger.info('Total packages: {0}'.format(len(jsondict.keys())))
+    logger.info('\tPackages processed: {0}'.format(sum_processed))
+    logger.info('\t\tPackages updated: {0}'.format(sum_updated))
+    logger.info('\t\tPackages up-to-date: {0}'.format(sum_uptodate))
+    logger.info('\t\tPackages with data errors: {0}'.format(sum_nodata))
+    logger.info('\t\tPackages without sdist: {0}'.format(sum_nosdist))
+    logger.info('\t\tPackages without setup script: {0}'.format(sum_nosetup))
+    logger.info('\t\tPackages without downloads: {0}'.format(sum_nodown))
+    logger.info('\t\tPackages without response: {0}'.format(sum_noapi))
+    logger.info('\tPackages not processed: {0}'.format(sum_not_processed))
     logger.info('')
     logger.info('')

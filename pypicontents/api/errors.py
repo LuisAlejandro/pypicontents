@@ -24,14 +24,16 @@ import json
 
 from pipsalabim.core.util import find_files
 
+# from ..core.logger import logger
+
 
 def errors(**kwargs):
     jsondict = {
-        'setup': [],
-        'api': [],
+        'nodata': [],
         'nosetup': [],
         'nosdist': [],
-        'nodownloads': []
+        'noapi': [],
+        'nodown': []
     }
     inputdir = os.path.abspath(kwargs.get('inputdir'))
     outputfile = os.path.abspath(kwargs.get('outputfile'))
@@ -43,29 +45,38 @@ def errors(**kwargs):
         with open(logfile) as _log:
             content = _log.read()
 
+        # logger.info('Processing logfile {0}'.format(logfile))
+
         if not content:
             continue
 
-        re_setuplist = (r'\[ERROR\]\s*\((.*?)\)\s*\(SETUP\)')
+        re_nodata = (r'\[ERROR\]\s*\((.*?)\)\s*Could\s*not\s*extract\s*'
+                     r'data\s*from\s*this\s*package.')
         re_nosetup = (r'\[ERROR\]\s*\((.*?)\)\s*This\s*package\s*has\s*'
                       r'no\s*setup\s*script.')
         re_nosdist = (r'\[ERROR\]\s*\((.*?)\)\s*Could\s*not\s*find\s*a\s*'
-                      r'suitable\s*archive\s*to\s*download.')
-        re_apilist = (r'\[WARNING\]\s*\((.*?)\)\s*XMLRPC\s*API')
-        re_nodownloadslist = (r'\[WARNING\]\s*\((.*?)\)\s*This\s*package')
+                      r'suitable\s*archive\s*to\s*download\.')
+        re_noapi = (r'\[ERROR\]\s*\((.*?)\)\s*Could\s*not\s*get\s*a\s*'
+                    r'response\s*from\s*API\s*for\s*this\s*package\.')
+        re_nodown = (r'\[ERROR\]\s*\((.*?)\)\s*This\s*package\s*'
+                     r'does\s*not\s*have\s*downloadable\s*releases\.')
 
-        setuplist = re.findall(re_setuplist, content)
+        nodata = re.findall(re_nodata, content)
         nosetup = re.findall(re_nosetup, content)
         nosdist = re.findall(re_nosdist, content)
-        apilist = re.findall(re_apilist, content)
-        nodownloadslist = re.findall(re_nodownloadslist, content)
+        noapi = re.findall(re_noapi, content)
+        nodown = re.findall(re_nodown, content)
 
-        jsondict['setup'].extend(setuplist)
+        jsondict['nodata'].extend(nodata)
         jsondict['nosetup'].extend(nosetup)
         jsondict['nosdist'].extend(nosdist)
-        jsondict['api'].extend(apilist)
-        jsondict['nodownloads'].extend(nodownloadslist)
+        jsondict['noapi'].extend(noapi)
+        jsondict['nodown'].extend(nodown)
 
     with open(outputfile, 'w') as e:
         e.write(json.dumps(jsondict, separators=(',', ': '),
                            sort_keys=True, indent=4))
+
+    # logger.configpkg('')
+    # logger.info('')
+    # logger.info('')

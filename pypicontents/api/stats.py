@@ -30,32 +30,26 @@ def stats(**kwargs):
     processed = 0
     updated = 0
     uptodate = 0
-    setuperror = 0
-    nosdist = 0
+    nodata = 0
     nosetup = 0
-    nodownloads = 0
-    api = 0
+    nosdist = 0
+    noapi = 0
+    nodown = 0
     noproc = 0
 
     inputdir = os.path.abspath(kwargs.get('inputdir'))
     outputfile = os.path.abspath(kwargs.get('outputfile'))
 
-    re_total = (r'\s*Total\s*number\s*of\s*packages:\s*(\d*)')
-    re_processed = (r'\s*No.\s*of\s*processed\s*packages:\s*(\d*)')
-    re_updated = (r'\s*No.\s*of\s*updated\s*packages:\s*(\d*)')
-    re_uptodate = (r'\s*No.\s*of\s*up-to-date\s*packages:\s*(\d*)')
-    re_setup_error = (r'\s*No.\s*of\s*packages\s*unable\s*to'
-                      r'\s*read\s*setup:\s*(\d*)')
-    re_no_sdist = (r'\s*No.\s*of\s*packages\s*with\s*no\s*'
-                   r'source\s*downloads:\s*(\d*)')
-    re_no_setup = (r'\s*No.\s*of\s*packages\s*without\s*setup'
-                   r'\s*script:\s*(\d*)')
-    re_nodownloads = (r'\s*No.\s*of\s*packages\s*without\s*downloads:'
-                      r'\s*(\d*)')
-    re_api = (r'\s*No.\s*of\s*packages\s*without\s*response\s*from\s*API:'
-              r'\s*(\d*)')
-    re_noproc = (r'\s*No.\s*of\s*packages\s*that\s*could\s*not\s*be'
-                 r'\s*processed:\s*(\d*)')
+    re_total = (r'\s*Total\s*packages:\s*(\d*)')
+    re_processed = (r'\s*Packages\s*processed:\s*(\d*)')
+    re_updated = (r'\s*Packages\s*updated:\s*(\d*)')
+    re_uptodate = (r'\s*Packages\s*up-to-date:\s*(\d*)')
+    re_nodata = (r'\s*Packages\s*with\s*data\s*errors:\s*(\d*)')
+    re_nosdist = (r'\s*Packages\s*without\s*sdist:\s*(\d*)')
+    re_nosetup = (r'\s*Packages\s*without\s*setup\s*script:\s*(\d*)')
+    re_nodown = (r'\s*Packages\s*without\s*downloads:\s*(\d*)')
+    re_noapi = (r'\s*Packages\s*without\s*response:\s*(\d*)')
+    re_noproc = (r'\s*Packages\s*not\s*processed:\s*(\d*)')
 
     if not os.path.isdir(inputdir):
         os.makedirs(inputdir)
@@ -71,21 +65,21 @@ def stats(**kwargs):
         processed += int((re.findall(re_processed, content)[0:] + [0])[0])
         updated += int((re.findall(re_updated, content)[0:] + [0])[0])
         uptodate += int((re.findall(re_uptodate, content)[0:] + [0])[0])
-        setuperror += int((re.findall(re_setup_error, content)[0:] + [0])[0])
-        nosdist += int((re.findall(re_no_sdist, content)[0:] + [0])[0])
-        nosetup += int((re.findall(re_no_setup, content)[0:] + [0])[0])
-        nodownloads += int((re.findall(re_nodownloads, content)[0:] + [0])[0])
-        api += int((re.findall(re_api, content)[0:] + [0])[0])
+        nodata += int((re.findall(re_nodata, content)[0:] + [0])[0])
+        nosdist += int((re.findall(re_nosdist, content)[0:] + [0])[0])
+        nosetup += int((re.findall(re_nosetup, content)[0:] + [0])[0])
+        nodown += int((re.findall(re_nodown, content)[0:] + [0])[0])
+        noapi += int((re.findall(re_noapi, content)[0:] + [0])[0])
         noproc += int((re.findall(re_noproc, content)[0:] + [0])[0])
 
     with open(outputfile, 'w') as s:
-        s.write('Total number of packages: %s\n' % total)
-        s.write('\tNo. of processed packages: %s\n' % processed)
-        s.write('\t\tNo. of updated packages: %s\n' % updated)
-        s.write('\t\tNo. of up-to-date packages: %s\n' % uptodate)
-        s.write('\t\tNo. of packages unable to read setup: %s\n' % setuperror)
-        s.write('\t\tNo. of packages with no source downloads: %s\n' % nosdist)
-        s.write('\t\tNo. of packages without setup script: %s\n' % nosetup)
-        s.write('\t\tNo. of packages without downloads: %s\n' % nodownloads)
-        s.write('\t\tNo. of packages without response from API: %s\n' % api)
-        s.write('\tNo. of packages that could not be processed: %s\n' % noproc)
+        s.write('Total packages: {0}\n'.format(total))
+        s.write('\tPackages processed: {0}\n'.format(processed))
+        s.write('\t\tPackages updated: {0}\n'.format(updated))
+        s.write('\t\tPackages up-to-date: {0}\n'.format(uptodate))
+        s.write('\t\tPackages with data errors: {0}\n'.format(nodata))
+        s.write('\t\tPackages without sdist: {0}\n'.format(nosdist))
+        s.write('\t\tPackages without setup script: {0}\n'.format(nosetup))
+        s.write('\t\tPackages without downloads: {0}\n'.format(nodown))
+        s.write('\t\tPackages without response: {0}\n'.format(noapi))
+        s.write('\tPackages not processed: {0}\n'.format(noproc))

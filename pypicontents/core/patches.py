@@ -34,7 +34,7 @@ except ImportError:
     from builtins import __import__ as _import
     from builtins import open as _open
 
-from .core.utils import u
+from .utils import u
 
 if sys.version_info < (3,):
     default_import_level = -1
@@ -85,22 +85,10 @@ def false_import(name, globals={}, locals={}, fromlist=[],
         def __add__(self, *args, **kwargs):
             return 0
 
-    def return_zero(*args, **kwargs):
-        return 0
-
-    def return_empty_str(*args, **kwargs):
-        return ''
-
-    def return_empty_list(*args, **kwargs):
-        return []
-
-    def do_nothing(*args, **kwargs):
-        pass
-
     def false_setup(*args, **kwargs):
         cmdline = []
         setupdir = os.path.dirname(globals['__file__'])
-        storepath = os.path.join(setupdir, 'store.json')
+        storepath = os.path.join(setupdir, 'setupargs-pypicontents.json')
         banned_options = ['setup_requires', 'test_requires', 'conda_buildnum',
                           'd2to1', 'distclass', 'email', 'entry_points',
                           'executables', 'home_page', 'include_package_data',
@@ -143,26 +131,26 @@ def false_import(name, globals={}, locals={}, fromlist=[],
 
     if name == 'warnings':
         mod.showwarning = ImpostorModule()
-        mod.filterwarnings = do_nothing
+        mod.filterwarnings = lambda *args, **kwargs: False
     if name == 'distribute_setup':
-        mod.use_setuptools = return_zero
+        mod.use_setuptools = lambda *args, **kwargs: 0
     if name in ['setuptools', 'distutils.core']:
         mod.setup = false_setup
     if name == 'pip.req':
-        mod.parse_requirements = return_empty_list
+        mod.parse_requirements = lambda *args, **kwargs: []
     if name == 'sys':
-        mod.exit = do_nothing
+        mod.exit = lambda *args, **kwargs: False
     if name == 'os':
-        mod._exit = do_nothing
-        mod.system = do_nothing
+        mod._exit = lambda *args, **kwargs: False
+        mod.system = lambda *args, **kwargs: False
     if name == 'subprocess':
         mod.Popen = ImpostorModule
         mod.Popen.communicate = lambda *args: ('', '')
         mod.Popen.stdout = None
         mod.Popen.stderr = None
         mod.Popen.stdin = None
-        mod.call = return_zero
-        mod.check_output = return_empty_str
+        mod.call = lambda *args, **kwargs: 0
+        mod.check_output = lambda *args, **kwargs: ''
     if name == 'pycvf.management':
         mod = ImpostorModule()
     return mod

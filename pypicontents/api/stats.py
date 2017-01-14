@@ -31,8 +31,6 @@ def stats(**kwargs):
     updated = 0
     uptodate = 0
     nodata = 0
-    nosetup = 0
-    nosdist = 0
     noapi = 0
     nodown = 0
     noproc = 0
@@ -45,8 +43,6 @@ def stats(**kwargs):
     re_updated = (r'\s*Packages\s*updated:\s*(\d*)')
     re_uptodate = (r'\s*Packages\s*up-to-date:\s*(\d*)')
     re_nodata = (r'\s*Packages\s*with\s*data\s*errors:\s*(\d*)')
-    re_nosdist = (r'\s*Packages\s*without\s*sdist:\s*(\d*)')
-    re_nosetup = (r'\s*Packages\s*without\s*setup\s*script:\s*(\d*)')
     re_nodown = (r'\s*Packages\s*without\s*downloads:\s*(\d*)')
     re_noapi = (r'\s*Packages\s*without\s*response:\s*(\d*)')
     re_noproc = (r'\s*Packages\s*not\s*processed:\s*(\d*)')
@@ -66,8 +62,6 @@ def stats(**kwargs):
         updated += int((re.findall(re_updated, content)[0:] + [0])[0])
         uptodate += int((re.findall(re_uptodate, content)[0:] + [0])[0])
         nodata += int((re.findall(re_nodata, content)[0:] + [0])[0])
-        nosdist += int((re.findall(re_nosdist, content)[0:] + [0])[0])
-        nosetup += int((re.findall(re_nosetup, content)[0:] + [0])[0])
         nodown += int((re.findall(re_nodown, content)[0:] + [0])[0])
         noapi += int((re.findall(re_noapi, content)[0:] + [0])[0])
         noproc += int((re.findall(re_noproc, content)[0:] + [0])[0])
@@ -78,8 +72,6 @@ def stats(**kwargs):
         s.write('\t\tPackages updated: {0}\n'.format(updated))
         s.write('\t\tPackages up-to-date: {0}\n'.format(uptodate))
         s.write('\t\tPackages with data errors: {0}\n'.format(nodata))
-        s.write('\t\tPackages without sdist: {0}\n'.format(nosdist))
-        s.write('\t\tPackages without setup script: {0}\n'.format(nosetup))
         s.write('\t\tPackages without downloads: {0}\n'.format(nodown))
         s.write('\t\tPackages without response: {0}\n'.format(noapi))
         s.write('\tPackages not processed: {0}\n'.format(noproc))

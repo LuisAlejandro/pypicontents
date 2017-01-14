@@ -91,6 +91,14 @@ def commandline(argv=None):
         help=('A path pointing to a file that will be used to store the '
               'JSON Module Index (required).'))
     pypi_options.add_argument(
+        '-e', '--extractdir', default='/tmp/pypic-extract', metavar='<path>',
+        help=('A path pointing to a directory that will be used to store the '
+              'extracted python packages.'))
+    pypi_options.add_argument(
+        '-c', '--cachedir', default='/tmp/pypic-cache', metavar='<path>',
+        help=('A path pointing to a directory that will be used to store '
+              'downloaded python tarballs.'))
+    pypi_options.add_argument(
         '-R', '--letter-range', default='0-z', metavar='<letter/number>',
         help=('An expression representing an alphanumeric range to be used to '
               'filter packages from PyPI (default: 0-z). You can use a single '

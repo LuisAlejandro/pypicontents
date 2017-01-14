@@ -34,16 +34,16 @@ pypicontents.api package
     :private-members:
     :special-members:
 
-pypicontents.api.process module
-===============================
+pypicontents.api.pypi module
+============================
 
-.. automodule:: pypicontents.api.process
+.. automodule:: pypicontents.api.pypi
     :members:
     :private-members:
     :special-members:
 
 pypicontents.api.stdlib module
-===========================
+==============================
 
 .. automodule:: pypicontents.api.stdlib
     :members:
@@ -66,18 +66,10 @@ pypicontents.api.stats module
     :private-members:
     :special-members:
 
-pypicontents.api.merge_pypi module
-==================================
+pypicontents.api.merge module
+=============================
 
-.. automodule:: pypicontents.api.merge_pypi
-    :members:
-    :private-members:
-    :special-members:
-
-pypicontents.api.merge_stdlib module
-====================================
-
-.. automodule:: pypicontents.api.merge_stdlib
+.. automodule:: pypicontents.api.merge
     :members:
     :private-members:
     :special-members:
@@ -94,6 +86,14 @@ pypicontents.core.logger module
 ===============================
 
 .. automodule:: pypicontents.core.logger
+    :members:
+    :private-members:
+    :special-members:
+
+pypicontents.core.patches module
+================================
+
+.. automodule:: pypicontents.core.patches
     :members:
     :private-members:
     :special-members:

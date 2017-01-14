@@ -22,22 +22,23 @@
 import os
 import sys
 import json
+import traceback
 
 from pipsalabim.api.report import get_modules, get_packages
 
 while 'patchedglobals' not in globals():
     try:
-        from pypicontents.core.patches import patchedglobals
-        from pypicontents.core.utils import s, u
+        from .core.patches import patchedglobals
+        from .core.utils import s, u
     except ImportError:
-        appdir = os.path.dirname(os.path.realpath(__file__))
-        sys.path.append(os.path.dirname(appdir))
+        appdir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+        sys.path.append(appdir)
 
 if __name__ == '__main__':
 
     if os.path.isdir(sys.argv[1]):
         setupdir = sys.argv[1]
-        storepath = os.path.join(setupdir, 'store.json')
+        storepath = os.path.join(setupdir, 'setupargs-pypicontents.json')
         os.chdir(setupdir)
 
         try:
@@ -46,7 +47,7 @@ if __name__ == '__main__':
                     'modules': get_modules(get_packages(setupdir)),
                     'cmdline': []})))
         except Exception as e:
-            sys.stderr.write('%s: %s' % (type(e).__name__, str(e)))
+            sys.stderr.write(traceback.format_exc())
     else:
 
         setuppath = sys.argv[1]
@@ -62,4 +63,4 @@ if __name__ == '__main__':
             with open(setuppath) as _sfile:
                 exec(compile(s(_sfile.read()), setuppath, 'exec'), env)
         except Exception as e:
-            sys.stderr.write('%s: %s' % (type(e).__name__, str(e)))
+            sys.stderr.write(traceback.format_exc())

@@ -85,9 +85,8 @@ def translate_letter_range(lr='0-z'):
     return lr
 
 
-def filter_package_list(pkglist=[], lr='0-z'):
-    lr = translate_letter_range(lr)
-    return [p for l in lr for p in pkglist if p.lower().startswith(l)]
+def filter_package_list(pkglist, lr):
+    return [p for l in lr for p in pkglist if p[0].lower() == l]
 
 
 def create_file_if_notfound(filename):

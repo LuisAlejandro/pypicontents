@@ -41,8 +41,6 @@ __description__ = ('PyPIContents is an application that generates a Module '
                    'various versions of the Python Standard Library.')
 
 libdir = sysconfig.get_python_lib(standard_lib=True)
-extractdir = os.path.join('/tmp', 'pypicontents')
-cachedir = os.path.join('/tmp', 'pipcache')
 appdir = os.path.dirname(os.path.realpath(__file__))
 wrapper = os.path.join(appdir, 'wrapper.py')
-pypiapiend = 'https://pypi.python.org/pypi'
+pypiurl = 'https://pypi.python.org'

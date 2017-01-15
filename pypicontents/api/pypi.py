@@ -100,6 +100,7 @@ def get_setupargs(pkgurls, cachedir, extractdir):
 
 
 def execute_wrapper(setuppath):
+    errstring = '\n'
     pbs = glob.glob('/usr/bin/python?.?')
     pkgpath = os.path.dirname(setuppath)
     storepath = os.path.join(pkgpath, 'setupargs-pypicontents.json')
@@ -115,15 +116,15 @@ def execute_wrapper(setuppath):
         if os.path.isfile(storepath):
             with open(storepath) as store:
                 return json.loads(store.read())
-        errstring = ('Execution of {0} failed with the following '
-                     'messages:\n'.format(' '.join(cmd)))
+        errstring += ('Execution of {0} failed with the following '
+                      'messages:\n'.format(' '.join(cmd)))
         if stdout:
             errstring += 'stdout: {0}\n'.format(stdout)
         if stderr:
             errstring += 'stderr: {0}\n'.format(stderr)
         if not stdout and not stderr:
             errstring += 'Unknown reason.'
-        logger.error(errstring)
+    logger.error(errstring)
     return {}
 
 

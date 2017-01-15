@@ -15,15 +15,10 @@ matrix:
           env: TOXENV=py34
         - python: "3.5"
           env: TOXENV=py35
-        - python: "3.6-dev"
+        - python: "3.6"
           env: TOXENV=py36
-        - python: "2.7"
-          env: FUNCTIONAL="true"
 install:
-    - |
-        if [ -n "${TOXENV}" ]; then
-            pip install -r requirements-dev.txt
-        fi
+    - pip install -r requirements-dev.txt
     - |
         if [ "${TOXENV}" == "py32" ]; then
             pip install pip==7.1.2 virtualenv==13.1.2 setuptools==29.0.1 \
@@ -34,49 +29,16 @@ install:
             pip install flake8==2.6.2
         fi
 script:
+    - tox -e ${TOXENV}
     - |
-        if [ -n "${TOXENV}" ]; then
-            tox -e ${TOXENV}
-        fi
+        docker run -v ${PWD}:${PWD} -w ${PWD} dockershelf/python:2.7-3.5 \
+            bash -c "python2.7 setup.py install && python3.5 setup.py install \
+            && pypicontents pypi -o data/0-9/pypi.json -f logs/0-9/pypi.log \
+            -R 0-9"
     - |
-        if [ -n "${FUNCTIONAL}" ]; then
-            set -ex
-            docker run -v ${PWD}:${PWD} -w ${PWD} --name pypicontents-27-35 \
-                dockershelf/python:2.7-3.5 bash -c "python2.7 setup.py install"
-
-            docker commit pypicontents-27-35 dockershelf/pypicontents:2.7-3.5
-
-            docker run -v ${PWD}:${PWD} -w ${PWD} -u $(id -u):$(id -g) \
-                dockershelf/pypicontents:2.7-3.5 bash -c "pypicontents pypi \
-                    -o data/y/pypi.json -f logs/0-9/pypi.log -R 0-9"
-
-            docker run -v ${PWD}:${PWD} -w ${PWD} -u $(id -u):$(id -g) \
-                dockershelf/pypicontents:2.7-3.5 bash -c "pypicontents pypi \
-                    -o data/y/pypi.json -f logs/y/pypi.log -R y"
-
-            docker run -v ${PWD}:${PWD} -w ${PWD} -u $(id -u):$(id -g) \
-                dockershelf/pypicontents:2.7-3.5 bash -c \
-                    "pypicontents stdlib -o stdlib/2.7/stdlib.json"
-
-            docker run -v ${PWD}:${PWD} -w ${PWD} -u $(id -u):$(id -g) \
-                dockershelf/pypicontents:2.7-3.5 bash -c \
-                    "pypicontents merge -o pypi.json -i data"
-
-            docker run -v ${PWD}:${PWD} -w ${PWD} -u $(id -u):$(id -g) \
-                dockershelf/pypicontents:2.7-3.5 bash -c \
-                    "pypicontents merge -o stdlib.json -i stdlib"
-
-            docker run -v ${PWD}:${PWD} -w ${PWD} -u $(id -u):$(id -g) \
-                dockershelf/pypicontents:2.7-3.5 bash -c \
-                    "pypicontents errors -o errors.json -i logs"
-
-            docker run -v ${PWD}:${PWD} -w ${PWD} -u $(id -u):$(id -g) \
-                dockershelf/pypicontents:2.7-3.5 bash -c \
-                    "pypicontents stats -o stats.txt -i logs"
-            set +ex
-        fi
+        docker run -v ${PWD}:${PWD} -w ${PWD} \
+            dockershelf/python:${TRAVIS_PYTHON_VERSION} bash -c \
+            "python setup.py install && pypicontents stdlib \
+            -o stdlib/2.7/stdlib.json"
 after_success:
-    - |
-        if [ -n "${TOXENV}" ]; then
-            coveralls
-        fi
+    - coveralls

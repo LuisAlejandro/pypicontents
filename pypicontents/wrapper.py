@@ -25,14 +25,14 @@ import json
 import traceback
 
 from pipsalabim.api.report import get_modules, get_packages
+from pipsalabim.core.utils import s, u
 
 while 'patchedglobals' not in globals():
     try:
         from .core.patches import patchedglobals
-        from .core.utils import s, u
     except ImportError:
-        appdir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-        sys.path.append(appdir)
+        basedir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+        sys.path.append(basedir)
 
 if __name__ == '__main__':
 
@@ -46,7 +46,7 @@ if __name__ == '__main__':
                 store.write(u(json.dumps({
                     'modules': get_modules(get_packages(setupdir)),
                     'cmdline': []})))
-        except Exception as e:
+        except:
             sys.stderr.write(traceback.format_exc())
     else:
 
@@ -62,5 +62,5 @@ if __name__ == '__main__':
         try:
             with open(setuppath) as _sfile:
                 exec(compile(s(_sfile.read()), setuppath, 'exec'), env)
-        except Exception as e:
+        except:
             sys.stderr.write(traceback.format_exc())

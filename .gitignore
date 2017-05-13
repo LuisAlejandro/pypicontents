@@ -60,3 +60,7 @@ target/
 
 # virtualenv
 virtualenv/
+
+# App dirs
+data/
+logs/

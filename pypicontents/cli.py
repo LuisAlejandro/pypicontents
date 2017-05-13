@@ -59,7 +59,7 @@ def commandline(argv=None):
     gen_options = parser.add_argument_group('General Options')
     gen_options.add_argument(
         '-V', '--version', action='version',
-        version='pypicontents {0:s}'.format(__version__),
+        version='pypicontents {0}'.format(__version__),
         help='Print version and exit.')
     gen_options.add_argument(
         '-h', '--help', action='help', help='Show this help message and exit.')
@@ -73,7 +73,7 @@ def commandline(argv=None):
     pypi_gen_options = pypi_parser.add_argument_group('General Options')
     pypi_gen_options.add_argument(
         '-V', '--version', action='version',
-        version='pypicontents {0:s}'.format(__version__),
+        version='pypicontents {0}'.format(__version__),
         help='Print version and exit.')
     pypi_gen_options.add_argument(
         '-h', '--help', action='help', help='Show this help message and exit.')
@@ -114,6 +114,9 @@ def commandline(argv=None):
     pypi_options.add_argument(
         '-T', '--limit-time', default='2100', metavar='<sec>',
         help='Stop processing if process time exceeds <sec> (default: 2100).')
+    pypi_options.add_argument(
+        '-C', '--clean', action='store_true',
+        help='Clean downloaded files after extracting information.')
 
     # stdlib command
     stdlib_parser = subparsers.add_parser(
@@ -124,7 +127,7 @@ def commandline(argv=None):
     stdlib_gen_options = stdlib_parser.add_argument_group('General Options')
     stdlib_gen_options.add_argument(
         '-V', '--version', action='version',
-        version='pypicontents {0:s}'.format(__version__),
+        version='pypicontents {0}'.format(__version__),
         help='Print version and exit.')
     stdlib_gen_options.add_argument(
         '-h', '--help', action='help', help='Show this help message and exit.')
@@ -143,7 +146,7 @@ def commandline(argv=None):
     merge_gen_options = merge_parser.add_argument_group('General Options')
     merge_gen_options.add_argument(
         '-V', '--version', action='version',
-        version='pypicontents {0:s}'.format(__version__),
+        version='pypicontents {0}'.format(__version__),
         help='Print version and exit.')
     merge_gen_options.add_argument(
         '-h', '--help', action='help', help='Show this help message and exit.')
@@ -166,7 +169,7 @@ def commandline(argv=None):
     errors_gen_options = errors_parser.add_argument_group('General Options')
     errors_gen_options.add_argument(
         '-V', '--version', action='version',
-        version='pypicontents {0:s}'.format(__version__),
+        version='pypicontents {0}'.format(__version__),
         help='Print version and exit.')
     errors_gen_options.add_argument(
         '-h', '--help', action='help', help='Show this help message and exit.')
@@ -189,7 +192,7 @@ def commandline(argv=None):
     stats_gen_options = stats_parser.add_argument_group('General Options')
     stats_gen_options.add_argument(
         '-V', '--version', action='version',
-        version='pypicontents {0:s}'.format(__version__),
+        version='pypicontents {0}'.format(__version__),
         help='Print version and exit.')
     stats_gen_options.add_argument(
         '-h', '--help', action='help', help='Show this help message and exit.')

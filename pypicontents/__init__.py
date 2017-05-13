@@ -42,5 +42,4 @@ __description__ = ('PyPIContents is an application that generates a Module '
 
 libdir = sysconfig.get_python_lib(standard_lib=True)
 appdir = os.path.dirname(os.path.realpath(__file__))
-wrapper = os.path.join(appdir, 'wrapper.py')
 pypiurl = 'https://pypi.python.org'

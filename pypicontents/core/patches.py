@@ -34,7 +34,7 @@ except ImportError:
     from builtins import __import__ as _import
     from builtins import open as _open
 
-from .utils import u
+from pipsalabim.core.utils import u
 
 if sys.version_info < (3,):
     default_import_level = -1

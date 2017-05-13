@@ -30,11 +30,13 @@ import glob
 import time
 import json
 import types
-import resource
 import string
+import shutil
 import tarfile
 import zipfile
-from subprocess import Popen, PIPE
+import resource
+import traceback
+import subprocess
 
 try:
     from urllib2 import urlopen
@@ -47,100 +49,65 @@ except ImportError:
     from urllib.parse import urlparse, urlunparse
 
 try:
-    from xmlrpclib import ServerProxy
-except ImportError:
-    from xmlrpc.client import ServerProxy
-
-try:
     from HTMLParser import HTMLParser
 except ImportError:
     from html.parser import HTMLParser
 
-from pkg_resources import parse_version
-from pipsalabim.core.util import chunk_read, chunk_report
+from pipsalabim.core.utils import chunk_read, chunk_report, u
 
 from .. import pypiurl
 from ..core.logger import logger
-from ..core.utils import (get_archive_extension, urlesc, filter_package_list,
-                          create_file_if_notfound, u, timeout, human2bytes,
+from ..core.utils import (get_tar_extension, urlesc, filter_package_list,
+                          create_file_if_notfound, timeout, human2bytes,
                           translate_letter_range)
-
-pypiserver = ServerProxy('{0}/pypi'.format(pypiurl))
-
-
-def get_setupargs(pkgurls, cachedir, extractdir):
-    setupargs = {}
-
-    for tartype in pkgurls:
-        if setupargs:
-            break
-
-        if not pkgurls[tartype]:
-            continue
-
-        pkgpath = get_pkgpath(pkgurls[tartype], cachedir, extractdir)
-
-        if not pkgpath:
-            continue
-
-        if tartype in ['bdist_egg', 'bdist_wheel']:
-            try:
-                setupargs = execute_wrapper(pkgpath)
-            except Exception as e:
-                logger.exception(e)
-        elif tartype == 'sdist':
-            setuppath = os.path.join(pkgpath, 'setup.py')
-            if not os.path.isfile(setuppath):
-                continue
-            try:
-                setupargs = execute_wrapper(setuppath)
-            except Exception as e:
-                logger.exception(e)
-    return setupargs
 
 
 def execute_wrapper(setuppath):
-    errstring = '\n'
+    errlist = []
     pbs = glob.glob('/usr/bin/python?.?')
-    pkgpath = os.path.dirname(setuppath)
+    if os.path.isfile(setuppath):
+        pkgpath = os.path.dirname(setuppath)
+    if os.path.isdir(setuppath):
+        pkgpath = setuppath
     storepath = os.path.join(pkgpath, 'setupargs-pypicontents.json')
 
     for cmd in [(pb, '-m', 'pypicontents.wrapper', setuppath) for pb in pbs]:
-        with timeout(error='Execution of setup.py took too much time.'):
-            p = Popen(cmd, stdout=PIPE, stderr=PIPE)
-            stdout, stderr = p.communicate()
-            stdout = stdout.strip('\n').strip()
-            stderr = stderr.strip('\n').strip()
-        if p.poll() is None:
-            p.kill()
-        if os.path.isfile(storepath):
-            with open(storepath) as store:
-                return json.loads(store.read())
-        errstring += ('Execution of {0} failed with the following '
-                      'messages:\n'.format(' '.join(cmd)))
-        if stdout:
-            errstring += 'stdout: {0}\n'.format(stdout)
-        if stderr:
-            errstring += 'stderr: {0}\n'.format(stderr)
-        if not stdout and not stderr:
-            errstring += 'Unknown reason.'
-    logger.error(errstring)
-    return {}
+        try:
+            with timeout(error='Execution of setup.py took too much time.'):
+                p = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                                     stderr=subprocess.PIPE)
+                stdout, stderr = p.communicate()
+                stdout = u(stdout).strip('\n').strip()
+                stderr = u(stderr).strip('\n').strip()
+            if p.poll() is None:
+                p.kill()
+            if os.path.isfile(storepath):
+                with open(storepath) as store:
+                    return json.loads(store.read()), ''
+        except Exception:
+            errlist.append(traceback.format_exc())
+        else:
+            errlist.append('Execution of {0} failed with the following '
+                           'messages:'.format(' '.join(cmd)))
+            if stdout:
+                errlist.append('[stdout] {0}'.format(stdout))
+            if stderr:
+                errlist.append('[stderr] {0}'.format(stderr))
+            if not stdout and not stderr:
+                errlist.append('Unknown reason.')
+    return {}, '\n'.join(errlist)
 
 
 def download_tar(pkgurl, tarpath):
     try:
-        tarcontent = urlopen(url=urlesc(pkgurl), timeout=10).read()
-    except Exception as e:
-        logger.exception(e)
-        return False
-    else:
         with open(tarpath, 'wb') as f:
-            f.write(tarcontent)
-        return True
+            f.write(urlopen(url=urlesc(pkgurl), timeout=10).read())
+        return True, ''
+    except Exception:
+        return False, traceback.format_exc()
 
 
-def get_tar_filelist(tarpath, tarext, extractdir):
+def get_tar_topdir(tarpath, tarext, extractdir):
     if tarext in ['.zip', '.whl', '.egg']:
         tarmode = 'r'
         compressed = zipfile.ZipFile
@@ -155,52 +122,84 @@ def get_tar_filelist(tarpath, tarext, extractdir):
         tarmode = 'r:bz2'
         compressed = tarfile.open
         tarfile.TarFile.list = tarfile.TarFile.getnames
-    else:
-        return False
 
     try:
         with timeout(error='Uncompressing took too much time.'):
             with compressed(tarpath, tarmode) as tar:
                 tar.extractall(extractdir)
                 tarlist = tar.list()
-    except Exception as e:
-        logger.exception(e)
-        return False
-    else:
-        return tarlist
+        if tarext == '.whl':
+            return extractdir, ''
+        else:
+            return tarlist[0].split(os.sep)[0], ''
+    except Exception:
+        return '', traceback.format_exc()
 
 
 def get_pkgpath(pkgurl, cachedir, extractdir):
     tarpath = os.path.join(cachedir, os.path.basename(pkgurl))
-    tarext = get_archive_extension(tarpath)
+    tarext = get_tar_extension(tarpath)
 
     if tarext not in ['.whl', '.egg', '.zip', '.tgz', '.tar.gz', '.tar.bz2']:
-        return
+        return '', tarpath, '"{0}" extension not supported.'.format(tarext)
 
     if not os.path.isfile(tarpath):
-        if not download_tar(pkgurl, tarpath):
-            return
+        tardown, errstring = download_tar(pkgurl, tarpath)
 
-    tarlist = get_tar_filelist(tarpath, tarext, extractdir)
+        if not tardown:
+            return '', tarpath, ('"{0}" file couldnt be downloaded. See below'
+                                 ' for details.\n{1}'.format(tarpath,
+                                                             errstring))
 
-    if not tarlist:
-        return
+    topdir, errstring = get_tar_topdir(tarpath, tarext, extractdir)
 
-    pkgtopdir = tarlist[0].split(os.sep)[0]
+    if not topdir:
+        return '', tarpath, ('Could not extract tarball. See below for '
+                             'details.\n{0}'.format(errstring))
 
-    if pkgtopdir == '.':
-        return
+    if topdir == '.':
+        return '', tarpath, 'Unsupported package directory structure.'
 
-    pkgpath = os.path.normpath(os.path.join(extractdir, pkgtopdir))
+    pkgpath = os.path.normpath(os.path.join(extractdir, topdir))
 
     if os.path.isdir(pkgpath):
-        return pkgpath
-    return
+        return pkgpath, tarpath, ''
+    return '', tarpath, ''
+
+
+def get_setupargs(pkgurls, cachedir, extractdir):
+    setupargs = {}
+    errlist = []
+
+    for utype in pkgurls:
+        if not pkgurls[utype]:
+            continue
+
+        pkgpath, tarpath, errstring = get_pkgpath(pkgurls[utype], cachedir,
+                                                  extractdir)
+        if not pkgpath:
+            errlist.append(errstring)
+            continue
+
+        setuppath = os.path.join(pkgpath, 'setup.py')
+
+        if os.path.isfile(setuppath):
+            setupargs, errstring = execute_wrapper(setuppath)
+            if setupargs:
+                return setupargs, pkgpath, tarpath, ''
+            errlist.append(errstring)
+
+        if os.path.isdir(pkgpath):
+            setupargs, errstring = execute_wrapper(pkgpath)
+            if setupargs:
+                return setupargs, pkgpath, tarpath, ''
+            errlist.append(errstring)
+    return setupargs, pkgpath, tarpath, ''.join(errlist)
 
 
 def fix_url_tarnames(pkgname, pkgversion, pkgurls):
-    for tartype in pkgurls:
-        parsedurl = urlparse(pkgurls[tartype])
+    for utype in pkgurls:
+        parsedurl = urlparse(pkgurls[utype])
         if parsedurl.netloc in ['gitlab.com', 'www.gitlab.com'] and \
            os.path.basename(parsedurl.path) == 'archive.tar.gz':
             tarname = '{0}-{1}.tar.gz'.format(pkgname, pkgversion)
@@ -208,9 +207,9 @@ def fix_url_tarnames(pkgname, pkgversion, pkgurls):
               os.path.basename(parsedurl.path) == 'master'):
             tarname = '{0}-{1}.tar.gz'.format(pkgname, pkgversion)
         else:
-            tarname = os.path.basename(pkgurls[tartype])
-        pkgurls[tartype] = os.path.join(os.path.dirname(pkgurls[tartype]),
-                                        tarname)
+            tarname = os.path.basename(pkgurls[utype])
+        pkgurls[utype] = os.path.join(os.path.dirname(pkgurls[utype]),
+                                      tarname)
     return pkgurls
 
 
@@ -240,15 +239,18 @@ def fix_empty_releases(pkgdata, pkgversion):
 
 
 def get_pkgurls(pkgdata, pkgname, pkgversion):
-    pkgdata = fix_empty_releases(pkgdata, pkgversion)
-    pkgreleases = pkgdata['releases'][pkgversion]
-    sources = filter(lambda x: x['packagetype'] == 'sdist', pkgreleases)
-    wheels = filter(lambda x: x['packagetype'] == 'bdist_wheel', pkgreleases)
-    eggs = filter(lambda x: x['packagetype'] == 'bdist_egg', pkgreleases)
-    pkgurls = {'sdist': sources[0]['url'] if sources else '',
-               'bdist_wheel': wheels[0]['url'] if wheels else '',
-               'bdist_egg': eggs[0]['url'] if eggs else ''}
-    return fix_url_tarnames(pkgname, pkgversion, pkgurls)
+    try:
+        pkgdata = fix_empty_releases(pkgdata, pkgversion)
+        pkgrel = pkgdata['releases'][pkgversion]
+        sources = list(filter(lambda x: x['packagetype'] == 'sdist', pkgrel))
+        whl = list(filter(lambda x: x['packagetype'] == 'bdist_wheel', pkgrel))
+        eggs = list(filter(lambda x: x['packagetype'] == 'bdist_egg', pkgrel))
+        pkgurls = {'sdist': sources[0]['url'] if sources else '',
+                   'bdist_wheel': whl[0]['url'] if whl else '',
+                   'bdist_egg': eggs[0]['url'] if eggs else ''}
+        return fix_url_tarnames(pkgname, pkgversion, pkgurls), ''
+    except Exception:
+        return {}, traceback.format_exc()
 
 
 def get_pkgdata(pkgname):
@@ -256,25 +258,10 @@ def get_pkgdata(pkgname):
         pkgjsonraw = urlopen(url='{0}/pypi/{1}/json'.format(pypiurl, pkgname),
                              timeout=10).read()
         pkgjson = json.loads(pkgjsonraw.decode('utf-8'))
-    except Exception as e:
-        logger.exception(e)
-    else:
         return {'info': pkgjson['info'],
-                'releases': pkgjson['releases']}
-
-    try:
-        pypireleases = pypiserver.package_releases(pkgname)
-        pkgreleases = [parse_version(v) for v in pypireleases]
-        if not pkgreleases:
-            return {}
-        pkgversion = str(sorted(pkgreleases)[-1])
-        pkgurls = pypiserver.release_urls(pkgname, pkgversion)
-    except Exception as e:
-        logger.exception(e)
-    else:
-        return {'info': {'version': pkgversion},
-                'releases': {pkgversion: pkgurls}}
-    return {}
+                'releases': pkgjson['releases']}, ''
+    except Exception:
+        return {}, traceback.format_exc()
 
 
 class PyPIParser(HTMLParser):
@@ -294,37 +281,46 @@ class PyPIParser(HTMLParser):
 
 
 def get_pkglist():
-    logger.info('Downloading package list from PyPI ...')
-
     try:
         pkglistobj = urlopen(url='{0}/simple'.format(pypiurl), timeout=60)
         pkglistraw = chunk_read(pkglistobj, report_hook=chunk_report)
         pypiparser = PyPIParser()
         pypiparser.feed(pkglistraw)
-        pkglist = pypiparser.pypilist
-    except Exception as e:
-        logger.exception(e)
-    else:
-        return pkglist
+        return pypiparser.pypilist
+    except Exception:
+        return {}
 
+
+def get_outputfile_jsondict(outputfile):
     try:
-        pkglist = pypiserver.list_packages()
-    except Exception as e:
-        logger.exception(e)
-    else:
-        return pkglist
-    return []
+        with open(outputfile, 'r') as f:
+            outjsondict = json.loads(f.read() or '{}')
+        return outjsondict
+    except Exception:
+        return {}
+
+
+def prefill_jsondict(pkglist, jsondict, outjsondict):
+    for pkgname in pkglist:
+        if pkgname not in jsondict:
+            if pkgname in outjsondict:
+                jsondict[pkgname] = outjsondict[pkgname]
+            else:
+                jsondict[pkgname] = {'version': '',
+                                     'modules': [],
+                                     'cmdline': []}
+    return jsondict
 
 
 def pypi(**kwargs):
-
     jsondict = {}
     sum_updated = 0
     sum_uptodate = 0
     sum_nodata = 0
     sum_nodown = 0
     sum_noapi = 0
-    allowed_range = list(string.ascii_lowercase) + map(str, range(0, 10))
+    sum_nourls = 0
+    allowed_range = list(string.ascii_lowercase) + list(map(str, range(0, 10)))
     start_time = time.time()
 
     logfile = kwargs.get('logfile')
@@ -337,6 +333,7 @@ def pypi(**kwargs):
     limit_log_size = kwargs.get('limit_log_size')
     letter_range = translate_letter_range(kwargs.get('letter_range'))
     limit_time = int(kwargs.get('limit_time'))
+    clean = kwargs.get('clean')
 
     if limit_mem.isdigit():
         limit_mem = '{0}B'.format(limit_mem)
@@ -360,21 +357,10 @@ def pypi(**kwargs):
     if not os.path.isfile(outputfile):
         create_file_if_notfound(outputfile)
 
-    for pkgname in filter_package_list(get_pkglist(), letter_range):
-        if pkgname not in jsondict:
-            try:
-                with open(outputfile, 'r') as f:
-                    outjsondict = json.loads(f.read() or '{}')
-            except Exception:
-                pass
-            else:
-                if pkgname in outjsondict:
-                    jsondict[pkgname] = outjsondict[pkgname]
-
-        if pkgname not in jsondict:
-            jsondict[pkgname] = {'version': '',
-                                 'modules': [],
-                                 'cmdline': []}
+    logger.info('Downloading package list from PyPI ...')
+    pkglist = filter_package_list(get_pkglist(), letter_range)
+    outjsondict = get_outputfile_jsondict(outputfile)
+    jsondict = prefill_jsondict(pkglist, jsondict, outjsondict)
 
     for pkgname in sorted(jsondict.keys()):
 
@@ -416,19 +402,29 @@ def pypi(**kwargs):
             logger.warning('')
             break
 
-        pkgdata = get_pkgdata(pkgname)
+        pkgdata, errstring = get_pkgdata(pkgname)
 
         if not pkgdata:
-            logger.error('Could not get a response from API for this package.')
+            logger.error('Could not get a response from API for this package. '
+                         'See below for details.\n{0}'.format(errstring))
             sum_noapi += 1
             continue
 
-        if jsondict[pkgname]['version'] == pkgdata['info']['version']:
+        newversion = pkgdata['info']['version']
+        currentversion = jsondict[pkgname]['version']
+
+        if newversion == currentversion:
             logger.info('This package is up to date.')
             sum_uptodate += 1
             continue
 
-        pkgurls = get_pkgurls(pkgdata, pkgname, pkgdata['info']['version'])
+        pkgurls, errstring = get_pkgurls(pkgdata, pkgname, newversion)
+
+        if not pkgurls:
+            logger.error('Could not get download URLs for this package. '
+                         'See below for details.\n{0}'.format(errstring))
+            sum_nourls += 1
+            continue
 
         if not (pkgurls['sdist'] + pkgurls['bdist_wheel'] +
                 pkgurls['bdist_egg']):
@@ -436,10 +432,18 @@ def pypi(**kwargs):
             sum_nodown += 1
             continue
 
-        setupargs = get_setupargs(pkgurls, cachedir, extractdir)
+        setupargs, pkgpath, tarpath, errstring = get_setupargs(
+            pkgurls, cachedir, os.path.join(extractdir, pkgname))
+
+        if clean:
+            if os.path.isfile(tarpath):
+                os.remove(tarpath)
+            if os.path.isdir(pkgpath):
+                shutil.rmtree(pkgpath)
 
         if not setupargs:
-            logger.error('Could not extract data from this package.')
+            logger.error('Could not extract data from this package. '
+                         'See below for details.\n{0}'.format(errstring))
             sum_nodata += 1
             continue
 
@@ -452,20 +456,21 @@ def pypi(**kwargs):
         f.write(u(json.dumps(jsondict, separators=(',', ': '),
                              sort_keys=True, indent=4)))
 
-    sum_processed = (sum_updated + sum_uptodate + sum_nodata +
-                     sum_nodown + sum_noapi)
-    sum_not_processed = len(jsondict.keys()) - sum_processed
+    sum_proc = (sum_updated + sum_uptodate + sum_noapi + sum_nourls +
+                sum_nodown + sum_nodata)
+    sum_not_proc = len(jsondict.keys()) - sum_proc
 
     logger.configpkg('')
     logger.info('')
     logger.info('')
     logger.info('Total packages: {0}'.format(len(jsondict.keys())))
-    logger.info('    Packages processed: {0}'.format(sum_processed))
+    logger.info('    Packages processed: {0}'.format(sum_proc))
     logger.info('        Packages updated: {0}'.format(sum_updated))
     logger.info('        Packages up-to-date: {0}'.format(sum_uptodate))
-    logger.info('        Packages with data errors: {0}'.format(sum_nodata))
-    logger.info('        Packages without downloads: {0}'.format(sum_nodown))
     logger.info('        Packages without response: {0}'.format(sum_noapi))
-    logger.info('    Packages not processed: {0}'.format(sum_not_processed))
+    logger.info('        Packages without urls: {0}'.format(sum_nourls))
+    logger.info('        Packages without downloads: {0}'.format(sum_nodown))
+    logger.info('        Packages with data errors: {0}'.format(sum_nodata))
+    logger.info('    Packages not processed: {0}'.format(sum_not_proc))
     logger.info('')
     logger.info('')

@@ -17,9 +17,9 @@
    :target: https://coveralls.io/github/LuisAlejandro/pypicontents?branch=master
    :alt: Coveralls
 
-.. image:: https://landscape.io/github/LuisAlejandro/pypicontents/master/landscape.svg?style=flat
-   :target: https://landscape.io/github/LuisAlejandro/pypicontents/master
-   :alt: Landscape
+.. image:: https://codeclimate.com/github/LuisAlejandro/pypicontents/badges/gpa.svg
+   :target: https://codeclimate.com/github/LuisAlejandro/pypicontents
+   :alt: Code Climate
 
 .. image:: https://readthedocs.org/projects/pypicontents/badge/?version=latest
    :target: https://readthedocs.org/projects/pypicontents/?badge=latest

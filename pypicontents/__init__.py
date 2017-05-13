@@ -34,17 +34,12 @@ from distutils import sysconfig
 
 __author__ = 'Luis Alejandro Martínez Faneyth'
 __email__ = 'luis@huntingbears.com.ve'
-__version__ = '0.1.5'
+__version__ = '0.1.6'
 __url__ = 'https://github.com/LuisAlejandro/pypicontents'
 __description__ = ('PyPIContents is an application that generates a Module '
                    'Index from the Python Package Index (PyPI) and also from '
                    'various versions of the Python Standard Library.')
 
 libdir = sysconfig.get_python_lib(standard_lib=True)
-extractdir = os.path.join('/tmp', 'pypicontents')
-cachedir = os.path.join(os.environ.get('HOME', os.path.expanduser('~')),
-                        '.cache', 'pip')
-basedir = os.getcwd()
 appdir = os.path.dirname(os.path.realpath(__file__))
-wrapper = os.path.join(appdir, 'wrapper.py')
-pypiapiend = 'https://pypi.python.org/pypi'
+pypiurl = 'https://pypi.python.org'

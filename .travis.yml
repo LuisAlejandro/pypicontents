@@ -1,3 +1,7 @@
+sudo: required
+services: docker
+dist: trusty
+group: edge
 language: python
 matrix:
     include:
@@ -11,19 +15,30 @@ matrix:
           env: TOXENV=py34
         - python: "3.5"
           env: TOXENV=py35
-        - python: "3.6-dev"
+        - python: "3.6"
           env: TOXENV=py36
 install:
-    - pip install -r requirements-dev.txt
     - |
         if [ "${TOXENV}" == "py32" ]; then
-            pip install pip==7.1.2 virtualenv==13.1.2 setuptools==29.0.1 coverage==3.7.1
+            pip install setuptools==29.0.1
+            pip install pip==7.1.2 virtualenv==13.1.2 coverage==3.7.1
         fi
     - |
         if [ "${TOXENV}" == "py26" ]; then
             pip install flake8==2.6.2
         fi
+    - pip install -r requirements-dev.txt
 script:
     - tox -e ${TOXENV}
+    - |
+        docker run -v ${PWD}:${PWD} -w ${PWD} dockershelf/python:2.7-3.5 \
+            bash -c "python2.7 setup.py install && python3.5 setup.py install \
+            && pypicontents pypi -o data/0-9/pypi.json -f logs/0-9/pypi.log \
+            -R 0-9"
+    - |
+        docker run -v ${PWD}:${PWD} -w ${PWD} \
+            dockershelf/python:${TRAVIS_PYTHON_VERSION} bash -c \
+            "python setup.py install && pypicontents stdlib \
+            -o stdlib/2.7/stdlib.json"
 after_success:
     - coveralls

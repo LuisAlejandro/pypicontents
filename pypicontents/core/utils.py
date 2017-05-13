@@ -42,20 +42,6 @@ if sys.version_info < (3,):
     default_import_level = -1
 else:
     default_import_level = 0
-    unicode = str
-    basestring = str
-
-
-def u(x):
-    if isinstance(x, unicode):
-        return x
-    return x.decode('utf-8')
-
-
-def s(x):
-    if isinstance(x, bytes):
-        return x
-    return x.encode('utf-8')
 
 
 class timeout(object):
@@ -85,9 +71,8 @@ def translate_letter_range(lr='0-z'):
     return lr
 
 
-def filter_package_list(pkglist=[], lr='0-z'):
-    lr = translate_letter_range(lr)
-    return [p for l in lr for p in pkglist if p.lower().startswith(l)]
+def filter_package_list(pkglist, lr):
+    return [p for l in lr for p in pkglist if p[0].lower() == l]
 
 
 def create_file_if_notfound(filename):
@@ -105,13 +90,13 @@ def urlesc(url):
     return urlunparse(parts[:2] + (quote(parts[2]),) + parts[3:])
 
 
-def get_archive_extension(path):
+def get_tar_extension(path):
     extensions = []
     root, ext = os.path.splitext(path)
 
     while ext:
         extensions.append(ext)
-        if ext == '.tar' or ext == '.zip' or ext == '.tgz':
+        if ext in ['.tar', '.zip', '.tgz', '.whl', '.egg']:
             break
         root, ext = os.path.splitext(root)
 

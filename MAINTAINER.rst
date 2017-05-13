@@ -36,7 +36,7 @@ leave uncommitted changes.
 
 9. Update your changelog::
 
-    gitchangelog > HISTORY.md
+    gitchangelog > HISTORY.rst
 
 10. Commit your changes to version files and changelog::
 
@@ -74,7 +74,7 @@ Making a new hotfix
 
 5. Update your changelog::
 
-    gitchangelog > HISTORY.md
+    gitchangelog > HISTORY.rst
 
 6. Commit your changes to version files and changelog::
 

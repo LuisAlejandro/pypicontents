@@ -22,9 +22,7 @@ import os
 import re
 import json
 
-from pipsalabim.core.util import find_files
-
-# from ..core.logger import logger
+from pipsalabim.core.utils import find_files
 
 
 def errors(**kwargs):
@@ -42,8 +40,6 @@ def errors(**kwargs):
     for logfile in find_files(inputdir, '*.log'):
         with open(logfile) as _log:
             content = _log.read()
-
-        # logger.info('Processing logfile {0}'.format(logfile))
 
         if not content:
             continue
@@ -66,7 +62,3 @@ def errors(**kwargs):
     with open(outputfile, 'w') as e:
         e.write(json.dumps(jsondict, separators=(',', ': '),
                            sort_keys=True, indent=4))
-
-    # logger.configpkg('')
-    # logger.info('')
-    # logger.info('')

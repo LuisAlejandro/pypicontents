@@ -21,7 +21,7 @@
 import os
 import re
 
-from pipsalabim.core.util import find_files
+from pipsalabim.core.utils import find_files
 
 
 def stats(**kwargs):

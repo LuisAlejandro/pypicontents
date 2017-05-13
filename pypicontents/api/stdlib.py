@@ -31,11 +31,10 @@ except ImportError:
     from urllib.request import urlopen
 
 from pipsalabim.api.report import get_modules, get_packages
-from pipsalabim.core.util import list_files
+from pipsalabim.core.utils import list_files, u
 
 from .. import libdir
 from ..core.logger import logger
-from ..core.utils import u
 
 
 UTF8StreamReader = codecs.lookup('utf-8')[2]

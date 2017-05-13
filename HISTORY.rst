@@ -1,6 +1,51 @@
 Changelog
 =========
 
+0.1.6 (2017-05-13)
+------------------
+
+Changes
+~~~~~~~
+
+- [REF] Adding Maintainer guide and changing landscape.io for Code
+  Climate. [Luis Alejandro Martínez Faneyth]
+
+- [REF] Refactoring `pypicontents pypi` to allow the reading of .whl and
+  .egg formats. [Luis Alejandro Martínez Faneyth]
+
+- [REF] Changing location of pip cache. [Luis Alejandro Martínez
+  Faneyth]
+
+- [REF] Adding minimal test. [Luis Alejandro Martínez Faneyth]
+
+- [REF] Only try to download a file once (closes #7). [REF] Refactoring
+  pypicontents.wrapper to be better organized. [REF] Updating regexes in
+  pypicontents.api.errors and pypicontents.api.stats to match new
+  strings. [REF] Allowing exception logs to show in
+  pypicontents.api.pypi. [REF] Removing the portion of code that removes
+  directories from pip cache. Let the user remove them at will. [REF]
+  Moving inspection of setup.py to pypicontents.wrapper to isolate
+  better the importing of foreign modules. [Luis Alejandro Martínez
+  Faneyth]
+
+- [REF] Monkeypatching logging._levelNames for python >= 3.4 (closes
+  #9). [Luis Alejandro Martínez Faneyth]
+
+Fix
+~~~
+
+- [FIX] Fixing error strings. [REF] Refactoring functional tests. [Luis
+  Alejandro Martínez Faneyth]
+
+Other
+~~~~~
+
+- Fixing python 3.2 incompatibility. Adding functional tests with
+  docker. Updating module level documentation. Removing xmlrpc api
+  because json api is enough. Adding support for whl and egg archive
+  extensions. Removing unused code, unused functions and general
+  linting. [Luis Alejandro Martínez Faneyth]
+
 0.1.5 (2017-01-05)
 ------------------
 
@@ -9,6 +54,11 @@ Fix
 
 - [FIX] Fixing logger behaviour in python 2.6 and adding case for
   inventory v1 in the stdlib command. [Luis Alejandro Martínez Faneyth]
+
+Other
+~~~~~
+
+- Updating Changelog and version. [Luis Alejandro Martínez Faneyth]
 
 0.1.4 (2017-01-05)
 ------------------

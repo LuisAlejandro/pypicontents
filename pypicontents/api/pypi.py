@@ -365,7 +365,9 @@ def pypi(**kwargs):
     for pkgname in sorted(jsondict.keys()):
 
         elapsed_time = int(time.time() - start_time)
-        mem_usage = int(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
+        mem_self = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+        mem_children = resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss
+        mem_usage = int(mem_self + mem_children) * 1024
 
         if logfile:
             logsize = int(os.path.getsize(logfile))

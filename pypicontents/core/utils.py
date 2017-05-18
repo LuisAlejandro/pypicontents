@@ -53,6 +53,12 @@ def get_free_memory():
     return free * 1024
 
 
+def get_children_processes(parent_pid):
+    chfile = '/proc/{0}/task/{1}/children'.format(parent_pid, parent_pid)
+    with open(chfile, 'r') as children:
+        return children.read().strip('\n').strip().split()
+
+
 class timeout(object):
     def __init__(self, sec=20, error='Operation timed out.'):
         self.sec = sec

@@ -36,6 +36,7 @@ import tarfile
 import zipfile
 import traceback
 import subprocess
+import signal
 from resource import RUSAGE_SELF, getrusage
 
 try:
@@ -59,7 +60,8 @@ from .. import pypiurl
 from ..core.logger import logger
 from ..core.utils import (get_tar_extension, urlesc, filter_package_list,
                           create_file_if_notfound, timeout, human2bytes,
-                          translate_letter_range, get_free_memory)
+                          translate_letter_range, get_free_memory,
+                          get_children_processes)
 
 
 def execute_wrapper(setuppath):
@@ -148,7 +150,7 @@ def get_pkgpath(pkgurl, cachedir, extractdir):
 
         if not tardown:
             return '', tarpath, ('"{0}" file couldnt be downloaded. See below'
-                                 ' for details.\n{1}'.format(tarpath,
+                                 ' for details.\n{1}'.format(pkgurl,
                                                              errstring))
 
     topdir, errstring = get_tar_topdir(tarpath, tarext, extractdir)
@@ -374,6 +376,9 @@ def pypi(**kwargs):
         elapsed_time = int(time.time() - start_time)
         mem_usage = int(getrusage(RUSAGE_SELF).ru_maxrss * 1024)
         mem_available = int(get_free_memory())
+
+        for chpid in get_children_processes(os.getpid()):
+            os.kill(int(chpid), signal.SIGKILL)
 
         if logfile:
             logsize = int(os.path.getsize(logfile))

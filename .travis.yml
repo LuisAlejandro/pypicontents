@@ -31,14 +31,14 @@ install:
 script:
     - tox -e ${TOXENV}
     - |
-        docker run -v ${PWD}:${PWD} -w ${PWD} dockershelf/python:2.7-3.5 \
-            bash -c "python2.7 setup.py install && python3.5 setup.py install \
-            && pypicontents pypi -o data/0-9/pypi.json -f logs/0-9/pypi.log \
-            -R 0-9"
+        docker run -v ${PWD}:${PWD} -w ${PWD} \
+            dockershelf/python:${TRAVIS_PYTHON_VERSION} bash -c \
+            "python${TRAVIS_PYTHON_VERSION} setup.py install && \
+            pypicontents pypi -o data/0-9/pypi.json -f logs/0-9/pypi.log -R 0-9"
     - |
         docker run -v ${PWD}:${PWD} -w ${PWD} \
             dockershelf/python:${TRAVIS_PYTHON_VERSION} bash -c \
-            "python setup.py install && pypicontents stdlib \
-            -o stdlib/2.7/stdlib.json"
+            "python${TRAVIS_PYTHON_VERSION} setup.py install && \
+            pypicontents stdlib -o stdlib/${TRAVIS_PYTHON_VERSION}/stdlib.json"
 after_success:
     - coveralls

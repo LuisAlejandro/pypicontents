@@ -44,6 +44,15 @@ else:
     default_import_level = 0
 
 
+def get_free_memory():
+    with open('/proc/meminfo', 'r') as memory:
+        free = 0
+        for mem in memory:
+            if str(mem.split()[0]) in ('MemFree:', 'Buffers:', 'Cached:'):
+                free += int(mem.split()[1])
+    return free * 1024
+
+
 class timeout(object):
     def __init__(self, sec=20, error='Operation timed out.'):
         self.sec = sec

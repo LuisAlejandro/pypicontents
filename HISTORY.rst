@@ -1,6 +1,15 @@
 Changelog
 =========
 
+0.1.8 (2017-05-18)
+------------------
+
+Changes
+~~~~~~~
+
+- [REF] Extending available memory limit to 600MB. [Luis Alejandro
+  Martínez Faneyth]
+
 0.1.7 (2017-05-18)
 ------------------
 
@@ -15,6 +24,11 @@ Fix
 
 - [FIX] Fixing memory usage calculation. Fixes #10. [Luis Alejandro
   Martínez Faneyth]
+
+Other
+~~~~~
+
+- Updating Changelog and version. [Luis Alejandro Martínez Faneyth]
 
 0.1.6 (2017-05-13)
 ------------------

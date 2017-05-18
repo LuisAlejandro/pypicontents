@@ -1,6 +1,26 @@
 Changelog
 =========
 
+0.1.8 (2017-05-17)
+------------------
+
+- Adding check to avoid running out of memory. Fixes #11. [Luis
+  Alejandro Martínez Faneyth]
+
+0.1.7 (2017-05-17)
+------------------
+
+Fix
+~~~
+
+- [FIX] Fixing memory usage calculation. Fixes #10. [Luis Alejandro
+  Martínez Faneyth]
+
+Other
+~~~~~
+
+- Updating Changelog and version. [Luis Alejandro Martínez Faneyth]
+
 0.1.6 (2017-05-13)
 ------------------
 
@@ -39,6 +59,8 @@ Fix
 
 Other
 ~~~~~
+
+- Updating Changelog and version. [Luis Alejandro Martínez Faneyth]
 
 - Fixing python 3.2 incompatibility. Adding functional tests with
   docker. Updating module level documentation. Removing xmlrpc api

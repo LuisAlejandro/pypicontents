@@ -320,6 +320,7 @@ def pypi(**kwargs):
     sum_nodown = 0
     sum_noapi = 0
     sum_nourls = 0
+    limit_mem_available = 600 * 1024 * 1024
     allowed_range = list(string.ascii_lowercase) + list(map(str, range(0, 10)))
     start_time = time.time()
 
@@ -372,7 +373,7 @@ def pypi(**kwargs):
 
         elapsed_time = int(time.time() - start_time)
         mem_usage = int(getrusage(RUSAGE_SELF).ru_maxrss * 1024)
-        mem_available = get_free_memory()
+        mem_available = int(get_free_memory())
 
         if logfile:
             logsize = int(os.path.getsize(logfile))
@@ -390,20 +391,20 @@ def pypi(**kwargs):
             logger.warning('')
             break
 
-        if mem_available < 200 * 1024 * 1024:
-            logger.configpkg()
-            logger.warning('')
-            logger.warning('This machine is running out of memory.'
-                           ' Interrupting.')
-            logger.warning('Processing will continue in next iteration.')
-            logger.warning('')
-            break
-
         if mem_usage > limit_mem:
             logger.configpkg()
             logger.warning('')
             logger.warning('This process is taking more than {0} MB of memory.'
                            ' Interrupting'.format(limit_mem / (1024 * 1024)))
+            logger.warning('Processing will continue in next iteration.')
+            logger.warning('')
+            break
+
+        if mem_available < limit_mem_available:
+            logger.configpkg()
+            logger.warning('')
+            logger.warning('This machine is running out of memory.'
+                           ' Interrupting.')
             logger.warning('Processing will continue in next iteration.')
             logger.warning('')
             break

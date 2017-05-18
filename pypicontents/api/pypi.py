@@ -34,9 +34,9 @@ import string
 import shutil
 import tarfile
 import zipfile
-import resource
 import traceback
 import subprocess
+from resource import RUSAGE_SELF, getrusage
 
 try:
     from urllib2 import urlopen
@@ -59,7 +59,7 @@ from .. import pypiurl
 from ..core.logger import logger
 from ..core.utils import (get_tar_extension, urlesc, filter_package_list,
                           create_file_if_notfound, timeout, human2bytes,
-                          translate_letter_range)
+                          translate_letter_range, get_free_memory)
 
 
 def execute_wrapper(setuppath):
@@ -359,15 +359,20 @@ def pypi(**kwargs):
 
     logger.info('Downloading package list from PyPI ...')
     pkglist = filter_package_list(get_pkglist(), letter_range)
+
+    if not pkglist:
+        raise RuntimeError('Couldnt download the PyPI package list.\n'
+                           'There was an error stablishing communication '
+                           'with {0}'.format(pypiurl))
+
     outjsondict = get_outputfile_jsondict(outputfile)
     jsondict = prefill_jsondict(pkglist, jsondict, outjsondict)
 
     for pkgname in sorted(jsondict.keys()):
 
         elapsed_time = int(time.time() - start_time)
-        mem_self = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-        mem_children = resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss
-        mem_usage = int(mem_self + mem_children) * 1024
+        mem_usage = int(getrusage(RUSAGE_SELF).ru_maxrss * 1024)
+        mem_available = get_free_memory()
 
         if logfile:
             logsize = int(os.path.getsize(logfile))
@@ -381,6 +386,15 @@ def pypi(**kwargs):
             logger.warning('')
             logger.warning('Processing has taken more than {0} seconds.'
                            ' Interrupting.'.format(limit_time))
+            logger.warning('Processing will continue in next iteration.')
+            logger.warning('')
+            break
+
+        if mem_available < 200 * 1024 * 1024:
+            logger.configpkg()
+            logger.warning('')
+            logger.warning('This machine is running out of memory.'
+                           ' Interrupting.')
             logger.warning('Processing will continue in next iteration.')
             logger.warning('')
             break

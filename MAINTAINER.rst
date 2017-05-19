@@ -1,5 +1,5 @@
 ================
-Maintainer Notes
+Maintainer Guide
 ================
 
 If you are reading this, you probably forgot how to release a new version. Keep
@@ -8,56 +8,63 @@ reading.
 Making a new release
 --------------------
 
-1. Start your git flow workflow::
+1. Start your project with a cookiecutter template.
+2. Start your git flow workflow::
 
     git flow init
 
-2. Create a new milestone in GitHub. Plan the features of your new release. Assign
+3. Create a new milestone in GitHub. Plan the features of your new release. Assign
 existing bugs to your new milestone.
-3. Start a new feature::
+4. Start a new feature::
 
     git flow feature start <feature name>
 
-4. Code, code and code. More coding. Fuck it up several times. Push to feature
+5. Code, code and code. More coding. Fuck it up several times. Push to feature
 branch. Watch Travis go red. Write unit tests. Watch Travis go red again. Don't
 leave uncommitted changes.
-5. Finish your feature::
+6. Finish your feature::
 
     git flow feature finish <feature name>
 
-6. Repeat 3-5 for every other feature you have planned for this release.
-7. When you're done with the features and ready to publish, start a new release::
+7. Repeat 4-6 for every other feature you have planned for this release.
+8. When you're done with the features and ready to publish, start a new release::
 
     git flow release start <release number>
 
-8. Bump your version::
+9. Bump your version (check everything before next step)::
 
     bumpversion --no-commit --new-version <release number> patch
 
-9. Update your changelog::
+10. Update your changelog (edit HISTORY.rst after to customize)::
 
     gitchangelog > HISTORY.rst
 
-10. Commit your changes to version files and changelog::
+11. Commit your changes to version files and changelog::
 
     git commit -aS -m "Updating Changelog and version."
 
-11. Delete the tag made by bumpversion::
+12. Delete the tag made by bumpversion::
 
     git tag -d <release number>
 
-12. Finish your release::
+13. Finish your release::
 
     git flow release finish -s -p <release number>
 
-13. Push your tags::
+14. Push your tags::
 
     git push --tags
 
-14. Draft a new release in GitHub (based on the new version tag) and include
+15. Draft a new release in GitHub (based on the new version tag) and include
 a description. Also pick a codename because it makes you cool.
-15. Close the milestone in GitHub.
-16. Write about your new version in your blog. Tweet it, post it on facebook.
+
+16. Close the milestone in GitHub.
+
+17. Publish your new version to PyPI::
+
+    python setup.py sdist upload
+
+18. Write about your new version in your blog. Tweet it, post it on facebook.
 
 Making a new hotfix
 -------------------
@@ -68,11 +75,11 @@ Making a new hotfix
     git flow hotfix start <new version>
 
 3. Code your hotfix.
-4. Bump your version::
+4. Bump your version (check everything before next step)::
 
     bumpversion --no-commit --new-version <new version> patch
 
-5. Update your changelog::
+5. Update your changelog (edit HISTORY.rst after to customize)::
 
     gitchangelog > HISTORY.rst
 
@@ -94,5 +101,11 @@ Making a new hotfix
 
 10. Draft a new release in GitHub (based on the new version tag) and include
 a description. Don't change the codename if it is a hotfix.
+
 11. Close the milestone in GitHub.
-12. Write about your new version in your blog. Tweet it, post it on facebook.
+
+12. Publish your new version to PyPI::
+
+    python setup.py sdist upload
+
+13. Write about your new version in your blog. Tweet it, post it on facebook.

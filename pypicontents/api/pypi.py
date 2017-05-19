@@ -139,9 +139,14 @@ def get_tar_topdir(tarpath, tarext, extractdir):
         return '', traceback.format_exc()
 
 
-def get_pkgpath(pkgurl, cachedir, extractdir):
-    tarpath = os.path.join(cachedir, os.path.basename(pkgurl))
+def get_pkgpath(pkgname, pkgversion, pkgurl, cachedir, extractdir):
+    tarname = get_tarname(pkgname, pkgversion, pkgurl)
+    tarpath = os.path.join(cachedir, tarname)
     tarext = get_tar_extension(tarpath)
+
+    if not tarext:
+        return '', '', ('This package download URL does not point to a'
+                        ' valid file: "{0}"'.format(pkgurl))
 
     if tarext not in ['.whl', '.egg', '.zip', '.tgz', '.tar.gz', '.tar.bz2']:
         return '', tarpath, '"{0}" extension not supported.'.format(tarext)
@@ -150,9 +155,9 @@ def get_pkgpath(pkgurl, cachedir, extractdir):
         tardown, errstring = download_tar(pkgurl, tarpath)
 
         if not tardown:
-            return '', tarpath, ('"{0}" file couldnt be downloaded. See below'
-                                 ' for details.\n{1}'.format(pkgurl,
-                                                             errstring))
+            return '', tarpath, ('"{0}" file could not be downloaded. See '
+                                 'below for details.\n{1}'.format(pkgurl,
+                                                                  errstring))
 
     topdir, errstring = get_tar_topdir(tarpath, tarext, extractdir)
 
@@ -170,7 +175,7 @@ def get_pkgpath(pkgurl, cachedir, extractdir):
     return '', tarpath, ''
 
 
-def get_setupargs(pkgurls, cachedir, extractdir):
+def get_setupargs(pkgname, pkgversion, pkgurls, cachedir, extractdir):
     setupargs = {}
     errlist = []
 
@@ -178,8 +183,9 @@ def get_setupargs(pkgurls, cachedir, extractdir):
         if not pkgurls[utype]:
             continue
 
-        pkgpath, tarpath, errstring = get_pkgpath(pkgurls[utype], cachedir,
-                                                  extractdir)
+        pkgpath, tarpath, errstring = get_pkgpath(
+            pkgname, pkgversion, pkgurls[utype], cachedir, extractdir)
+
         if not pkgpath:
             errlist.append(errstring)
             continue
@@ -200,20 +206,17 @@ def get_setupargs(pkgurls, cachedir, extractdir):
     return setupargs, pkgpath, tarpath, ''.join(errlist)
 
 
-def fix_url_tarnames(pkgname, pkgversion, pkgurls):
-    for utype in pkgurls:
-        parsedurl = urlparse(pkgurls[utype])
-        if parsedurl.netloc in ['gitlab.com', 'www.gitlab.com'] and \
-           os.path.basename(parsedurl.path) == 'archive.tar.gz':
-            tarname = '{0}-{1}.tar.gz'.format(pkgname, pkgversion)
-        elif (parsedurl.netloc in ['codeload.github.com'] and
-              os.path.basename(parsedurl.path) == 'master'):
-            tarname = '{0}-{1}.tar.gz'.format(pkgname, pkgversion)
-        else:
-            tarname = os.path.basename(pkgurls[utype])
-        pkgurls[utype] = os.path.join(os.path.dirname(pkgurls[utype]),
-                                      tarname)
-    return pkgurls
+def get_tarname(pkgname, pkgversion, pkgurl):
+    parsedurl = urlparse(pkgurl)
+    if parsedurl.netloc in ['gitlab.com', 'www.gitlab.com'] and \
+       os.path.basename(parsedurl.path) == 'archive.tar.gz':
+        tarname = '{0}-{1}.tar.gz'.format(pkgname, pkgversion)
+    elif (parsedurl.netloc in ['github.com', 'www.github.com'] and
+          os.path.basename(parsedurl.path) == 'master'):
+        tarname = '{0}-{1}.tar.gz'.format(pkgname, pkgversion)
+    else:
+        tarname = os.path.basename(parsedurl.path)
+    return tarname
 
 
 def fix_empty_releases(pkgdata, pkgversion):
@@ -226,13 +229,12 @@ def fix_empty_releases(pkgdata, pkgversion):
         if _url.netloc in ['gitlab.com', 'www.gitlab.com']:
             _path = os.path.join(*_url.path.split('/')[:3])
             _path = os.path.join(_path, 'repository', 'archive.tar.gz')
-            _tar = urlunparse(('https', 'gitlab.com', _path, '',
-                               'ref=master', ''))
+            _tar = urlunparse(('https', 'gitlab.com', _path, '', 'ref=master',
+                               ''))
         elif _url.netloc in ['github.com', 'www.github.com']:
             _path = os.path.join(*_url.path.split('/')[:3])
-            _path = os.path.join(_path, 'legacy.tar.gz', 'master')
-            _tar = urlunparse(('https', 'codeload.github.com', _path,
-                               '', '', ''))
+            _path = os.path.join(_path, 'tarball', 'master')
+            _tar = urlunparse(('https', 'github.com', _path, '', '', ''))
         else:
             _path = ''
             _tar = pkgdata['info']['download_url']
@@ -251,7 +253,7 @@ def get_pkgurls(pkgdata, pkgname, pkgversion):
         pkgurls = {'sdist': sources[0]['url'] if sources else '',
                    'bdist_wheel': whl[0]['url'] if whl else '',
                    'bdist_egg': eggs[0]['url'] if eggs else ''}
-        return fix_url_tarnames(pkgname, pkgversion, pkgurls), ''
+        return pkgurls, ''
     except Exception:
         return {}, traceback.format_exc()
 
@@ -456,7 +458,8 @@ def pypi(**kwargs):
             continue
 
         setupargs, pkgpath, tarpath, errstring = get_setupargs(
-            pkgurls, cachedir, os.path.join(extractdir, pkgname))
+            pkgname, newversion, pkgurls, cachedir,
+            os.path.join(extractdir, pkgname))
 
         if clean:
             if os.path.isfile(tarpath):

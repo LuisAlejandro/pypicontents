@@ -1,6 +1,19 @@
 Changelog
 =========
 
+0.1.10 (2017-05-19)
+-------------------
+
+Changes
+~~~~~~~
+
+- [REF] Minor documentation changes. [Luis Alejandro Martínez Faneyth]
+
+- [REF] Modifying parsing of URL to fix download errrors. [Luis
+  Alejandro Martínez Faneyth]
+
+- [REF] Fixing python 2.6 support. [Luis Alejandro Martínez Faneyth]
+
 0.1.9 (2017-05-18)
 ------------------
 
@@ -8,6 +21,11 @@ Changes
 ~~~~~~~
 
 - [REF] Improving memory management. [Luis Alejandro Martínez Faneyth]
+
+Other
+~~~~~
+
+- Updating Changelog and version. [Luis Alejandro Martínez Faneyth]
 
 0.1.8 (2017-05-18)
 ------------------

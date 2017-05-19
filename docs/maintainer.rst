@@ -1,3 +1,4 @@
+================
 Maintainer Guide
 ================
 
@@ -48,7 +49,7 @@ leave uncommitted changes.
 
 13. Finish your release::
 
-    git flow release finish <release number>
+    git flow release finish -s -p <release number>
 
 14. Push your tags::
 

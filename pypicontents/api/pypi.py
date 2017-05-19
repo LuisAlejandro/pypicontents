@@ -38,6 +38,7 @@ import traceback
 import subprocess
 import signal
 from resource import RUSAGE_SELF, getrusage
+from contextlib import closing
 
 try:
     from urllib2 import urlopen
@@ -127,7 +128,7 @@ def get_tar_topdir(tarpath, tarext, extractdir):
 
     try:
         with timeout(error='Uncompressing took too much time.'):
-            with compressed(tarpath, tarmode) as tar:
+            with closing(compressed(tarpath, tarmode)) as tar:
                 tar.extractall(extractdir)
                 tarlist = tar.list()
         if tarext == '.whl':

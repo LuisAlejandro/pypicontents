@@ -46,6 +46,10 @@ memory, time or log size limits. It basically aims to mimic what the `Contents`_
 based package repository, but for the Python Package Index.
 
 This repository stores the application in the ``master`` branch. It also stores a Module Index in the ``contents``
+
+.. image:: https://badges.gitter.im/LuisAlejandro/pypicontents.svg
+   :alt: Join the chat at https://gitter.im/LuisAlejandro/pypicontents
+   :target: https://gitter.im/LuisAlejandro/pypicontents?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
 branch that is updated daily through a Travis cron. Read below for more information on how to use one or the other.
 
 For more information, please read the `full documentation`_.

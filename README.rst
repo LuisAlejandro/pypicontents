@@ -1,3 +1,6 @@
+.. image:: https://badge.waffle.io/LuisAlejandro/pypicontents.png?label=ready&title=Ready 
+ :target: https://waffle.io/LuisAlejandro/pypicontents?utm_source=badge
+ :alt: 'Stories in Ready'
 .. image:: https://gitcdn.xyz/repo/LuisAlejandro/pypicontents/master/docs/_static/banner.svg
 
 ..

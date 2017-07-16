@@ -21,9 +21,9 @@
    :target: https://codeclimate.com/github/LuisAlejandro/pypicontents
    :alt: Code Climate
 
-.. image:: https://requires.io/github/LuisAlejandro/pypicontents/requirements.svg?branch=master
-   :target: https://requires.io/github/LuisAlejandro/pypicontents/requirements/?branch=master
-   :alt: Requirements Status
+.. image:: https://pyup.io/repos/github/LuisAlejandro/pipsalabim/shield.svg
+   :target: https://pyup.io/repos/github/LuisAlejandro/pipsalabim/
+   :alt: Updates
 
 .. image:: https://readthedocs.org/projects/pypicontents/badge/?version=latest
    :target: https://readthedocs.org/projects/pypicontents/?badge=latest

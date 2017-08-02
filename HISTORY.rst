@@ -1,6 +1,23 @@
 Changelog
 =========
 
+0.1.13 (2017-08-02)
+-------------------
+
+Changes
+~~~~~~~
+
+- [REF] Adding development tools to requirements. [Luis Alejandro
+  Martínez Faneyth]
+
+- [REF] Unpinning requirements. [Luis Alejandro Martínez Faneyth]
+
+Fix
+~~~
+
+- [FIX] Fixing requirements parse error. [Luis Alejandro Martínez
+  Faneyth]
+
 0.1.12 (2017-08-01)
 -------------------
 
@@ -9,6 +26,11 @@ Changes
 
 - [REF] Updating requirements and configuring pyup. [Luis Alejandro
   Martínez Faneyth]
+
+Other
+~~~~~
+
+- Updating Changelog and version. [Luis Alejandro Martínez Faneyth]
 
 0.1.11 (2017-07-17)
 -------------------

@@ -3,10 +3,7 @@
 
 import re
 
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
+from setuptools import setup
 
 from pypicontents import (__author__, __email__, __version__, __url__,
                           __description__)

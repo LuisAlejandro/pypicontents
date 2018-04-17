@@ -46,7 +46,7 @@ if __name__ == '__main__':
                 store.write(u(json.dumps({
                     'modules': get_modules(get_packages(setupdir)),
                     'cmdline': []})))
-        except:
+        except BaseException:
             sys.stderr.write(traceback.format_exc())
     else:
 
@@ -62,5 +62,5 @@ if __name__ == '__main__':
         try:
             with open(setuppath) as _sfile:
                 exec(compile(s(_sfile.read()), setuppath, 'exec'), env)
-        except:
+        except BaseException:
             sys.stderr.write(traceback.format_exc())

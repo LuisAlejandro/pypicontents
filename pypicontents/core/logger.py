@@ -18,7 +18,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program. If not, see http://www.gnu.org/licenses.
 """
-``pipsalabim.core.logger`` is the global application logging module.
+``pypicontents.core.logger`` is the global application logging module.
 
 All modules use the same global logging object. No messages will be emitted
 until the logger is started.

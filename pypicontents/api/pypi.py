@@ -282,7 +282,7 @@ class PyPIParser(HTMLParser):
 
     def handle_starttag(self, tag, attrs):
         if tag == 'a':
-            self.pypilist.append(attrs[0][1])
+            self.pypilist.append(attrs[0][1].split(os.sep)[2])
 
 
 def get_pkglist():

@@ -34,7 +34,7 @@ from distutils import sysconfig
 
 __author__ = 'Luis Alejandro Martínez Faneyth'
 __email__ = 'luis@huntingbears.com.ve'
-__version__ = '0.1.13'
+__version__ = '0.1.14'
 __url__ = 'https://github.com/LuisAlejandro/pypicontents'
 __description__ = ('PyPIContents is an application that generates a Module '
                    'Index from the Python Package Index (PyPI) and also from '
@@ -42,4 +42,4 @@ __description__ = ('PyPIContents is an application that generates a Module '
 
 libdir = sysconfig.get_python_lib(standard_lib=True)
 appdir = os.path.dirname(os.path.realpath(__file__))
-pypiurl = 'https://pypi.python.org'
+pypiurl = 'https://pypi.org'

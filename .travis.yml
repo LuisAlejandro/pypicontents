@@ -1,6 +1,6 @@
 sudo: required
 services: docker
-dist: trusty
+dist: xenial
 group: edge
 language: python
 matrix:

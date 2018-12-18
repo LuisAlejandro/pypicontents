@@ -2,6 +2,166 @@ Changelog
 =========
 
 
+0.1.15 (2018-12-18)
+-------------------
+
+Changes
+~~~~~~~
+- [REF] Removing support for python 2.6 & 3.2. [Luis Alejandro Martínez
+  Faneyth]
+
+Fix
+~~~
+- [FIX] Fixing python 3.7 build. [Luis Alejandro Martínez Faneyth]
+
+Other
+~~~~~
+- Scheduled monthly dependency update for December (#38) [pyup.io bot]
+
+  * Update setuptools from 39.0.1 to 40.6.2
+
+  * Update pip from 9.0.3 to 18.1
+
+  * Update flake8 from 3.5.0 to 3.6.0
+
+  * Update pydocstyle from 2.1.1 to 3.0.0
+
+  * Update virtualenv from 15.2.0 to 16.1.0
+
+  * Update coverage from 4.5.1 to 4.5.2
+
+  * Update wheel from 0.30.0 to 0.32.3
+
+  * Update tox from 2.9.1 to 3.5.3
+
+  * Update coveralls from 1.3.0 to 1.5.1
+
+  * [REF] Removing support for python 2.6 & 3.2
+
+- Scheduled monthly dependency update for April (#31) [pyup.io bot]
+
+  * Update setuptools from 36.3.0 to 39.0.1
+
+  * Update pip from 9.0.1 to 9.0.3
+
+  * Update flake8 from 3.4.1 to 3.5.0
+
+  * Update pydocstyle from 2.0.0 to 2.1.1
+
+  * Update virtualenv from 15.1.0 to 15.2.0
+
+  * Update coverage from 4.4.1 to 4.5.1
+
+  * Update wheel from 0.29.0 to 0.30.0
+
+  * Update tox from 2.7.0 to 2.9.1
+
+  * Update coveralls from 1.2.0 to 1.3.0
+
+- Scheduled monthly dependency update for March (#30) [pyup.io bot]
+
+  * Update setuptools from 36.3.0 to 38.5.1
+
+  * Update flake8 from 3.4.1 to 3.5.0
+
+  * Update pydocstyle from 2.0.0 to 2.1.1
+
+  * Update coverage from 4.4.1 to 4.5.1
+
+  * Update wheel from 0.29.0 to 0.30.0
+
+  * Update tox from 2.7.0 to 2.9.1
+
+- Scheduled monthly dependency update for February (#29) [pyup.io bot]
+
+  * Update setuptools from 36.3.0 to 38.4.0
+
+  * Update flake8 from 3.4.1 to 3.5.0
+
+  * Update pydocstyle from 2.0.0 to 2.1.1
+
+  * Update coverage from 4.4.1 to 4.4.2
+
+  * Update wheel from 0.29.0 to 0.30.0
+
+  * Update tox from 2.7.0 to 2.9.1
+
+- Scheduled monthly dependency update for January (#28) [pyup.io bot]
+
+  * Update setuptools from 36.3.0 to 38.2.5
+
+  * Update flake8 from 3.4.1 to 3.5.0
+
+  * Update pydocstyle from 2.0.0 to 2.1.1
+
+  * Update coverage from 4.4.1 to 4.4.2
+
+  * Update wheel from 0.29.0 to 0.30.0
+
+  * Update tox from 2.7.0 to 2.9.1
+
+- Scheduled monthly dependency update for December (#27) [pyup.io bot]
+
+  * Update setuptools from 36.3.0 to 38.2.3
+
+  * Update flake8 from 3.4.1 to 3.5.0
+
+  * Update pydocstyle from 2.0.0 to 2.1.1
+
+  * Update coverage from 4.4.1 to 4.4.2
+
+  * Update wheel from 0.29.0 to 0.30.0
+
+  * Update tox from 2.7.0 to 2.9.1
+
+- Scheduled monthly dependency update for October (#25) [pyup.io bot]
+
+  * Update setuptools from 36.3.0 to 36.5.0
+
+  * Update wheel from 0.29.0 to 0.30.0
+
+  * Update tox from 2.7.0 to 2.9.1
+
+- Scheduled monthly dependency update for November (#26) [pyup.io bot]
+
+  * Update setuptools from 36.3.0 to 36.6.0
+
+  * Update flake8 from 3.4.1 to 3.5.0
+
+  * Update pydocstyle from 2.0.0 to 2.1.1
+
+  * Update wheel from 0.29.0 to 0.30.0
+
+  * Update tox from 2.7.0 to 2.9.1
+
+- Scheduled monthly dependency update for September (#24) [pyup.io bot]
+
+  * Pin setuptools to latest version 36.3.0
+
+  * Pin pip to latest version 9.0.1
+
+  * Pin flake8 to latest version 3.4.1
+
+  * Pin pydocstyle to latest version 2.0.0
+
+  * Pin virtualenv to latest version 15.1.0
+
+  * Pin coverage to latest version 4.4.1
+
+  * Pin gitchangelog to latest version 3.0.3
+
+  * Pin bumpversion to latest version 0.5.3
+
+  * Pin wheel to latest version 0.29.0
+
+  * Pin tox to latest version 2.7.0
+
+  * Pin coveralls to latest version 1.2.0
+
+  * Pin pipsalabim to latest version 0.1.15
+
+
+
 0.1.14 (2018-04-18)
 -------------------
 
@@ -15,6 +175,10 @@ Fix
 - [FIX] Fixing travis build. [Luis Alejandro Martínez Faneyth]
 - [FIX] Bumping pipsalabim version. [Luis Alejandro Martínez Faneyth]
 - [FIX] Fixing package list parser. [Luis Alejandro Martínez Faneyth]
+
+Other
+~~~~~
+- Updating Changelog and version. [Luis Alejandro Martínez Faneyth]
 
 
 0.1.13 (2017-08-02)

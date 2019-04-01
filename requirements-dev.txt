@@ -8,5 +8,5 @@ gitchangelog==3.0.4
 bumpversion==0.5.3
 wheel==0.33.1
 tox==3.8.4
-coveralls==1.5.1
+coveralls==1.7.0
 pipsalabim==0.1.18

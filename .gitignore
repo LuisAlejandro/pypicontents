@@ -64,3 +64,5 @@ virtualenv/
 # App dirs
 data/
 logs/
+
+.vscode/

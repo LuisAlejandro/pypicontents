@@ -1,12 +1,12 @@
-setuptools==40.6.3
-pip==18.1
-flake8==3.6.0
+setuptools==40.7.2
+pip==19.0.1
+flake8==3.7.4
 pydocstyle==3.0.0
-virtualenv==16.2.0
+virtualenv==16.3.0
 coverage==4.5.2
 gitchangelog==3.0.4
 bumpversion==0.5.3
 wheel==0.32.3
-tox==3.6.1
+tox==3.7.0
 coveralls==1.5.1
 pipsalabim==0.1.19

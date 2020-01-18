@@ -122,7 +122,7 @@ html_theme_options = {
     'logo_name': False,
     'logo_text_align': 'center',
     'description': pypicontents.__description__,
-    'github_user': 'LuisAlejandro',
+    'github_user': 'CollageLabs',
     'github_repo': 'pypicontents',
     'travis_button': True,
     'link': '#2471a3',

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 #   This file is part of PyPIContents.
-#   Copyright (C) 2016-2017, PyPIContents Developers.
+#   Copyright (C) 2016-2020, PyPIContents Developers.
 #
 #   Please refer to AUTHORS.rst for a complete list of Copyright holders.
 #
@@ -25,7 +25,7 @@ for internal and external imports. It then discards the imports that are
 satisfied with internal code or with the standard library and finally
 searches the `PyPIContents`_ index to list which packages satisfy your imports.
 
-.. _PyPIContents: https://github.com/LuisAlejandro/pypicontents
+.. _PyPIContents: https://github.com/CollageLabs/pypicontents
 
 """
 import os
@@ -33,9 +33,9 @@ from distutils import sysconfig
 
 
 __author__ = 'Luis Alejandro Martínez Faneyth'
-__email__ = 'luis@huntingbears.com.ve'
-__version__ = '0.1.15'
-__url__ = 'https://github.com/LuisAlejandro/pypicontents'
+__email__ = 'luis@collagelabs.org'
+__version__ = '0.1.16'
+__url__ = 'https://github.com/CollageLabs/pypicontents'
 __description__ = ('PyPIContents is an application that generates a Module '
                    'Index from the Python Package Index (PyPI) and also from '
                    'various versions of the Python Standard Library.')

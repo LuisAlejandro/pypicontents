@@ -141,8 +141,8 @@ Read below for more information on how to use it::
 About the Module Index
 ======================
 
-.. _Travis: https://travis-ci.org/LuisAlejandro/pypicontents
-.. _pypi.json: https://github.com/LuisAlejandro/pypicontents/blob/contents/pypi.json
+.. _Travis: https://travis-ci.org/CollageLabs/pypicontents
+.. _pypi.json: https://github.com/CollageLabs/pypicontents/blob/contents/pypi.json
 
 In the `pypi.json`_ file (located in the ``contents`` branch) you will find a dictionary with all the packages registered
 at the main PyPI instance, each one with the following information::
@@ -177,7 +177,7 @@ to ``setup()``. Check out ``pypicontents/api/process.py`` for more info.
 Use cases
 ---------
 
-.. _Pip Sala Bim: https://github.com/LuisAlejandro/pipsalabim
+.. _Pip Sala Bim: https://github.com/CollageLabs/pipsalabim
 
 * Search which package (or packages) contain a python module. Useful to determine a project's ``requirements.txt`` or ``install_requires``.
 
@@ -187,7 +187,7 @@ Use cases
     import urllib2
     from pprint import pprint
 
-    pypic = 'https://raw.githubusercontent.com/LuisAlejandro/pypicontents/contents/pypi.json'
+    pypic = 'https://raw.githubusercontent.com/CollageLabs/pypicontents/contents/pypi.json'
 
     f = urllib2.urlopen(pypic)
     pypicontents = json.loads(f.read())

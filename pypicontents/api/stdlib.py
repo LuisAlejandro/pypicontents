@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 #   This file is part of PyPIContents.
-#   Copyright (C) 2016-2017, PyPIContents Developers.
+#   Copyright (C) 2016-2020, PyPIContents Developers.
 #
 #   Please refer to AUTHORS.rst for a complete list of Copyright holders.
 #
@@ -41,9 +41,8 @@ UTF8StreamReader = codecs.lookup('utf-8')[2]
 
 
 def read_inventory_v1(f, uri):
-    # type: (IO, unicode, Callable) -> Inventory
     f = UTF8StreamReader(f)
-    invdata = {}  # type: Inventory
+    invdata = {}
     line = next(f)
     projname = line.rstrip()[11:]
     line = next(f)
@@ -63,8 +62,7 @@ def read_inventory_v1(f, uri):
 
 
 def read_inventory_v2(f, uri, bufsize=16 * 1024):
-    # type: (IO, unicode, Callable, int) -> Inventory
-    invdata = {}  # type: Inventory
+    invdata = {}
     line = f.readline()
     projname = line.rstrip()[11:].decode('utf-8')
     line = f.readline()
@@ -75,14 +73,12 @@ def read_inventory_v2(f, uri, bufsize=16 * 1024):
         raise ValueError('This is not a gzipped file.')
 
     def read_chunks():
-        # type: () -> Iterator[bytes]
         decompressor = zlib.decompressobj()
         for chunk in iter(lambda: f.read(bufsize), b''):
             yield decompressor.decompress(chunk)
         yield decompressor.flush()
 
     def split_lines(iter):
-        # type: (Iterator[bytes]) -> Iterator[unicode]
         buf = b''
         for chunk in iter:
             buf += chunk
@@ -100,11 +96,11 @@ def read_inventory_v2(f, uri, bufsize=16 * 1024):
         if not m:
             continue
         name, type, prio, location, dispname = m.groups()
-        if type == 'py:module' and type in invdata and \
-                name in invdata[type]:  # due to a bug in 1.1 and below,
-                                        # two inventory entries are created
-                                        # for Python modules, and the first
-                                        # one is correct
+        if type == 'py:module' and type in invdata and name in invdata[type]:
+            # due to a bug in 1.1 and below,
+            # two inventory entries are created
+            # for Python modules, and the first
+            # one is correct
             continue
         if location.endswith(u('$')):
             location = location[:-1] + name
@@ -115,7 +111,6 @@ def read_inventory_v2(f, uri, bufsize=16 * 1024):
 
 
 def read_inventory(f, uri):
-    # type: (IO, unicode, Callable, int) -> Inventory
     line = f.readline().rstrip().decode('utf-8')
     if line == '# Sphinx inventory version 1':
         return read_inventory_v1(f, uri)
@@ -124,7 +119,6 @@ def read_inventory(f, uri):
 
 
 def fetch_inventory(uri, inv):
-    # type: (Sphinx, unicode, Any) -> Any
     """Fetch, parse and return an intersphinx inventory file."""
     # both *uri* (base URI of the links to generate) and *inv* (actual
     # location of the inventory file) can be local or remote URIs

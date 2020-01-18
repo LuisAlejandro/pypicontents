@@ -33,7 +33,7 @@ from distutils import sysconfig
 
 
 __author__ = 'Luis Alejandro Martínez Faneyth'
-__email__ = 'luis@huntingbears.com.ve'
+__email__ = 'luis@collagelabs.org'
 __version__ = '0.1.15'
 __url__ = 'https://github.com/CollageLabs/pypicontents'
 __description__ = ('PyPIContents is an application that generates a Module '

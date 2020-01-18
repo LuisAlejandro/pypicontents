@@ -306,7 +306,7 @@ Getting help
 
 If you have any doubts or problems, suscribe to our `Gitter Chat`_ and ask for
 help. You can also ask your question on StackOverflow_ (tag it
-``pypicontents``) or drop me an email at luis@huntingbears.com.ve.
+``pypicontents``) or drop me an email at luis@collagelabs.org.
 
 Contributing
 ============

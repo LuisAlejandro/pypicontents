@@ -1,1 +1,1 @@
-pipsalabim==0.1.19
+pipsalabim==0.1.20

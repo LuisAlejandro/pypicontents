@@ -1,56 +1,60 @@
-.. image:: https://gitcdn.xyz/repo/LuisAlejandro/pypicontents/master/docs/_static/banner.svg
+.. image:: https://gitcdn.xyz/repo/CollageLabs/pypicontents/master/docs/_static/banner.svg
 
 ..
 
-    PyPIContents is an application that generates a Module Index from the Python Package Index (PyPI)
-    and also from various versions of the Python Standard Library.
+    PyPIContents is an application that generates a Module Index from the
+    Python Package Index (PyPI) and also from various versions of the Python
+    Standard Library.
 
 .. image:: https://img.shields.io/pypi/v/pypicontents.svg
    :target: https://pypi.python.org/pypi/pypicontents
    :alt: PyPI Package
 
-.. image:: https://img.shields.io/travis/LuisAlejandro/pypicontents.svg
-   :target: https://travis-ci.org/LuisAlejandro/pypicontents
+.. image:: https://img.shields.io/travis/CollageLabs/pypicontents.svg
+   :target: https://travis-ci.org/CollageLabs/pypicontents
    :alt: Travis CI
 
-.. image:: https://coveralls.io/repos/github/LuisAlejandro/pypicontents/badge.svg?branch=master
-   :target: https://coveralls.io/github/LuisAlejandro/pypicontents?branch=master
+.. image:: https://coveralls.io/repos/github/CollageLabs/pypicontents/badge.svg?branch=develop
+   :target: https://coveralls.io/github/CollageLabs/pypicontents?branch=develop
    :alt: Coveralls
 
-.. image:: https://codeclimate.com/github/LuisAlejandro/pypicontents/badges/gpa.svg
-   :target: https://codeclimate.com/github/LuisAlejandro/pypicontents
+.. image:: https://codeclimate.com/github/CollageLabs/pypicontents/badges/gpa.svg
+   :target: https://codeclimate.com/github/CollageLabs/pypicontents
    :alt: Code Climate
 
-.. image:: https://pyup.io/repos/github/LuisAlejandro/pipsalabim/shield.svg
-   :target: https://pyup.io/repos/github/LuisAlejandro/pipsalabim/
+.. image:: https://pyup.io/repos/github/CollageLabs/pipsalabim/shield.svg
+   :target: https://pyup.io/repos/github/CollageLabs/pipsalabim/
    :alt: Updates
 
 .. image:: https://readthedocs.org/projects/pypicontents/badge/?version=latest
    :target: https://readthedocs.org/projects/pypicontents/?badge=latest
    :alt: Read The Docs
 
-.. image:: https://cla-assistant.io/readme/badge/LuisAlejandro/pypicontents
-   :target: https://cla-assistant.io/LuisAlejandro/pypicontents
+.. image:: https://cla-assistant.io/readme/badge/CollageLabs/pypicontents
+   :target: https://cla-assistant.io/CollageLabs/pypicontents
    :alt: Contributor License Agreement
 
-.. image:: https://badges.gitter.im/LuisAlejandro/pypicontents.svg
-   :target: https://gitter.im/LuisAlejandro/pypicontents
+.. image:: https://badges.gitter.im/CollageLabs/pypicontents.svg
+   :target: https://gitter.im/CollageLabs/pypicontents
    :alt: Gitter Chat
 
 |
 |
 
-.. _pipsalabim: https://github.com/LuisAlejandro/pipsalabim
+.. _pipsalabim: https://github.com/CollageLabs/pipsalabim
 .. _full documentation: https://pypicontents.readthedocs.org
 .. _Contents: https://www.debian.org/distrib/packages#search_contents
 
-PyPIContents generates a configurable index written in ``JSON`` format that serves as a database for applications
-like `pipsalabim`_. It can be configured to process only a range of packages (by initial letter) and to have
-memory, time or log size limits. It basically aims to mimic what the `Contents`_ file means for a Debian
-based package repository, but for the Python Package Index.
+PyPIContents generates a configurable index written in ``JSON`` format that
+serves as a database for applications like `pipsalabim`_. It can be configured
+to process only a range of packages (by initial letter) and to have
+memory, time or log size limits. It basically aims to mimic what the
+`Contents`_ file means for a Debian based package repository, but for the
+Python Package Index.
 
-This repository stores the application in the ``master`` branch. It also stores a Module Index in the ``contents``
-branch that is updated daily through a Travis cron. Read below for more information on how to use one or the other.
+This repository stores the application in the ``master`` branch. It also
+stores a Module Index in the ``contents`` branch that is updated daily through
+a Travis cron. Read below for more information on how to use one or the other.
 
 For more information, please read the `full documentation`_.
 
@@ -62,15 +66,15 @@ Installation
 
 .. _PyPI: https://pypi.python.org/pypi/pypicontents
 
-The ``pypicontents`` program is written in python and hosted on PyPI_. Therefore, you can use
-pip to install the stable version::
+The ``pypicontents`` program is written in python and hosted on PyPI_.
+Therefore, you can use pip to install the stable version::
 
     $ pip install --upgrade pypicontents
 
-If you want to install the development version (not recomended), you can install
-directlty from GitHub like this::
+If you want to install the development version (not recomended), you can
+install directlty from GitHub like this::
 
-    $ pip install --upgrade https://github.com/LuisAlejandro/pypicontents/archive/master.tar.gz
+    $ pip install --upgrade https://github.com/CollageLabs/pypicontents/archive/master.tar.gz
 
 Using the application
 ---------------------
@@ -80,8 +84,8 @@ PyPIContents is divided in several commands.
 pypicontents pypi
 ~~~~~~~~~~~~~~~~~
 
-This command generates a JSON module index with information from PyPI. Read below for more information
-on how to use it::
+This command generates a JSON module index with information from PyPI. Read
+below for more information on how to use it::
 
     $ pypicontents pypi --help
 
@@ -119,8 +123,8 @@ on how to use it::
 pypicontents stdlib
 ~~~~~~~~~~~~~~~~~~~
 
-This command generates a JSON Module Index from the Python Standard Library. Read below for more information
-on how to use it::
+This command generates a JSON Module Index from the Python Standard Library.
+Read below for more information on how to use it::
 
     $ pypicontents stdlib --help
 
@@ -141,8 +145,8 @@ on how to use it::
 pypicontents stats
 ~~~~~~~~~~~~~~~~~~
 
-This command gathers statistics from the logs generated by the ``pypi`` command. Read below for more information
-on how to use it::
+This command gathers statistics from the logs generated by the ``pypi``
+command. Read below for more information on how to use it::
 
     $ pypicontents stats --help
 
@@ -163,8 +167,8 @@ on how to use it::
 pypicontents errors
 ~~~~~~~~~~~~~~~~~~~
 
-This command summarizes errors found in the logs generated by the ``pypi`` command. Read below for more information
-on how to use it::
+This command summarizes errors found in the logs generated by the ``pypi``
+command. Read below for more information on how to use it::
 
     $ pypicontents errors --help
 
@@ -185,8 +189,9 @@ on how to use it::
 pypicontents merge
 ~~~~~~~~~~~~~~~~~~
 
-This command searches for JSON files generated by the ``pypi`` or ``stdlib`` commands and combines them into one.
-Read below for more information on how to use it::
+This command searches for JSON files generated by the ``pypi`` or ``stdlib``
+commands and combines them into one. Read below for more information on how to
+use it::
 
     $ pypicontents merge --help
 
@@ -207,11 +212,12 @@ Read below for more information on how to use it::
 About the Module Index
 ----------------------
 
-.. _Travis: https://travis-ci.org/LuisAlejandro/pypicontents
-.. _pypi.json: https://github.com/LuisAlejandro/pypicontents/blob/contents/pypi.json
+.. _Travis: https://travis-ci.org/CollageLabs/pypicontents
+.. _pypi.json: https://github.com/CollageLabs/pypicontents/blob/contents/pypi.json
 
-In the `pypi.json`_ file (located in the ``contents`` branch) you will find a dictionary with all the packages registered
-at the main PyPI instance, each one with the following information::
+In the `pypi.json`_ file (located in the ``contents`` branch) you will find a
+dictionary with all the packages registered at the main PyPI instance, each one
+with the following information::
 
     {
         "pkg_a": {
@@ -236,16 +242,18 @@ at the main PyPI instance, each one with the following information::
         "...": {}
     }
 
-This index is generated using Travis_. This is done by executing the ``setup.py`` file
-of each package through a monkeypatch that allows us to read the parameters that were passed
-to ``setup()``. Check out ``pypicontents/api/process.py`` for more info.
+This index is generated using Travis_. This is done by executing the
+``setup.py`` file of each package through a monkeypatch that allows us to read
+the parameters that were passed to ``setup()``. Check out
+``pypicontents/api/process.py`` for more info.
 
 Use cases
 ~~~~~~~~~
 
-.. _Pip Sala Bim: https://github.com/LuisAlejandro/pipsalabim
+.. _Pip Sala Bim: https://github.com/CollageLabs/pipsalabim
 
-* Search which package (or packages) contain a python module. Useful to determine a project's ``requirements.txt`` or ``install_requires``.
+* Search which package (or packages) contain a python module. Useful to
+  determine a project's ``requirements.txt`` or ``install_requires``.
 
 ::
 
@@ -253,7 +261,7 @@ Use cases
     import urllib2
     from pprint import pprint
 
-    pypic = 'https://raw.githubusercontent.com/LuisAlejandro/pypicontents/contents/pypi.json'
+    pypic = 'https://raw.githubusercontent.com/CollageLabs/pypicontents/contents/pypi.json'
 
     f = urllib2.urlopen(pypic)
     pypicontents = json.loads(f.read())
@@ -265,7 +273,7 @@ Use cases
                     yield {pkg: data['modules']}
 
     # Which package(s) content the 'django' module?
-    # Output: 
+    # Output:
     pprint(list(find_package(pypicontents, 'django')))
 
 ..
@@ -279,24 +287,26 @@ Known Issues
    reasons:
 
     #. Some packages depend on other packages outside of ``stdlib``. We try to
-       override these imports but if the setup heavily depends on it, it will fail anyway.
+       override these imports but if the setup heavily depends on it, it will
+       fail anyway.
     #. Some packages are broken and error out when executing ``setup.py``.
     #. Some packages are empty or have no releases.
 
 #. If a package gets updated on PyPI and the change introduces or deletes
    modules, then it won't be reflected until the next index rebuild. You
    should check for the ``version`` field for consistency. Also, if you need a
-   more up-to-date index, feel free to download this software and build your own
-   index.
+   more up-to-date index, feel free to download this software and build your
+   own index.
 
 Getting help
 ============
 
-.. _Gitter Chat: https://gitter.im/LuisAlejandro/pypicontents
+.. _Gitter Chat: https://gitter.im/CollageLabs/pypicontents
 .. _StackOverflow: http://stackoverflow.com/questions/ask
 
-If you have any doubts or problems, suscribe to our `Gitter Chat`_ and ask for help. You can also
-ask your question on StackOverflow_ (tag it ``pypicontents``) or drop me an email at luis@huntingbears.com.ve.
+If you have any doubts or problems, suscribe to our `Gitter Chat`_ and ask for
+help. You can also ask your question on StackOverflow_ (tag it
+``pypicontents``) or drop me an email at luis@collagelabs.org.
 
 Contributing
 ============
@@ -320,36 +330,26 @@ License
 .. _AUTHORS.rst: AUTHORS.rst
 .. _GPL-3 License: LICENSE.rst
 
-Copyright 2016-2017, PyPIContents Developers (read AUTHORS.rst_ for a full list of copyright holders).
+Copyright 2016-2017, PyPIContents Developers (read AUTHORS.rst_ for a full list
+of copyright holders).
 
 Released under a `GPL-3 License`_ (read COPYING.rst_ for license details).
 
 Made with :heart: and :hamburger:
 =================================
 
-.. image:: http://huntingbears.com.ve/static/img/site/banner.svg
+.. image:: https://rawcdn.githack.com/CollageLabs/pipsalabim/b00c6704253b9d05447b621f728869a2229d5322/docs/_static/promo-open-source.svg
 
-.. _Patreon: https://www.patreon.com/luisalejandro
-.. _Flattr: https://flattr.com/profile/luisalejandro
-.. _PayPal: https://www.paypal.me/martinezfaneyth
-.. _LuisAlejandroTwitter: https://twitter.com/LuisAlejandro
-.. _LuisAlejandroGitHub: https://github.com/LuisAlejandro
-.. _huntingbears.com.ve: http://huntingbears.com.ve
+.. _CollageLabsTwitter: https://twitter.com/CollageLabs
+.. _CollageLabsGitHub: https://github.com/CollageLabs
+.. _collagelabs.org: http://collagelabs.org
 
 |
 
-My name is Luis (`@LuisAlejandro`__) and I'm a Free and
-Open-Source Software developer living in Maracay, Venezuela.
+    Web collagelabs.org_ · GitHub `@CollageLabs`__ · Twitter `@CollageLabs`__
 
-__ LuisAlejandroTwitter_
-
-If you like what I do, please support me on Patreon_, Flattr_, or donate via PayPal_,
-so that I can continue doing what I love.
-
-    Blog huntingbears.com.ve_ · GitHub `@LuisAlejandro`__ · Twitter `@LuisAlejandro`__
-
-__ LuisAlejandroGitHub_
-__ LuisAlejandroTwitter_
+__ CollageLabsGitHub_
+__ CollageLabsTwitter_
 
 |
 |

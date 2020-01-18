@@ -457,7 +457,7 @@ Changes
   Martínez Faneyth]
 - [REF] Integrating script contents to .travis.yml. [Luis Alejandro
   Martínez Faneyth]
-- [REF] Moving Dockerfiles to LuisAlejandro/dockerfiles. [Luis Alejandro
+- [REF] Moving Dockerfiles to CollageLabs/dockerfiles. [Luis Alejandro
   Martínez Faneyth]
 - [REF] Stablishing limits. [Luis Alejandro Martínez Faneyth]
 - [REF] Implementing stdlib population in this branch. [Luis Alejandro

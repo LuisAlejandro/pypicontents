@@ -24,8 +24,7 @@ import sys
 import json
 import traceback
 
-from pipsalabim.api.report import get_modules, get_packages
-from pipsalabim.core.utils import s, u
+from ..core.utils import get_modules, get_packages, s, u
 
 while 'patchedglobals' not in globals():
     try:

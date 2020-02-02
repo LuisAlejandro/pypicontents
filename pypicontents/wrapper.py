@@ -24,7 +24,7 @@ import sys
 import json
 import traceback
 
-from ..core.utils import get_modules, get_packages, s, u
+from .core.utils import get_modules, get_packages, s, u
 
 while 'patchedglobals' not in globals():
     try:

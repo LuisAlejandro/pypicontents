@@ -13,19 +13,32 @@ matrix:
           env: TOXENV=py37
         - python: "3.8"
           env: TOXENV=py38
+        - python: "pypy3"
+          env: TOXENV=pypy3
 install:
     - pip install -r requirements-dev.txt
 script:
     - tox -e ${TOXENV}
     - |
-        docker run -v ${PWD}:${PWD} -w ${PWD} \
-            dockershelf/python:${TRAVIS_PYTHON_VERSION} bash -c \
-            "python${TRAVIS_PYTHON_VERSION} setup.py install && \
-            pypicontents pypi -o data/0-9/pypi.json -f logs/0-9/pypi.log -R 0-9"
-    - |
-        docker run -v ${PWD}:${PWD} -w ${PWD} \
-            dockershelf/python:${TRAVIS_PYTHON_VERSION} bash -c \
-            "python${TRAVIS_PYTHON_VERSION} setup.py install && \
-            pypicontents stdlib -o stdlib/${TRAVIS_PYTHON_VERSION}/stdlib.json"
+        if [ "${TOXENV}" == "pypy3" ]; then
+          docker run -v ${PWD}:${PWD} -w ${PWD} \
+              pypy:3 bash -c \
+              "pypy3 setup.py install && \
+              pypicontents pypi -o data/0-9/pypi.json -f logs/0-9/pypi.log -R 0-9"
+          docker run -v ${PWD}:${PWD} -w ${PWD} \
+              pypy:3 bash -c \
+              "pypy3 setup.py install && \
+              pypicontents stdlib -o stdlib/pypy3/stdlib.json"
+        else
+          docker run -v ${PWD}:${PWD} -w ${PWD} \
+              dockershelf/python:${TRAVIS_PYTHON_VERSION} bash -c \
+              "python${TRAVIS_PYTHON_VERSION} setup.py install && \
+              pypicontents pypi -o data/0-9/pypi.json -f logs/0-9/pypi.log -R 0-9"
+          docker run -v ${PWD}:${PWD} -w ${PWD} \
+              dockershelf/python:${TRAVIS_PYTHON_VERSION} bash -c \
+              "python${TRAVIS_PYTHON_VERSION} setup.py install && \
+              pypicontents stdlib -o stdlib/${TRAVIS_PYTHON_VERSION}/stdlib.json"
+        fi
+
 after_success:
     - coveralls

@@ -30,8 +30,7 @@ try:
 except ImportError:
     from urllib.request import urlopen
 
-from pipsalabim.api.report import get_modules, get_packages
-from pipsalabim.core.utils import list_files, u
+from ..core.utils import get_modules, get_packages, list_files, u
 
 from .. import libdir
 from ..core.logger import logger

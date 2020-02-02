@@ -55,14 +55,12 @@ try:
 except ImportError:
     from html.parser import HTMLParser
 
-from pipsalabim.core.utils import chunk_read, chunk_report, u
-
 from .. import pypiurl
 from ..core.logger import logger
 from ..core.utils import (get_tar_extension, urlesc, filter_package_list,
                           create_file_if_notfound, timeout, human2bytes,
                           translate_letter_range, get_free_memory,
-                          get_children_processes)
+                          get_children_processes, chunk_read, chunk_report, u)
 
 
 def execute_wrapper(setuppath):

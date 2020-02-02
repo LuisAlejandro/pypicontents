@@ -9,4 +9,3 @@ bumpversion==0.5.3
 wheel==0.34.2
 tox==3.14.3
 coveralls==1.10.0
-pipsalabim==0.1.20

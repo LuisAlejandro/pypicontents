@@ -22,7 +22,7 @@ import os
 import re
 import json
 
-from pipsalabim.core.utils import find_files
+from ..core.utils import find_files
 
 
 def errors(**kwargs):

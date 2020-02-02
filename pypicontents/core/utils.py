@@ -46,10 +46,10 @@ from setuptools import find_packages
 from .. import libdir
 
 if sys.version_info < (3,):
-    unicode = str
-    basestring = str
     default_import_level = -1
 else:
+    unicode = str
+    basestring = str
     default_import_level = 0
 
 
@@ -359,71 +359,6 @@ def chunk_read(response, chunk_size=8192, report_hook=None):
             report_hook(downloaded, total)
 
     return data
-
-
-# def fill_with_local(datadict, modules):
-#     """
-#     Fill ``datadict`` if module is found in ``modules``.
-
-#     :param datadict: a dictionary containing modules as keys and
-#                      a list as values.
-#     :param modules: a list of modules present in the local python source code.
-#     :return: a dictionary containing information about the location of each
-#              imported module.
-
-#     .. versionadded:: 0.1.0
-#     """
-#     for module, where in datadict.items():
-#         if not where and module in modules:
-#             datadict[module].append('LOCAL')
-#     return datadict
-
-
-# def fill_with_stdlib(datadict, stdlibdata):
-#     """
-#     Fill ``datadict`` with modules from ``stdlibdata`` if found.
-
-#     :param datadict: a dictionary containing modules as keys and
-#                      a list as values.
-#     :param stdlibdata: a dictionary containing the modules of the standard
-#                        library of each python version.
-#     :return: a dictionary containing information about the location of each
-#              imported module.
-
-#     .. versionadded:: 0.1.0
-#     """
-#     for module, where in datadict.items():
-#         if where:
-#             continue
-#         for version, mods in stdlibdata.items():
-#             if module not in mods:
-#                 continue
-#             datadict[module].append('STDLIB{0}'.format(version))
-#     return datadict
-
-
-# def fill_with_pypi(datadict, pypidata):
-#     """
-#     Fill ``datadict`` with modules from ``pypidata`` if found.
-
-#     .. _PyPIContents: https://github.com/CollageLabs/pypicontents
-
-#     :param datadict: a dictionary containing modules as keys and
-#                      a list as values.
-#     :param pypidata: a dictionary with the `PyPIContents`_ database.
-#     :return: an updated dictionary containing information about the location
-#              of each imported module.
-
-#     .. versionadded:: 0.1.0
-#     """
-#     for module, where in datadict.items():
-#         if where:
-#             continue
-#         for package, data in pypidata.items():
-#             if module not in data['modules']:
-#                 continue
-#             datadict[module].append(package)
-#     return datadict
 
 
 def get_packages(path):

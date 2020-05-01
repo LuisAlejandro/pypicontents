@@ -8,4 +8,4 @@ gitchangelog==3.0.4
 bumpversion==0.5.3
 wheel==0.34.2
 tox==3.14.6
-coveralls==1.11.1
+coveralls==2.0.0

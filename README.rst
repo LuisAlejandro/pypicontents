@@ -6,37 +6,41 @@
     Python Package Index (PyPI) and also from various versions of the Python
     Standard Library.
 
-.. image:: https://img.shields.io/pypi/v/pypicontents.svg
-   :target: https://pypi.python.org/pypi/pypicontents
-   :alt: PyPI Package
+.. image:: https://img.shields.io/github/release/CollageLabs/pypicontents.svg
+   :target: https://github.com/CollageLabs/pypicontents/releases
+   :alt: Github Releases
 
-.. image:: https://img.shields.io/travis/CollageLabs/pypicontents.svg
-   :target: https://travis-ci.org/CollageLabs/pypicontents
-   :alt: Travis CI
+.. image:: https://img.shields.io/github/issues/CollageLabs/pypicontents
+   :target: https://github.com/CollageLabs/pypicontents/issues?q=is%3Aopen
+   :alt: Github Issues
 
-.. image:: https://coveralls.io/repos/github/CollageLabs/pypicontents/badge.svg?branch=develop
-   :target: https://coveralls.io/github/CollageLabs/pypicontents?branch=develop
-   :alt: Coveralls
+.. image:: https://github.com/CollageLabs/pypicontents/workflows/Push/badge.svg
+   :target: https://github.com/CollageLabs/pypicontents/actions?query=workflow%3APush
+   :alt: Push
 
 .. image:: https://codeclimate.com/github/CollageLabs/pypicontents/badges/gpa.svg
    :target: https://codeclimate.com/github/CollageLabs/pypicontents
    :alt: Code Climate
 
-.. image:: https://pyup.io/repos/github/CollageLabs/pipsalabim/shield.svg
-   :target: https://pyup.io/repos/github/CollageLabs/pipsalabim/
-   :alt: Updates
-
-.. image:: https://readthedocs.org/projects/pypicontents/badge/?version=latest
-   :target: https://readthedocs.org/projects/pypicontents/?badge=latest
-   :alt: Read The Docs
+.. image:: https://snyk.io/test/github/CollageLabs/pypicontents/badge.svg
+   :target: https://snyk.io/test/github/CollageLabs/pypicontents
+   :alt: Snyk
 
 .. image:: https://cla-assistant.io/readme/badge/CollageLabs/pypicontents
    :target: https://cla-assistant.io/CollageLabs/pypicontents
    :alt: Contributor License Agreement
 
-.. image:: https://badges.gitter.im/CollageLabs/pypicontents.svg
-   :target: https://gitter.im/CollageLabs/pypicontents
-   :alt: Gitter Chat
+.. image:: https://img.shields.io/pypi/v/pypicontents.svg
+   :target: https://pypi.python.org/pypi/pypicontents
+   :alt: PyPI Package
+
+.. image:: https://readthedocs.org/projects/pypicontents/badge/?version=latest
+   :target: https://readthedocs.org/projects/pypicontents/?badge=latest
+   :alt: Read The Docs
+
+.. image:: https://img.shields.io/badge/chat-discord-ff69b4.svg
+   :target: https://discord.gg/M36s8tTnYS
+   :alt: Discord Channel
 
 |
 |

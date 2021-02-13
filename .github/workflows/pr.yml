@@ -1,0 +1,83 @@
+name: Pull Request
+
+on:
+  pull_request:
+    types:
+      - opened
+      - ready_for_review
+    branches:
+      - develop
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        include:
+          - python-version: "3.5"
+            toxenv: "py35"
+          - python-version: "3.6"
+            toxenv: "py36"
+          - python-version: "3.7"
+            toxenv: "py37"
+          - python-version: "3.8"
+            toxenv: "py38"
+          - python-version: "3.9"
+            toxenv: "py39"
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Measuring coverage
+        env:
+          TOXENV: ${{ matrix.toxenv }}
+          PYTHON_VERSION: ${{ matrix.python-version }}
+        run: |
+          pip install -r requirements-dev.txt
+          tox -e ${TOXENV}
+          coveralls
+      - name: Functional test
+        env:
+          TOXENV: ${{ matrix.toxenv }}
+          PYTHON_VERSION: ${{ matrix.python-version }}
+        run: |
+          docker run -v ${PWD}:${PWD} -w ${PWD} \
+              dockershelf/python:${PYTHON_VERSION} bash -c \
+              "python${PYTHON_VERSION} setup.py install && \
+              pypicontents pypi -o data/0-9/pypi.json -f logs/0-9/pypi.log -R 0-9"
+          docker run -v ${PWD}:${PWD} -w ${PWD} \
+              dockershelf/python:${PYTHON_VERSION} bash -c \
+              "python${PYTHON_VERSION} setup.py install && \
+              pypicontents stdlib -o stdlib/${PYTHON_VERSION}/stdlib.json"
+
+  approve:
+    name: Approve pull request
+    runs-on: ubuntu-20.04
+    needs: build
+    if: github.actor == 'dependabot[bot]' || github.actor == 'dependabot-preview[bot]'
+    steps:
+      - name: Approve
+        uses: hmarr/auto-approve-action@v2.0.0
+        with:
+          github-token: "${{ secrets.PERSONAL_ACCESS_TOKEN }}"
+
+  merge:
+    name: Merge pull request
+    runs-on: ubuntu-20.04
+    needs: approve
+    if: github.actor == 'dependabot[bot]' || github.actor == 'dependabot-preview[bot]'
+    steps:
+      - name: Merge
+        uses: actions/github-script@v3
+        with:
+          github-token: "${{ secrets.PERSONAL_ACCESS_TOKEN }}"
+          script: |
+            await github.pulls.merge({
+              owner: context.payload.repository.owner.login,
+              repo: context.payload.repository.name,
+              pull_number: context.payload.pull_request.number
+            })

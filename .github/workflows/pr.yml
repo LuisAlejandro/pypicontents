@@ -36,7 +36,7 @@ jobs:
         env:
           TOXENV: ${{ matrix.toxenv }}
           PYTHON_VERSION: ${{ matrix.python-version }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
         run: |
           pip install -r requirements-dev.txt
           tox -e ${TOXENV}

@@ -119,12 +119,10 @@ jobs:
 
             git config --global user.name "Luis Alejandro Martínez Faneyth"
             git config --global user.email "luis@luisalejandro.org"
-            git config --global pull.rebase true
+            git config --global pull.rebase false
             git reset 45615350eca9fceedcbf98fce2cbf6cba3f15dc2
             git add --all .
             sleep 10
             git commit -a -m "[ci skip] Updating PyPIContents index (stdlib and merge)."
-            sleep 10
-            git pull -s recursive -X ours origin contents
             sleep 10
             git push -f origin contents

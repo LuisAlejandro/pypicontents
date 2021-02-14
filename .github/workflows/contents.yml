@@ -72,7 +72,7 @@ jobs:
             git config --global user.email "luis@luisalejandro.org"
             git add --all .
             git commit -a -m "[ci skip] Updating PyPIContents index (PyPI letter ${LRANGE})."
-            git pull --rebase origin contents
+            git pull --rebase -s recursive -X ours origin contents
             git push -f origin contents
 
   stdlib:
@@ -118,5 +118,5 @@ jobs:
             git reset 7e48a190b8c42b1820a6c847f20f08ca925ad6fb
             git add --all .
             git commit -a -m "[ci skip] Updating PyPIContents index (stdlib and merge)."
-            git pull --rebase origin contents
+            git pull --rebase -s recursive -X ours origin contents
             git push -f origin contents

@@ -6,6 +6,6 @@ virtualenv==20.2.1
 coverage==5.3
 gitchangelog==3.0.4
 bumpversion==0.6.0
-wheel==0.36.0
+wheel==0.36.2
 tox==3.20.1
 coveralls==3.0.0

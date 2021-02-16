@@ -1,12 +1,12 @@
 name: Code Quality
 
 on:
-  workflow_dispatch:
   schedule:
-    - cron: '00 3 1 * *'
+    - cron: '00 3 * * 1'
 
 jobs:
-  CodeQL-Build:
+  build:
+    name: Build
     runs-on: ubuntu-20.04
     strategy:
       matrix:

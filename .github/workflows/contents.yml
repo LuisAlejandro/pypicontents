@@ -119,6 +119,7 @@ jobs:
             git config --global user.email "luis@luisalejandro.org"
             git config --global pull.rebase false
             git reset 0ea1baab6172864f1b7e9d5948885dfe7c87d6a3
+            rm -rf pypi.json.xz
             xz pypi.json
             git add --all .
             sleep 10

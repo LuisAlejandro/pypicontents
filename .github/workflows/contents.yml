@@ -118,7 +118,8 @@ jobs:
             git config --global user.name "Luis Alejandro Martínez Faneyth"
             git config --global user.email "luis@luisalejandro.org"
             git config --global pull.rebase false
-            git reset 45615350eca9fceedcbf98fce2cbf6cba3f15dc2
+            git reset 0ea1baab6172864f1b7e9d5948885dfe7c87d6a3
+            xz pypi.json
             git add --all .
             sleep 10
             git commit -a -m "[ci skip] Updating PyPIContents index (stdlib and merge)."

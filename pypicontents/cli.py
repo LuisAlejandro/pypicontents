@@ -228,7 +228,7 @@ def main(argv=None):
         argv = ['-h']
 
     args = commandline(argv)
-    
+
     if args.command.__name__ == 'pypi':
         if args.logfile and not os.path.isfile(args.logfile):
             create_file_if_notfound(args.logfile)

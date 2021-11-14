@@ -224,8 +224,11 @@ def main(argv=None):
     """
     assert isinstance(argv, (list, type(None)))
 
-    args = commandline(argv)
+    if not argv:
+        argv = ['-h']
 
+    args = commandline(argv)
+    
     if args.command.__name__ == 'pypi':
         if args.logfile and not os.path.isfile(args.logfile):
             create_file_if_notfound(args.logfile)

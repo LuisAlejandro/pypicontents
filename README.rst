@@ -1,4 +1,4 @@
-.. image:: https://rawcdn.githack.com/CollageLabs/pypicontents/02509c8c0a650cd56841dfd6f6d708af3235c485/docs/_static/banner.svg
+.. image:: https://rawcdn.githack.com/LuisAlejandro/pypicontents/02509c8c0a650cd56841dfd6f6d708af3235c485/docs/_static/banner.svg
 
 ..
 
@@ -6,28 +6,28 @@
     Python Package Index (PyPI) and also from various versions of the Python
     Standard Library.
 
-.. image:: https://img.shields.io/github/release/CollageLabs/pypicontents.svg
-   :target: https://github.com/CollageLabs/pypicontents/releases
+.. image:: https://img.shields.io/github/release/LuisAlejandro/pypicontents.svg
+   :target: https://github.com/LuisAlejandro/pypicontents/releases
    :alt: Github Releases
 
-.. image:: https://img.shields.io/github/issues/CollageLabs/pypicontents
-   :target: https://github.com/CollageLabs/pypicontents/issues?q=is%3Aopen
+.. image:: https://img.shields.io/github/issues/LuisAlejandro/pypicontents
+   :target: https://github.com/LuisAlejandro/pypicontents/issues?q=is%3Aopen
    :alt: Github Issues
 
-.. image:: https://github.com/CollageLabs/pypicontents/workflows/Push/badge.svg
-   :target: https://github.com/CollageLabs/pypicontents/actions?query=workflow%3APush
+.. image:: https://github.com/LuisAlejandro/pypicontents/workflows/Push/badge.svg
+   :target: https://github.com/LuisAlejandro/pypicontents/actions?query=workflow%3APush
    :alt: Push
 
-.. image:: https://codeclimate.com/github/CollageLabs/pypicontents/badges/gpa.svg
-   :target: https://codeclimate.com/github/CollageLabs/pypicontents
+.. image:: https://codeclimate.com/github/LuisAlejandro/pypicontents/badges/gpa.svg
+   :target: https://codeclimate.com/github/LuisAlejandro/pypicontents
    :alt: Code Climate
 
-.. image:: https://snyk.io/test/github/CollageLabs/pypicontents/badge.svg
-   :target: https://snyk.io/test/github/CollageLabs/pypicontents
+.. image:: https://snyk.io/test/github/LuisAlejandro/pypicontents/badge.svg
+   :target: https://snyk.io/test/github/LuisAlejandro/pypicontents
    :alt: Snyk
 
-.. image:: https://cla-assistant.io/readme/badge/CollageLabs/pypicontents
-   :target: https://cla-assistant.io/CollageLabs/pypicontents
+.. image:: https://cla-assistant.io/readme/badge/LuisAlejandro/pypicontents
+   :target: https://cla-assistant.io/LuisAlejandro/pypicontents
    :alt: Contributor License Agreement
 
 .. image:: https://img.shields.io/pypi/v/pypicontents.svg
@@ -45,7 +45,7 @@
 |
 |
 
-.. _pipsalabim: https://github.com/CollageLabs/pipsalabim
+.. _pipsalabim: https://github.com/LuisAlejandro/pipsalabim
 .. _full documentation: https://pypicontents.readthedocs.org
 .. _Contents: https://www.debian.org/distrib/packages#search_contents
 
@@ -78,7 +78,7 @@ Therefore, you can use pip to install the stable version::
 If you want to install the development version (not recomended), you can
 install directlty from GitHub like this::
 
-    $ pip install --upgrade https://github.com/CollageLabs/pypicontents/archive/master.tar.gz
+    $ pip install --upgrade https://github.com/LuisAlejandro/pypicontents/archive/master.tar.gz
 
 Using the application
 ---------------------
@@ -216,8 +216,8 @@ use it::
 About the Module Index
 ----------------------
 
-.. _Travis: https://travis-ci.org/CollageLabs/pypicontents
-.. _pypi.json: https://github.com/CollageLabs/pypicontents/blob/contents/pypi.json
+.. _Travis: https://travis-ci.org/LuisAlejandro/pypicontents
+.. _pypi.json: https://github.com/LuisAlejandro/pypicontents/blob/contents/pypi.json
 
 In the `pypi.json`_ file (located in the ``contents`` branch) you will find a
 dictionary with all the packages registered at the main PyPI instance, each one
@@ -254,7 +254,7 @@ the parameters that were passed to ``setup()``. Check out
 Use cases
 ~~~~~~~~~
 
-.. _Pip Sala Bim: https://github.com/CollageLabs/pipsalabim
+.. _Pip Sala Bim: https://github.com/LuisAlejandro/pipsalabim
 
 * Search which package (or packages) contain a python module. Useful to
   determine a project's ``requirements.txt`` or ``install_requires``.
@@ -265,7 +265,7 @@ Use cases
     import urllib2
     from pprint import pprint
 
-    pypic = 'https://raw.githubusercontent.com/CollageLabs/pypicontents/contents/pypi.json'
+    pypic = 'https://raw.githubusercontent.com/LuisAlejandro/pypicontents/contents/pypi.json'
 
     f = urllib2.urlopen(pypic)
     pypicontents = json.loads(f.read())
@@ -305,12 +305,12 @@ Known Issues
 Getting help
 ============
 
-.. _Gitter Chat: https://gitter.im/CollageLabs/pypicontents
+.. _Gitter Chat: https://gitter.im/LuisAlejandro/pypicontents
 .. _StackOverflow: http://stackoverflow.com/questions/ask
 
 If you have any doubts or problems, suscribe to our `Gitter Chat`_ and ask for
 help. You can also ask your question on StackOverflow_ (tag it
-``pypicontents``) or drop me an email at luis@collagelabs.org.
+``pypicontents``) or drop me an email at luis@LuisAlejandro.org.
 
 Contributing
 ============
@@ -342,18 +342,18 @@ Released under a `GPL-3 License`_ (read COPYING.rst_ for license details).
 Made with :heart: and :hamburger:
 =================================
 
-.. image:: https://rawcdn.githack.com/CollageLabs/pypicontents/02509c8c0a650cd56841dfd6f6d708af3235c485/docs/_static/promo-open-source.svg
+.. image:: https://rawcdn.githack.com/LuisAlejandro/pypicontents/02509c8c0a650cd56841dfd6f6d708af3235c485/docs/_static/promo-open-source.svg
 
-.. _CollageLabsTwitter: https://twitter.com/CollageLabs
-.. _CollageLabsGitHub: https://github.com/CollageLabs
-.. _collagelabs.org: http://collagelabs.org
+.. _LuisAlejandroTwitter: https://twitter.com/LuisAlejandro
+.. _LuisAlejandroGitHub: https://github.com/LuisAlejandro
+.. _LuisAlejandro.org: http://LuisAlejandro.org
 
 |
 
-    Web collagelabs.org_ · GitHub `@CollageLabs`__ · Twitter `@CollageLabs`__
+    Web LuisAlejandro.org_ · GitHub `@LuisAlejandro`__ · Twitter `@LuisAlejandro`__
 
-__ CollageLabsGitHub_
-__ CollageLabsTwitter_
+__ LuisAlejandroGitHub_
+__ LuisAlejandroTwitter_
 
 |
 |

@@ -1,29 +1,29 @@
-.. image:: https://rawcdn.githack.com/CollageLabs/pypicontents/02509c8c0a650cd56841dfd6f6d708af3235c485/docs/_static/title.svg
+.. image:: https://rawcdn.githack.com/LuisAlejandro/pypicontents/02509c8c0a650cd56841dfd6f6d708af3235c485/docs/_static/title.svg
 
 -----
 
-.. image:: https://img.shields.io/github/release/CollageLabs/pypicontents.svg
-   :target: https://github.com/CollageLabs/pypicontents/releases
+.. image:: https://img.shields.io/github/release/LuisAlejandro/pypicontents.svg
+   :target: https://github.com/LuisAlejandro/pypicontents/releases
    :alt: Github Releases
 
-.. image:: https://img.shields.io/github/issues/CollageLabs/pypicontents
-   :target: https://github.com/CollageLabs/pypicontents/issues?q=is%3Aopen
+.. image:: https://img.shields.io/github/issues/LuisAlejandro/pypicontents
+   :target: https://github.com/LuisAlejandro/pypicontents/issues?q=is%3Aopen
    :alt: Github Issues
 
-.. image:: https://github.com/CollageLabs/pypicontents/workflows/Push/badge.svg
-   :target: https://github.com/CollageLabs/pypicontents/actions?query=workflow%3APush
+.. image:: https://github.com/LuisAlejandro/pypicontents/workflows/Push/badge.svg
+   :target: https://github.com/LuisAlejandro/pypicontents/actions?query=workflow%3APush
    :alt: Push
 
-.. image:: https://codeclimate.com/github/CollageLabs/pypicontents/badges/gpa.svg
-   :target: https://codeclimate.com/github/CollageLabs/pypicontents
+.. image:: https://codeclimate.com/github/LuisAlejandro/pypicontents/badges/gpa.svg
+   :target: https://codeclimate.com/github/LuisAlejandro/pypicontents
    :alt: Code Climate
 
-.. image:: https://snyk.io/test/github/CollageLabs/pypicontents/badge.svg
-   :target: https://snyk.io/test/github/CollageLabs/pypicontents
+.. image:: https://snyk.io/test/github/LuisAlejandro/pypicontents/badge.svg
+   :target: https://snyk.io/test/github/LuisAlejandro/pypicontents
    :alt: Snyk
 
-.. image:: https://cla-assistant.io/readme/badge/CollageLabs/pypicontents
-   :target: https://cla-assistant.io/CollageLabs/pypicontents
+.. image:: https://cla-assistant.io/readme/badge/LuisAlejandro/pypicontents
+   :target: https://cla-assistant.io/LuisAlejandro/pypicontents
    :alt: Contributor License Agreement
 
 .. image:: https://img.shields.io/pypi/v/pypicontents.svg
@@ -38,7 +38,7 @@
    :target: https://discord.gg/M36s8tTnYS
    :alt: Discord Channel
 
-.. _pipsalabim: https://github.com/CollageLabs/pipsalabim
+.. _pipsalabim: https://github.com/LuisAlejandro/pipsalabim
 .. _Contents: https://www.debian.org/distrib/packages#search_contents
 
 PyPIContents is an application that generates a Module Index from the Python Package Index (PyPI)

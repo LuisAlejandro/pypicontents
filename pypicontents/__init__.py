@@ -25,7 +25,7 @@ for internal and external imports. It then discards the imports that are
 satisfied with internal code or with the standard library and finally
 searches the `PyPIContents`_ index to list which packages satisfy your imports.
 
-.. _PyPIContents: https://github.com/CollageLabs/pypicontents
+.. _PyPIContents: https://github.com/LuisAlejandro/pypicontents
 
 """
 import os
@@ -35,7 +35,7 @@ from distutils import sysconfig
 __author__ = 'Luis Alejandro Martínez Faneyth'
 __email__ = 'luis@collagelabs.org'
 __version__ = '0.1.16'
-__url__ = 'https://github.com/CollageLabs/pypicontents'
+__url__ = 'https://github.com/LuisAlejandro/pypicontents'
 __description__ = ('PyPIContents is an application that generates a Module '
                    'Index from the Python Package Index (PyPI) and also from '
                    'various versions of the Python Standard Library.')

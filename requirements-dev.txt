@@ -8,4 +8,5 @@ gitchangelog==3.0.4
 bumpversion==0.6.0
 wheel==0.37.1
 tox==3.25.0
+sphinx==4.5.0
 coveralls==3.3.1

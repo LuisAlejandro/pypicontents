@@ -14,6 +14,7 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-20.04
+    if: github.repository == 'LuisAlejandro/pypicontents'
     strategy:
       matrix:
         include:
@@ -28,10 +29,15 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2
+        with:
+          ref: develop
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
+      - name: Installing dependencies
+        run: |
+          pip install -r requirements.txt -r requirements-dev.txt
       - name: Measuring coverage
         env:
           TOXENV: ${{ matrix.toxenv }}
@@ -39,7 +45,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
         run: |
-          pip install -r requirements-dev.txt
           tox -e ${TOXENV}
           coveralls --service=github || coveralls --service=github-actions
       - name: Functional test
@@ -48,28 +53,21 @@ jobs:
           PYTHON_VERSION: ${{ matrix.python-version }}
         run: |
           if [ "${TOXENV}" == "py311" ]; then
-            docker run -v ${PWD}:${PWD} -w ${PWD} \
-                dockershelf/python:3.11 bash -c \
-                "pip install . && \
-                pypicontents pypi -o data/0-9/pypi.json -f logs/0-9/pypi.log -R 0-9"
-            docker run -v ${PWD}:${PWD} -w ${PWD} \
-                dockershelf/python:3.11 bash -c \
-                "pip install . && \
-                pypicontents stdlib -o stdlib/3.11/stdlib.json"
-          else
-            docker run -v ${PWD}:${PWD} -w ${PWD} \
-                dockershelf/python:${PYTHON_VERSION} bash -c \
-                "pip install . && \
-                pypicontents pypi -o data/0-9/pypi.json -f logs/0-9/pypi.log -R 0-9"
-            docker run -v ${PWD}:${PWD} -w ${PWD} \
-                dockershelf/python:${PYTHON_VERSION} bash -c \
-                "pip install . && \
-                pypicontents stdlib -o stdlib/${PYTHON_VERSION}/stdlib.json"
+            PYTHON_VERSION="3.11"
           fi
+          docker run -v ${PWD}:${PWD} -w ${PWD} \
+              dockershelf/python:${PYTHON_VERSION} bash -c \
+              "pip install . && \
+              pypicontents pypi -o data/0-9/pypi.json -f logs/0-9/pypi.log -R 0-9"
+          docker run -v ${PWD}:${PWD} -w ${PWD} \
+              dockershelf/python:${PYTHON_VERSION} bash -c \
+              "pip install . && \
+              pypicontents stdlib -o stdlib/${PYTHON_VERSION}/stdlib.json"
 
   approve:
     name: Approve pull request
     runs-on: ubuntu-20.04
+    if: github.repository == 'LuisAlejandro/pypicontents'
     needs: build
     steps:
       - name: Approve
@@ -86,6 +84,7 @@ jobs:
   merge:
     name: Merge pull request
     runs-on: ubuntu-20.04
+    if: github.repository == 'LuisAlejandro/pypicontents'
     needs: approve
     steps:
       - name: Merge

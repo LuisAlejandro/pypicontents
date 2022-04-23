@@ -47,6 +47,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           flag-name: run-py${{ matrix.python-version }}
+          path-to-lcov: ./.lcov
           parallel: true
       - name: Functional test
         env:

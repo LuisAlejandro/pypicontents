@@ -1,10 +1,14 @@
-.. image:: https://rawcdn.githack.com/LuisAlejandro/pypicontents/02509c8c0a650cd56841dfd6f6d708af3235c485/docs/_static/banner.svg
+.. image:: https://github.com/LuisAlejandro/pypicontents/blob/develop/docs/_static/banner.svg
 
 ..
 
     PyPIContents is an application that generates a Module Index from the
     Python Package Index (PyPI) and also from various versions of the Python
     Standard Library.
+
+.. image:: https://img.shields.io/pypi/v/pypicontents.svg
+   :target: https://pypi.org/project/pypicontents/
+   :alt: PyPI Package
 
 .. image:: https://img.shields.io/github/release/LuisAlejandro/pypicontents.svg
    :target: https://github.com/LuisAlejandro/pypicontents/releases
@@ -18,33 +22,26 @@
    :target: https://github.com/LuisAlejandro/pypicontents/actions?query=workflow%3APush
    :alt: Push
 
-.. image:: https://codeclimate.com/github/LuisAlejandro/pypicontents/badges/gpa.svg
-   :target: https://codeclimate.com/github/LuisAlejandro/pypicontents
-   :alt: Code Climate
-
-.. image:: https://snyk.io/test/github/LuisAlejandro/pypicontents/badge.svg
-   :target: https://snyk.io/test/github/LuisAlejandro/pypicontents
-   :alt: Snyk
+.. image:: https://coveralls.io/repos/github/LuisAlejandro/pypicontents/badge.svg?branch=develop
+   :target: https://coveralls.io/github/LuisAlejandro/pypicontents?branch=develop
+   :alt: Coverage
 
 .. image:: https://cla-assistant.io/readme/badge/LuisAlejandro/pypicontents
    :target: https://cla-assistant.io/LuisAlejandro/pypicontents
    :alt: Contributor License Agreement
 
-.. image:: https://img.shields.io/pypi/v/pypicontents.svg
-   :target: https://pypi.python.org/pypi/pypicontents
-   :alt: PyPI Package
-
 .. image:: https://readthedocs.org/projects/pypicontents/badge/?version=latest
    :target: https://readthedocs.org/projects/pypicontents/?badge=latest
    :alt: Read The Docs
 
-.. image:: https://img.shields.io/badge/chat-discord-ff69b4.svg
+.. image:: https://img.shields.io/discord/809504357359157288.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2
    :target: https://discord.gg/M36s8tTnYS
    :alt: Discord Channel
 
 |
 |
 
+.. _different repository: https://github.com/LuisAlejandro/pypicontents-build
 .. _pipsalabim: https://github.com/LuisAlejandro/pipsalabim
 .. _full documentation: https://pypicontents.readthedocs.org
 .. _Contents: https://www.debian.org/distrib/packages#search_contents
@@ -56,9 +53,8 @@ memory, time or log size limits. It basically aims to mimic what the
 `Contents`_ file means for a Debian based package repository, but for the
 Python Package Index.
 
-This repository stores the application in the ``master`` branch. It also
-stores a Module Index in the ``contents`` branch that is updated daily through
-a Travis cron. Read below for more information on how to use one or the other.
+This repository stores the application. The actual index lives in a `different
+repository`_ and is rebuilt weekly via Github Actions.
 
 For more information, please read the `full documentation`_.
 
@@ -68,7 +64,7 @@ Getting started
 Installation
 ------------
 
-.. _PyPI: https://pypi.python.org/pypi/pypicontents
+.. _PyPI: https://pypi.org/project/pypicontents
 
 The ``pypicontents`` program is written in python and hosted on PyPI_.
 Therefore, you can use pip to install the stable version::
@@ -213,104 +209,14 @@ use it::
                             A path pointing to a file that will be used to store
                             the merged JSON files (required).
 
-About the Module Index
-----------------------
-
-.. _Travis: https://travis-ci.org/LuisAlejandro/pypicontents
-.. _pypi.json: https://github.com/LuisAlejandro/pypicontents/blob/contents/pypi.json
-
-In the `pypi.json`_ file (located in the ``contents`` branch) you will find a
-dictionary with all the packages registered at the main PyPI instance, each one
-with the following information::
-
-    {
-        "pkg_a": {
-            "version": [
-                "X.Y.Z"
-            ],
-            "modules": [
-                "module_1",
-                "module_2",
-                "..."
-            ],
-            "cmdline": [
-                "path_1",
-                "path_2",
-                "..."
-            ]
-        },
-        "pkg_b": {
-             "...": "..."
-        },
-        "...": {},
-        "...": {}
-    }
-
-This index is generated using Travis_. This is done by executing the
-``setup.py`` file of each package through a monkeypatch that allows us to read
-the parameters that were passed to ``setup()``. Check out
-``pypicontents/api/process.py`` for more info.
-
-Use cases
-~~~~~~~~~
-
-.. _Pip Sala Bim: https://github.com/LuisAlejandro/pipsalabim
-
-* Search which package (or packages) contain a python module. Useful to
-  determine a project's ``requirements.txt`` or ``install_requires``.
-
-::
-
-    import json
-    import urllib2
-    from pprint import pprint
-
-    pypic = 'https://raw.githubusercontent.com/LuisAlejandro/pypicontents/contents/pypi.json'
-
-    f = urllib2.urlopen(pypic)
-    pypicontents = json.loads(f.read())
-
-    def find_package(contents, module):
-        for pkg, data in contents.items():
-            for mod in data['modules']:
-                if mod == module:
-                    yield {pkg: data['modules']}
-
-    # Which package(s) content the 'django' module?
-    # Output:
-    pprint(list(find_package(pypicontents, 'django')))
-
-..
-
-    Hint: Check out `Pip Sala Bim`_.
-
-Known Issues
-~~~~~~~~~~~~
-
-#. Some packages have partial or totally absent data because of some of these
-   reasons:
-
-    #. Some packages depend on other packages outside of ``stdlib``. We try to
-       override these imports but if the setup heavily depends on it, it will
-       fail anyway.
-    #. Some packages are broken and error out when executing ``setup.py``.
-    #. Some packages are empty or have no releases.
-
-#. If a package gets updated on PyPI and the change introduces or deletes
-   modules, then it won't be reflected until the next index rebuild. You
-   should check for the ``version`` field for consistency. Also, if you need a
-   more up-to-date index, feel free to download this software and build your
-   own index.
-
 Getting help
 ============
 
-.. _Gitter Chat: https://gitter.im/LuisAlejandro/pypicontents
+.. _Discord server: https://discord.gg/M36s8tTnYS
 .. _StackOverflow: http://stackoverflow.com/questions/ask
 
-If you have any doubts or problems, suscribe to our `Gitter Chat`_ and ask for
-help. You can also ask your question on StackOverflow_ (tag it
-``pypicontents``) or drop me an email at luis@LuisAlejandro.org.
+If you have any doubts or problems, suscribe to our `Discord server`_ and ask for help. You can also
+ask your question on StackOverflow_ (tag it ``pypicontents``) or drop me an email at luis@collagelabs.org.
 
 Contributing
 ============
@@ -330,30 +236,26 @@ See HISTORY.rst_ for details.
 License
 =======
 
-.. _COPYING.rst: COPYING.rst
 .. _AUTHORS.rst: AUTHORS.rst
-.. _GPL-3 License: LICENSE.rst
+.. _GPL-3 License: LICENSE
 
-Copyright 2016-2017, PyPIContents Developers (read AUTHORS.rst_ for a full list
-of copyright holders).
+Copyright 2016-2022, PyPIContents Developers (read AUTHORS.rst_ for a full list of copyright holders).
 
-Released under a `GPL-3 License`_ (read COPYING.rst_ for license details).
+Released under a `GPL-3 License`_.
 
 Made with :heart: and :hamburger:
 =================================
 
-.. image:: https://rawcdn.githack.com/LuisAlejandro/pypicontents/02509c8c0a650cd56841dfd6f6d708af3235c485/docs/_static/promo-open-source.svg
+.. image:: https://github.com/LuisAlejandro/pypicontents/blob/develop/docs/_static/author-banner.svg
 
 .. _LuisAlejandroTwitter: https://twitter.com/LuisAlejandro
 .. _LuisAlejandroGitHub: https://github.com/LuisAlejandro
-.. _LuisAlejandro.org: http://LuisAlejandro.org
+.. _luisalejandro.org: https://luisalejandro.org
 
 |
 
-    Web LuisAlejandro.org_ · GitHub `@LuisAlejandro`__ · Twitter `@LuisAlejandro`__
+    Web luisalejandro.org_ · GitHub `@LuisAlejandro`__ · Twitter `@LuisAlejandro`__
 
 __ LuisAlejandroGitHub_
 __ LuisAlejandroTwitter_
 
-|
-|

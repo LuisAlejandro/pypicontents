@@ -25,22 +25,29 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2
+        with:
+          ref: develop
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
       - name: Installing dependencies
         run: |
+          sudo apt-get install libxml2-dev libxslt-dev
           pip install -r requirements.txt -r requirements-dev.txt
       - name: Measuring coverage
         env:
           TOXENV: ${{ matrix.toxenv }}
           PYTHON_VERSION: ${{ matrix.python-version }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
         run: |
           tox -e ${TOXENV}
-          coveralls --service=github || coveralls --service=github-actions
+      - name: Coveralls Parallel
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          flag-name: run-py${{ matrix.python-version }}
+          parallel: true
       - name: Functional test
         env:
           TOXENV: ${{ matrix.toxenv }}
@@ -57,3 +64,15 @@ jobs:
               dockershelf/python:${PYTHON_VERSION} bash -c \
               "pip install . && \
               pypicontents stdlib -o stdlib/${PYTHON_VERSION}/stdlib.json"
+
+  finish:
+    name: Finish
+    runs-on: ubuntu-20.04
+    if: github.repository == 'LuisAlejandro/pypicontents'
+    needs: build
+    steps:
+    - name: Coveralls Finished
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        parallel-finished: true

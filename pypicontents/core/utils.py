@@ -1,22 +1,20 @@
 # -*- coding: utf-8 -*-
 #
-#   This file is part of PyPIContents.
-#   Copyright (C) 2016-2020, PyPIContents Developers.
-#
-#   Please refer to AUTHORS.rst for a complete list of Copyright holders.
-#
-#   PyPIContents is free software: you can redistribute it and/or modify
-#   it under the terms of the GNU General Public License as published by
-#   the Free Software Foundation, either version 3 of the License, or
-#   (at your option) any later version.
-#
-#   PyPIContents is distributed in the hope that it will be useful,
-#   but WITHOUT ANY WARRANTY; without even the implied warranty of
-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#   GNU General Public License for more details.
-#
-#   You should have received a copy of the GNU General Public License
-#   along with this program. If not, see http://www.gnu.org/licenses.
+# Please refer to AUTHORS.rst for a complete list of Copyright holders.
+# Copyright (C) 2016-2022, PyPIContents Developers.
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 ``pypicontents.core.utils`` is a utility module.
 
@@ -30,27 +28,13 @@ import signal
 import fnmatch
 import pkgutil
 from contextlib import contextmanager
-
-try:
-    from urlparse import urlparse, urlunparse
-except ImportError:
-    from urllib.parse import urlparse, urlunparse
-
-try:
-    from urllib import quote
-except ImportError:
-    from urllib.parse import quote
+from urllib.parse import urlparse, urlunparse, quote
 
 from setuptools import find_packages
 
 from .. import libdir
 
-if sys.version_info < (3,):
-    default_import_level = -1
-else:
-    unicode = str
-    basestring = str
-    default_import_level = 0
+default_import_level = 0
 
 
 def get_free_memory():
@@ -194,7 +178,7 @@ def u(u_string):
 
     .. versionadded:: 0.1.5
     """
-    if isinstance(u_string, unicode):
+    if isinstance(u_string, str):
         return u_string
     return u_string.decode('utf-8')
 
@@ -259,8 +243,8 @@ def list_files(path=None, pattern='*'):
 
     .. versionadded:: 0.1.0
     """
-    assert isinstance(path, basestring)
-    assert isinstance(pattern, basestring)
+    assert isinstance(path, str)
+    assert isinstance(pattern, str)
 
     filelist = []
     for f in fnmatch.filter(os.listdir(path), pattern):
@@ -283,8 +267,8 @@ def find_files(path=None, pattern='*'):
 
     .. versionadded:: 0.1
     """
-    assert isinstance(path, basestring)
-    assert isinstance(pattern, basestring)
+    assert isinstance(path, str)
+    assert isinstance(pattern, str)
 
     filelist = []
     for directory, subdirs, files in os.walk(os.path.normpath(path)):

@@ -221,9 +221,6 @@ def main(argv=None):
     """
     assert isinstance(argv, (list, type(None)))
 
-    if not argv:
-        argv = ['-h']
-
     args = commandline(argv)
 
     if args.command.__name__ == 'pypi':

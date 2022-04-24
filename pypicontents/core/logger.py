@@ -26,19 +26,15 @@ import sys
 import types
 import logging
 
-if not hasattr(logging, '_levelNames'):
-    if hasattr(logging, '_nameToLevel'):
-        logging._levelNames = logging._nameToLevel
-    else:
-        logging._levelNames = {
-            'CRITICAL': 50,
-            'ERROR': 40,
-            'WARN': 30,
-            'WARNING': 30,
-            'INFO': 20,
-            'DEBUG': 10,
-            'NOTSET': 0,
-        }
+levelNames = {
+    'CRITICAL': 50,
+    'ERROR': 40,
+    'WARN': 30,
+    'WARNING': 30,
+    'INFO': 20,
+    'DEBUG': 10,
+    'NOTSET': 0,
+}
 
 
 class ControlableLogger(logging.Logger):
@@ -137,7 +133,7 @@ class ControlableLogger(logging.Logger):
         .. versionadded:: 0.1.0
         """
         if not self.disabled:
-            self.setLevel(logging._levelNames[level])
+            self.setLevel(levelNames[level])
 
     def configpkg(self, name=None):
 

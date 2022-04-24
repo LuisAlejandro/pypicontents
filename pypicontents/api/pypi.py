@@ -51,7 +51,7 @@ from ..core.utils import (get_tar_extension, urlesc, filter_package_list,
 
 def execute_wrapper(setuppath):
     errlist = []
-    pbs = glob.glob('/usr/bin/python?.?')
+    pbs = glob.glob('/usr/bin/python?.??')
     if os.path.isfile(setuppath):
         pkgpath = os.path.dirname(setuppath)
     if os.path.isdir(setuppath):
@@ -88,7 +88,7 @@ def execute_wrapper(setuppath):
 def download_tar(pkgurl, tarpath):
     try:
         with open(tarpath, 'wb') as f:
-            f.write(urlopen(url=urlesc(pkgurl), timeout=10).read())
+            f.write(urlopen(url=urlesc(pkgurl), timeout=60).read())
         return True, ''
     except Exception:
         return False, traceback.format_exc()
@@ -245,7 +245,7 @@ def get_pkgurls(pkgdata, pkgname, pkgversion):
 def get_pkgdata(pkgname):
     try:
         pkgjsonraw = urlopen(url='{0}/pypi/{1}/json'.format(pypiurl, pkgname),
-                             timeout=10).read()
+                             timeout=60).read()
         pkgjson = json.loads(pkgjsonraw.decode('utf-8'))
         return {'info': pkgjson['info'],
                 'releases': pkgjson['releases']}, ''

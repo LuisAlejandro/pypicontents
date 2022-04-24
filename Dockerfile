@@ -10,9 +10,13 @@ ADD requirements.txt requirements-dev.txt /root/
 RUN pip3 install -r /root/requirements.txt -r /root/requirements-dev.txt
 RUN rm -rf /root/requirements.txt /root/requirements-dev.txt
 
-RUN useradd -ms /bin/bash luisalejandro
 RUN echo "luisalejandro ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/luisalejandro
+RUN useradd -ms /bin/bash luisalejandro
+
 USER luisalejandro
+
+RUN mkdir -p /home/luisalejandro/app
+
 WORKDIR /home/luisalejandro/app
 
 CMD tail -f /dev/null

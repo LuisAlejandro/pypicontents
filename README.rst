@@ -1,4 +1,4 @@
-.. image:: https://github.com/LuisAlejandro/pypicontents/blob/develop/docs/_static/banner.svg
+.. image:: https://raw.githubusercontent.com/LuisAlejandro/pypicontents/develop/docs/_static/banner.svg
 
 ..
 

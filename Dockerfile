@@ -2,7 +2,7 @@ FROM dockershelf/python:3.10
 LABEL maintainer "Luis Alejandro Martínez Faneyth <luis@collagelabs.org>"
 
 RUN apt-get update && \
-    apt-get install sudo python3.10-venv git
+    apt-get install sudo python3.10-venv git make libyaml-dev
 
 RUN ln -s /usr/bin/python3.10 /usr/bin/python
 

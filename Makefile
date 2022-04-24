@@ -70,13 +70,15 @@ coverage: start
 	$(BROWSER) htmlcov/index.html
 
 docs:
-	$(MAKE) -C docs clean
-	$(MAKE) -C docs html
+	@docker-compose -p pypicontents -f docker-compose.yml exec \
+		--user luisalejandro pypicontents make -C docs clean
+	@docker-compose -p pypicontents -f docker-compose.yml exec \
+		--user luisalejandro pypicontents make -C docs html
 	$(BROWSER) docs/_build/html/index.html
 
 servedocs: docs start
 	@docker-compose -p pypicontents -f docker-compose.yml exec \
-		--user luisalejandro pypicontents watchmedo shell-command -p '*.rst' -c '$(MAKE) -C docs html' -R -D .
+		--user luisalejandro pypicontents watchmedo shell-command -p '*.rst' -c 'make -C docs html' -R -D .
 
 release: clean start dist
 	twine upload -s -i luis@luisalejandro.org dist/*

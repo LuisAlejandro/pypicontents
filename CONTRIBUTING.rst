@@ -110,6 +110,5 @@ Tips
 To run a subset of tests::
 
 
-    $ python -m unittest tests.test_bundle
-    $ python -m unittest tests.test_environment
-    $ python -m unittest tests.test_utils
+    $ python -m unittest tests.test_core_logger
+    $ python -m unittest tests.test_core_utils

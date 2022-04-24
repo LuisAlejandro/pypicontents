@@ -18,14 +18,6 @@
    :target: https://github.com/LuisAlejandro/pypicontents/actions?query=workflow%3APush
    :alt: Push
 
-.. image:: https://coveralls.io/repos/github/LuisAlejandro/pypicontents/badge.svg?branch=develop
-   :target: https://coveralls.io/github/LuisAlejandro/pypicontents?branch=develop
-   :alt: Coverage
-
-.. image:: https://cla-assistant.io/readme/badge/LuisAlejandro/pypicontents
-   :target: https://cla-assistant.io/LuisAlejandro/pypicontents
-   :alt: Contributor License Agreement
-
 .. image:: https://readthedocs.org/projects/pypicontents/badge/?version=latest
    :target: https://readthedocs.org/projects/pypicontents/?badge=latest
    :alt: Read The Docs
@@ -68,3 +60,19 @@ Table of Contents
    authors
    history
    maintainer
+
+Made with 💖 and 🍔
+====================
+
+.. image:: https://raw.githubusercontent.com/LuisAlejandro/pypicontents/develop/docs/_static/author-banner.svg
+
+.. _LuisAlejandroTwitter: https://twitter.com/LuisAlejandro
+.. _LuisAlejandroGitHub: https://github.com/LuisAlejandro
+.. _luisalejandro.org: https://luisalejandro.org
+
+|
+
+    Web luisalejandro.org_ · GitHub `@LuisAlejandro`__ · Twitter `@LuisAlejandro`__
+
+__ LuisAlejandroGitHub_
+__ LuisAlejandroTwitter_

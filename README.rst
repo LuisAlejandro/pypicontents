@@ -76,7 +76,12 @@ install directlty from GitHub like this::
 
     $ pip install --upgrade https://github.com/LuisAlejandro/pypicontents/archive/master.tar.gz
 
-.. include:: ./USAGE.rst
+Usage
+-----
+
+.. _USAGE.rst: USAGE.rst
+
+See USAGE.rst_ for details.
 
 Getting help
 ============
@@ -93,7 +98,6 @@ Contributing
 .. _CONTRIBUTING.rst: CONTRIBUTING.rst
 
 See CONTRIBUTING.rst_ for details.
-
 
 Release history
 ===============

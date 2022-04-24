@@ -1,22 +1,20 @@
 # -*- coding: utf-8 -*-
 #
-#   This file is part of PyPIContents.
-#   Copyright (C) 2016-2020, PyPIContents Developers.
-#
-#   Please refer to AUTHORS.rst for a complete list of Copyright holders.
-#
-#   PyPIContents is free software: you can redistribute it and/or modify
-#   it under the terms of the GNU General Public License as published by
-#   the Free Software Foundation, either version 3 of the License, or
-#   (at your option) any later version.
-#
-#   PyPIContents is distributed in the hope that it will be useful,
-#   but WITHOUT ANY WARRANTY; without even the implied warranty of
-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#   GNU General Public License for more details.
-#
-#   You should have received a copy of the GNU General Public License
-#   along with this program. If not, see http://www.gnu.org/licenses.
+# Please refer to AUTHORS.rst for a complete list of Copyright holders.
+# Copyright (C) 2016-2022, PyPIContents Developers.
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 ``pypicontents.api.report`` is a module implementing the report command.
 
@@ -39,35 +37,23 @@ import subprocess
 import signal
 from resource import RUSAGE_SELF, getrusage
 from contextlib import closing
-
-try:
-    from urllib2 import urlopen
-except ImportError:
-    from urllib.request import urlopen
-
-try:
-    from urlparse import urlparse, urlunparse
-except ImportError:
-    from urllib.parse import urlparse, urlunparse
-
-try:
-    from HTMLParser import HTMLParser
-except ImportError:
-    from html.parser import HTMLParser
-
-from pipsalabim.core.utils import chunk_read, chunk_report, u
+from urllib.request import urlopen
+from urllib.parse import urlparse, urlunparse
+from html.parser import HTMLParser
 
 from .. import pypiurl
 from ..core.logger import logger
 from ..core.utils import (get_tar_extension, urlesc, filter_package_list,
                           create_file_if_notfound, timeout, human2bytes,
                           translate_letter_range, get_free_memory,
-                          get_children_processes)
+                          get_children_processes, chunk_read, chunk_report, u)
 
 
 def execute_wrapper(setuppath):
     errlist = []
-    pbs = glob.glob('/usr/bin/python?.?')
+    pbs = glob.glob('/usr/bin/python?.??')
+    if not pbs:
+        return {}, 'Environment misconfiguration: no python binary detected.'
     if os.path.isfile(setuppath):
         pkgpath = os.path.dirname(setuppath)
     if os.path.isdir(setuppath):
@@ -104,7 +90,7 @@ def execute_wrapper(setuppath):
 def download_tar(pkgurl, tarpath):
     try:
         with open(tarpath, 'wb') as f:
-            f.write(urlopen(url=urlesc(pkgurl), timeout=10).read())
+            f.write(urlopen(url=urlesc(pkgurl), timeout=60).read())
         return True, ''
     except Exception:
         return False, traceback.format_exc()
@@ -261,7 +247,7 @@ def get_pkgurls(pkgdata, pkgname, pkgversion):
 def get_pkgdata(pkgname):
     try:
         pkgjsonraw = urlopen(url='{0}/pypi/{1}/json'.format(pypiurl, pkgname),
-                             timeout=10).read()
+                             timeout=60).read()
         pkgjson = json.loads(pkgjsonraw.decode('utf-8'))
         return {'info': pkgjson['info'],
                 'releases': pkgjson['releases']}, ''

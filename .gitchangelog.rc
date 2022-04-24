@@ -5,7 +5,7 @@
 ##
 ## Description
 ##
-##   ACTION is one of '[REF]', '[FIX]', '[ADD]'
+##   ACTION is one of '[REF]', '[FIX]', '[ADD]', '[DEL]'
 ##
 ##       Is WHAT the change is about.
 ##
@@ -38,7 +38,21 @@
 ## Any commit having its full commit message matching any regexp listed here
 ## will be ignored and won't be reported in the changelog.
 ##
-ignore_regexps = []
+ignore_regexps = [
+    r'^(.{3,3}\s*:)?\s*[Uu]pdating [Cc]hangelog and [Vv]ersion.?\s*$',
+    r'^(.{3,3}\s*:)?\s*[fF]irst commit.?\s*$',
+    r'@minor', r'!minor',
+    r'@cosmetic', r'!cosmetic',
+    r'@refactor', r'!refactor',
+    r'@wip', r'!wip',
+    r'^[Cc][Ii]\s*:',  ## ignore Ci-related commits
+    r'^.*:\s*[Cc][Ii]\s*:',  ## ignore Ci-related commits
+    r'^.*[Cc]ircle[Cc][Ii]\s*',  ## ignore Ci-related commits
+    r'^.*:github:.*$',
+    r'^.*:changelog:.*$',
+    r'^Git-svn-id',
+    r'^$',  ## ignore commits with empty messages
+]
 
 
 ## ``section_regexps`` is a list of 2-tuples associating a string label and a
@@ -54,21 +68,11 @@ ignore_regexps = []
 ## whenever you are tweaking this variable.
 ##
 section_regexps = [
-    ('New', [
-        r'^\[ADD\]\s*([^\n]*)$',
-     ]),
-
-    ('Changes', [
-        r'^\[REF\]\s*([^\n]*)$',
-     ]),
-
-    ('Fix', [
-        r'^\[FIX\]\s*([^\n]*)$',
-     ]),
-
-    ('Other', None ## Match all lines
-     ),
-
+    ('Added', [r'^\[ADD\]\s*([^\n]*)$']),
+    ('Changed', [r'^\[REF\]\s*([^\n]*)$']),
+    ('Fixed', [r'^\[FIX\]\s*([^\n]*)$']),
+    ('Removed', [r'^\[DEL\]\s*([^\n]*)$']),
+    ('Other', None),
 ]
 
 
@@ -102,8 +106,8 @@ section_regexps = [
 ## Additionally, you can `pipe` the provided filters, for instance:
 #body_process = Wrap(regexp=r'\n(?=\w+\s*:)') | Indent(chars="  ")
 #body_process = Wrap(regexp=r'\n(?=\w+\s*:)')
-body_process = noop
-#body_process = ReSub(r'((^|\n)\[[A-Z]\w+(-\w+)*\] .*(\n\s+.*)*)+$', r'') | strip
+#body_process = noop
+body_process = ReSub(r'((^|\n)\[[A-Z]\w+(-\w+)*\] .*(\n\s+.*)*)+$', r'') | strip
 
 
 ## ``subject_process`` is a callable
@@ -112,7 +116,9 @@ body_process = noop
 ## be used in the changelog.
 ##
 ## Available constructs are those listed in ``body_process`` doc.
-subject_process = (strip | ucfirst | final_dot)
+subject_process = (strip |
+    ReSub(r'^(\[ADD\]|\[REF\]|\[FIX\])\s*([^\n@]*)(@[a-z]+\s+)*$', r'\2') |
+    ucfirst | final_dot)
 
 
 ## ``tag_filter_regexp`` is a regexp
@@ -126,7 +132,7 @@ tag_filter_regexp = r'^[0-9]+\.[0-9]+(\.[0-9]+)?$'
 ##
 ## This label will be used as the changelog Title of the last set of changes
 ## between last valid tag and HEAD if any.
-unreleased_version_label = "%%version%% (unreleased)"
+unreleased_version_label = "(unreleased)"
 
 
 ## ``output_engine`` is a callable
@@ -157,10 +163,10 @@ unreleased_version_label = "%%version%% (unreleased)"
 ##        Examples:
 ##           - makotemplate("restructuredtext")
 ##
-output_engine = rest_py
+#output_engine = rest_py
 #output_engine = mustache("restructuredtext")
 #output_engine = mustache("markdown")
-#output_engine = makotemplate("restructuredtext")
+output_engine = makotemplate(".gitchangelog.tpl")
 
 
 ## ``include_merge`` is a boolean

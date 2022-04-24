@@ -1,1 +1,1 @@
-pipsalabim==0.1.20
+setuptools==62.1.0

@@ -52,6 +52,8 @@ from ..core.utils import (get_tar_extension, urlesc, filter_package_list,
 def execute_wrapper(setuppath):
     errlist = []
     pbs = glob.glob('/usr/bin/python?.??')
+    if not pbs:
+        return {}, 'Environment misconfiguration: no python binary detected.'
     if os.path.isfile(setuppath):
         pkgpath = os.path.dirname(setuppath)
     if os.path.isdir(setuppath):

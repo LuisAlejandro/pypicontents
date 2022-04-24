@@ -46,6 +46,8 @@
 .. _full documentation: https://pypicontents.readthedocs.org
 .. _Contents: https://www.debian.org/distrib/packages#search_contents
 
+Current version: 0.2.0
+
 PyPIContents generates a configurable index written in ``JSON`` format that
 serves as a database for applications like `pipsalabim`_. It can be configured
 to process only a range of packages (by initial letter) and to have

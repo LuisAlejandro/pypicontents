@@ -32,7 +32,7 @@ from distutils import sysconfig
 
 __author__ = 'Luis Alejandro Martínez Faneyth'
 __email__ = 'luis@collagelabs.org'
-__version__ = '0.1.16'
+__version__ = '0.2.0'
 __url__ = 'https://github.com/LuisAlejandro/pypicontents'
 __description__ = ('PyPIContents is an application that generates a Module '
                    'Index from the Python Package Index (PyPI) and also from '
